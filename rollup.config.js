@@ -1,6 +1,13 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import swc from '@rollup/plugin-swc';
+import alias from '@rollup/plugin-alias';
+import path from 'node:path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRootDir = path.resolve(__dirname);
 
 export default [
   {
@@ -13,9 +20,24 @@ export default [
     },
     plugins: [
       swc(),
+
       resolve({
-        ignoreMissingImports: true, // Ignore missing source map imports
-      }), // Resolve modules in node_modules
+        extensions: [
+          '.mjs',
+          '.js',
+          '.jsx',
+          '.json',
+          '.sass',
+          '.scss',
+          '.mts',
+          '.ts',
+        ],
+      }),
+      alias({
+        entries: [
+          { find: '@', replacement: path.resolve(projectRootDir, 'src') },
+        ],
+      }),
       commonjs(), // Convert CommonJS to ES modules
     ],
   },
