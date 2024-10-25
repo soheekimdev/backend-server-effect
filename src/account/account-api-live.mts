@@ -1,12 +1,11 @@
 import { Api } from '@/api.mjs';
-import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
-import { Effect, Layer, pipe, Schema } from 'effect';
-import { Account, CurrentAccount } from './account-schema.mjs';
 import { AuthenticationLive } from '@/auth/authentication-live.mjs';
-import { AccountService } from './account-service.mjs';
-import { policy, policyUse, withSystemActor } from '@/auth/authorization.mjs';
-import { security } from '@/misc/security.mjs';
+import { policyUse, withSystemActor } from '@/auth/authorization.mjs';
+import { HttpApiBuilder } from '@effect/platform';
+import { Effect, Layer } from 'effect';
 import { AccountPolicy } from './account-policy.mjs';
+import { CurrentAccount } from './account-schema.mjs';
+import { AccountService } from './account-service.mjs';
 
 export const AccountApiLive = HttpApiBuilder.group(
   Api,
@@ -16,24 +15,19 @@ export const AccountApiLive = HttpApiBuilder.group(
       const accountService = yield* AccountService;
       const accountPolicy = yield* AccountPolicy;
 
-      HttpApiBuilder.middleware
-
       return handlers
         .handle('signUp', ({ payload }) =>
-          accountService.createAccount(payload).pipe(
-            withSystemActor
-          ),
+          accountService.createAccount(payload).pipe(withSystemActor),
         )
         .handle('findById', ({ headers, path }) =>
-          accountService.findAccountById(path.id).pipe(
-            policyUse(accountPolicy.canRead(path.id))
-          )
+          accountService
+            .findAccountById(path.id)
+            .pipe(policyUse(accountPolicy.canRead(path.id))),
         )
-        .handle('me', () =>
-          Effect.gen(function* () {
-            const current = yield* CurrentAccount.
-            return current;
-          }),
-        );
+        .handle('me', () => CurrentAccount);
     }),
-).pipe(Layer.provide(AuthenticationLive), Layer.provide(AccountPolicy.Live));
+).pipe(
+  Layer.provide(AuthenticationLive),
+  Layer.provide(AccountService.Live),
+  Layer.provide(AccountPolicy.Live),
+);

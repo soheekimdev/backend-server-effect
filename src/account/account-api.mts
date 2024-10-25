@@ -7,6 +7,8 @@ import {
 } from '@effect/platform';
 import { Schema } from 'effect';
 import { Account, AccountIdFromString } from './account-schema.mjs';
+import { AccountNotFound } from './account-error.mjs';
+import { Unauthorized } from '@/auth/error-403.mjs';
 
 export class AccountApi extends HttpApiGroup.make('accounts')
   .add(
@@ -24,11 +26,8 @@ export class AccountApi extends HttpApiGroup.make('accounts')
           ),
         }),
       )
-      .addError(
-        Schema.String.pipe(
-          HttpApiSchema.asEmpty({ status: 413, decode: () => 'boom' }),
-        ),
-      ),
+      .addError(AccountNotFound)
+      .addError(Unauthorized),
   )
   .add(
     HttpApiEndpoint.post('signUp', '/sign-up')

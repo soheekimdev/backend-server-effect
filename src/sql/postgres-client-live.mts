@@ -1,6 +1,6 @@
 import { PgClient } from '@effect/sql-pg';
-import { Config } from 'effect';
+import { Config, Redacted } from 'effect';
 
 export const PostgresClientLive = PgClient.layer({
-  database: Config.succeed('DATABASE_URL'),
+  url: Config.succeed(Redacted.make(process.env.DIRECT_URL || '')),
 });
