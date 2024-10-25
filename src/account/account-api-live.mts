@@ -1,31 +1,39 @@
 import { Api } from '@/api.mjs';
-import { AuthenticationLive } from '@/auth/authentication.mjs';
 import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
-import { Effect, Layer } from 'effect';
+import { Effect, Layer, pipe, Schema } from 'effect';
 import { Account, CurrentAccount } from './account-schema.mjs';
+import { AuthenticationLive } from '@/auth/authentication-live.mjs';
+import { AccountService } from './account-service.mjs';
+import { policy, policyUse, withSystemActor } from '@/auth/authorization.mjs';
+import { security } from '@/misc/security.mjs';
+import { AccountPolicy } from './account-policy.mjs';
 
 export const AccountApiLive = HttpApiBuilder.group(
   Api,
   'accounts',
   (handlers) =>
-    handlers
-      .handle('create', ({ payload }) =>
-        Effect.succeed(new Account({ ...payload, id: 123 })),
-      )
-      .handle('findById', ({ headers, path }) =>
-        Effect.as(
-          HttpApiBuilder.securitySetCookie(
-            HttpApiSecurity.apiKey({
-              in: 'cookie',
-              key: 'token',
-            }),
-            'secret123',
+    Effect.gen(function* () {
+      const accountService = yield* AccountService;
+      const accountPolicy = yield* AccountPolicy;
+
+      HttpApiBuilder.middleware
+
+      return handlers
+        .handle('signUp', ({ payload }) =>
+          accountService.createAccount(payload).pipe(
+            withSystemActor
           ),
-          new Account({
-            id: path.id,
-            name: `John Doe (${headers.page})`,
+        )
+        .handle('findById', ({ headers, path }) =>
+          accountService.findAccountById(path.id).pipe(
+            policyUse(accountPolicy.canRead(path.id))
+          )
+        )
+        .handle('me', () =>
+          Effect.gen(function* () {
+            const current = yield* CurrentAccount.
+            return current;
           }),
-        ),
-      )
-      .handle('me', (_) => CurrentAccount),
-).pipe(Layer.provide(AuthenticationLive));
+        );
+    }),
+).pipe(Layer.provide(AuthenticationLive), Layer.provide(AccountPolicy.Live));

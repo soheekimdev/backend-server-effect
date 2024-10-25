@@ -6,14 +6,14 @@ import {
   OpenApi,
 } from '@effect/platform';
 import { Schema } from 'effect';
-import { Account } from './account-schema.mjs';
+import { Account, AccountIdFromString } from './account-schema.mjs';
 
 export class AccountApi extends HttpApiGroup.make('accounts')
   .add(
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(
         Schema.Struct({
-          id: Schema.NumberFromString,
+          id: AccountIdFromString,
         }),
       )
       .addSuccess(Account)
@@ -31,22 +31,15 @@ export class AccountApi extends HttpApiGroup.make('accounts')
       ),
   )
   .add(
-    HttpApiEndpoint.post('create', '/')
-      .setPayload(
-        HttpApiSchema.Multipart(
-          Schema.Struct({
-            name: Schema.String,
-          }),
-        ),
-      )
+    HttpApiEndpoint.post('signUp', '/sign-up')
+      .setPayload(Account.jsonCreate)
       .addSuccess(Account),
   )
   .add(HttpApiEndpoint.get('me', '/me').addSuccess(Account))
   .middleware(Authentication)
-  .prefix('/accounts')
+  .prefix('/api/accounts')
   .annotateContext(
     OpenApi.annotations({
-      title: 'Accounts API',
-      description: 'API for managing accounts',
+      title: '계정 API',
     }),
   ) {}

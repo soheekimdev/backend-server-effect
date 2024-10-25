@@ -26,6 +26,9 @@ importers:
       '@effect/sql':
         specifier: ^0.18.7
         version: 0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
+      '@effect/sql-pg':
+        specifier: ^0.18.7
+        version: 0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)
       effect:
         specifier: ^3.10.2
         version: 3.10.2
@@ -145,6 +148,13 @@ packages:
     resolution: {integrity: sha512-TQInulTVCuF+9EIbJpyLP6dvxbQJMphrnRqgexm/Ze39rSjfhJuufF7XvU3SxTgg3HnL7B/kpORTJbHhlE6thw==}
     peerDependencies:
       effect: ^3.9.2
+
+  '@effect/sql-pg@0.18.7':
+    resolution: {integrity: sha512-yfI/u+YrNjoya073ugtxJgqpVLCy+gq+n3W9i0V4Z1B45ftQj0y3fVIXY7TF+G9T6XFxbhcwTau8qv3C0qQBaQ==}
+    peerDependencies:
+      '@effect/platform': ^0.69.6
+      '@effect/sql': ^0.18.7
+      effect: ^3.10.2
 
   '@effect/sql@0.18.7':
     resolution: {integrity: sha512-uH/OGfiYnmqe+g+f3vRYBumXsZPux99MIsV9lUkFm32RlzPSzApvomo/ubvMFED9rsuw5fBBeJyrqvgKy/q3eA==}
@@ -1419,6 +1429,10 @@ packages:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postgres@3.4.4:
+    resolution: {integrity: sha512-IbyN+9KslkqcXa8AO9fxpk97PA4pzewvpi2B3Dwy9u4zpV32QicaEdgmF3eSQUzdRk7ttDHQejNgAEr4XoeH4A==}
+    engines: {node: '>=12'}
+
   pseudomap@1.0.2:
     resolution: {integrity: sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==}
 
@@ -1750,6 +1764,14 @@ snapshots:
     dependencies:
       effect: 3.10.2
       fast-check: 3.22.0
+
+  '@effect/sql-pg@0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)':
+    dependencies:
+      '@effect/platform': 0.69.6(effect@3.10.2)
+      '@effect/sql': 0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
+      '@opentelemetry/semantic-conventions': 1.27.0
+      effect: 3.10.2
+      postgres: 3.4.4
 
   '@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)':
     dependencies:
@@ -2778,6 +2800,8 @@ snapshots:
       nanoid: 3.3.7
       picocolors: 1.1.1
       source-map-js: 1.2.1
+
+  postgres@3.4.4: {}
 
   pseudomap@1.0.2: {}
 
