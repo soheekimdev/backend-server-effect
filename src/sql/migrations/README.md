@@ -1,0 +1,1 @@
+In this directory, the migrations files should have '*.ts' extension, not '*.mts'.
