@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  postgres@3.4.4:
+    hash: owu3oezhayiygvqs5u6fy66ham
+    path: patches/postgres@3.4.4.patch
+
 importers:
 
   .:
@@ -1774,7 +1779,7 @@ snapshots:
       '@effect/sql': 0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
       '@opentelemetry/semantic-conventions': 1.27.0
       effect: 3.10.2
-      postgres: 3.4.4
+      postgres: 3.4.4(patch_hash=owu3oezhayiygvqs5u6fy66ham)
 
   '@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)':
     dependencies:
@@ -2804,7 +2809,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postgres@3.4.4: {}
+  postgres@3.4.4(patch_hash=owu3oezhayiygvqs5u6fy66ham): {}
 
   pseudomap@1.0.2: {}
 
