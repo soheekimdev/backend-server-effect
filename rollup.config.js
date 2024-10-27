@@ -16,11 +16,9 @@ export default [
     output: {
       file: './dist/index.mjs',
       format: 'es',
-      sourcemap: true,
+      sourcemap: false,
     },
     plugins: [
-      swc(),
-
       resolve({
         extensions: [
           '.mjs',
@@ -38,7 +36,14 @@ export default [
           { find: '@', replacement: path.resolve(projectRootDir, 'src') },
         ],
       }),
-      commonjs(), // Convert CommonJS to ES modules
+      commonjs({
+        sourceMap: false,
+      }), // Convert CommonJS to ES modules
+      swc({
+        swc: {
+          sourceMaps: false,
+        },
+      }),
     ],
   },
 ];

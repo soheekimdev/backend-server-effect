@@ -32,6 +32,9 @@ importers:
       effect:
         specifier: ^3.10.2
         version: 3.10.2
+      undici:
+        specifier: ^6.20.1
+        version: 6.20.1
     devDependencies:
       '@effect/language-service':
         specifier: ^0.2.0
