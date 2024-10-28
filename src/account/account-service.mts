@@ -1,36 +1,47 @@
 import { policyRequire } from '@/auth/authorization.mjs';
+import { CryptoService } from '@/crypto/crypto-service.mjs';
 import { Email } from '@/misc/email-schema.mjs';
-import { SqlLive } from '@/sql/sql-live.mjs';
 import { SqlTest } from '@/sql/sql-test.mjs';
-import { SqlClient } from '@effect/sql';
-import { Effect, Layer, Option } from 'effect';
+import { Effect, Layer, Option, Redacted } from 'effect';
 import {
   AccountAlreadyExists,
   AccountByEmailNotFound,
   AccountNotFound,
+  InvalidPassword,
 } from './account-error.mjs';
 import { AccountRepo } from './account-repo.mjs';
 import { Account, AccountId } from './account-schema.mjs';
+import { SignIn } from './sign-in-schema.mjs';
+import { SignUp } from './sign-up-schema.mjs';
 
 const make = Effect.gen(function* () {
-  const sql = yield* SqlClient.SqlClient;
   const accountRepo = yield* AccountRepo;
+  const cryptoService = yield* CryptoService;
 
-  const createAccount = (account: typeof Account.jsonCreate.Type) => {
+  const signUp = (signUp: SignUp) => {
     const program = Effect.gen(function* () {
-      yield* Effect.annotateCurrentSpan('account', account);
+      yield* Effect.annotateCurrentSpan('account', signUp);
 
-      const existingAccount = yield* accountRepo.findByEmail(account.email);
+      const maybeAccount = yield* accountRepo.findByEmail(signUp.email);
 
-      if (existingAccount) {
-        return yield* Effect.fail(
-          new AccountAlreadyExists({ email: account.email }),
-        );
-      }
+      yield* Option.match(maybeAccount, {
+        onNone: () => Effect.succeed(null),
+        onSome: (account) =>
+          Effect.fail(new AccountAlreadyExists({ email: account.email })),
+      });
+
+      const salt = yield* cryptoService.getRandomSalt();
+      const hashedPassword = yield* cryptoService.hashPassword(
+        signUp.password,
+        salt,
+      );
 
       const newAccount = yield* accountRepo.insert(
         Account.insert.make({
-          ...account,
+          email: signUp.email,
+          passwordHash: Redacted.make(hashedPassword.toString('hex')),
+          passwordSalt: Redacted.make(salt),
+          isEmailVerified: false,
         }),
       );
 
@@ -38,14 +49,41 @@ const make = Effect.gen(function* () {
     });
 
     return program.pipe(
-      sql.withTransaction,
       Effect.orDie,
-      Effect.withSpan('AccountService.createAccount', {
-        attributes: { account },
+      Effect.withSpan('AccountService.signUp', {
+        attributes: { signUp },
       }),
       policyRequire('account', 'create'),
     );
   };
+
+  const signIn = (signIn: SignIn) =>
+    Effect.gen(function* () {
+      const maybeAccount = yield* accountRepo.findByEmail(signIn.email);
+
+      const account = yield* Option.match(maybeAccount, {
+        onNone: () => Effect.fail(new InvalidPassword()),
+        onSome: (account) => Effect.succeed(account),
+      });
+
+      const hashedPasswordBuffer = yield* cryptoService.hashPassword(
+        signIn.password,
+        Redacted.value(account.passwordSalt),
+      );
+
+      const hashedPassword = hashedPasswordBuffer.toString('hex');
+
+      if (hashedPassword !== Redacted.value(account.passwordHash)) {
+        return yield* Effect.fail(new InvalidPassword());
+      }
+
+      return account;
+    }).pipe(
+      Effect.orDie,
+      Effect.withSpan('AccountService.signIn', {
+        attributes: { email: signIn.email },
+      }),
+    );
 
   const findAccountByEmail = (email: Email) =>
     Effect.gen(function* () {
@@ -59,7 +97,13 @@ const make = Effect.gen(function* () {
       });
 
       return matched;
-    }).pipe(Effect.orDie, policyRequire('account', 'read'));
+    }).pipe(
+      Effect.orDie,
+      policyRequire('account', 'read'),
+      Effect.withSpan('AccountService.findAccountByEmail', {
+        attributes: { email },
+      }),
+    );
 
   const findAccountById = (id: AccountId) =>
     Effect.gen(function* () {
@@ -73,19 +117,34 @@ const make = Effect.gen(function* () {
       });
 
       return matched;
-    }).pipe(Effect.orDie, policyRequire('account', 'read'));
+    }).pipe(
+      Effect.orDie,
+      policyRequire('account', 'read'),
+      Effect.withSpan('AccountService.findAccountById', {
+        attributes: { id },
+      }),
+    );
 
-  const embellishAccount = (account: Account) =>
+  const embellishAccount = (target: Account) =>
     Effect.gen(function* () {
-      const acc = yield* accountRepo.findById(account.id);
-      if (!acc) {
-        return yield* Effect.fail(new AccountNotFound({ id: account.id }));
-      }
-      return acc;
-    }).pipe(policyRequire('account', 'readSensitive'));
+      const maybeAccount = yield* accountRepo.findById(target.id);
+
+      const account = yield* Option.match(maybeAccount, {
+        onNone: () => Effect.fail(new AccountNotFound({ id: target.id })),
+        onSome: (account) => Effect.succeed(account),
+      });
+
+      return account;
+    }).pipe(
+      policyRequire('account', 'readSensitive'),
+      Effect.withSpan('AccountService.embellishAccount', {
+        attributes: { target },
+      }),
+    );
 
   return {
-    createAccount,
+    signUp,
+    signIn,
     findAccountByEmail,
     findAccountById,
     embellishAccount,
@@ -99,8 +158,8 @@ export class AccountService extends Effect.Tag('AccountService')<
   static layer = Layer.effect(AccountService, make);
 
   static Live = this.layer.pipe(
-    Layer.provide(SqlLive),
     Layer.provide(AccountRepo.Live),
+    Layer.provide(CryptoService.Live),
   );
 
   static Test = this.layer.pipe(Layer.provideMerge(SqlTest));

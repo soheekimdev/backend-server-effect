@@ -4,7 +4,14 @@ import { Schema } from 'effect';
 export class RootApi extends HttpApiGroup.make('root')
   .add(
     HttpApiEndpoint.get('health', '/health')
-      .addSuccess(Schema.String)
+      .addSuccess(
+        Schema.Struct({
+          status: Schema.String,
+          db: Schema.Struct({
+            status: Schema.Unknown,
+          }),
+        }),
+      )
       .addError(
         Schema.String.pipe(
           HttpApiSchema.asEmpty({ status: 500, decode: () => 'boom' }),
@@ -13,13 +20,13 @@ export class RootApi extends HttpApiGroup.make('root')
   )
   .add(
     HttpApiEndpoint.get('home', '/')
-      .addSuccess(Schema.String)
-      .setHeaders(
-        Schema.Struct({
-          contentType: Schema.String.pipe(
-            Schema.optionalWith({ default: () => 'text/html' }),
-          ),
-        }),
+      .addSuccess(
+        Schema.String.pipe(
+          HttpApiSchema.withEncoding({
+            kind: 'Text',
+            contentType: 'text/html',
+          }),
+        ),
       )
       .addError(
         Schema.String.pipe(

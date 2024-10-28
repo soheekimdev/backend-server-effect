@@ -20,3 +20,9 @@ export class AccountAlreadyExists extends Schema.TaggedError<AccountAlreadyExist
   { email: Email },
   HttpApiSchema.annotations({ status: 409 }),
 ) {}
+
+export class InvalidPassword extends Schema.TaggedError<InvalidPassword>()(
+  'InvalidPassword',
+  {},
+  HttpApiSchema.annotations({ status: 400 }),
+) {}

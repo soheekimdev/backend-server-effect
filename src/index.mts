@@ -5,22 +5,10 @@ import {
   HttpServer,
 } from '@effect/platform';
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node';
-import { Config, Effect, Layer } from 'effect';
+import { Effect, Layer } from 'effect';
 import { createServer } from 'node:http';
 import { ApiLive } from './api-live.mjs';
-
-const configProgram = Effect.gen(function* () {
-  const port = yield* Config.number('PORT').pipe(
-    Config.withDefault(3000),
-    Config.validate({
-      message: 'PORT must be a number between 0 and 65535',
-      validation: (port) =>
-        typeof port === 'number' && port >= 0 && port <= 65535,
-    }),
-  );
-
-  return port;
-});
+import { ConfigService } from './misc/config-service.mjs';
 
 HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
@@ -30,7 +18,15 @@ HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   HttpServer.withLogAddress,
   Layer.provide(
     NodeHttpServer.layer(createServer, {
-      port: Effect.runSync(configProgram),
+      port: Effect.runSync(
+        Effect.provide(
+          Effect.gen(function* () {
+            const config = yield* ConfigService;
+            return config.port;
+          }),
+          ConfigService.Live,
+        ),
+      ),
     }),
   ),
   Layer.launch,

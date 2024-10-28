@@ -8,7 +8,10 @@ export class Authentication extends HttpApiMiddleware.Tag<Authentication>()(
     failure: Unauthenticated,
     provides: CurrentAccount,
     security: {
-      bearer: HttpApiSecurity.bearer,
+      bearer: HttpApiSecurity.apiKey({
+        key: 'access-token',
+        in: 'cookie',
+      }),
     },
   },
 ) {}

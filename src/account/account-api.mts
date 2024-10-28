@@ -1,14 +1,11 @@
 import { Authentication } from '@/auth/authentication.mjs';
-import {
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpApiSchema,
-  OpenApi,
-} from '@effect/platform';
-import { Schema } from 'effect';
-import { Account, AccountIdFromString } from './account-schema.mjs';
-import { AccountNotFound } from './account-error.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
+import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
+import { Schema } from 'effect';
+import { AccountNotFound } from './account-error.mjs';
+import { Account, AccountIdFromString } from './account-schema.mjs';
+import { SignIn } from './sign-in-schema.mjs';
+import { SignUp } from './sign-up-schema.mjs';
 
 export class AccountApi extends HttpApiGroup.make('accounts')
   .add(
@@ -18,6 +15,7 @@ export class AccountApi extends HttpApiGroup.make('accounts')
           id: AccountIdFromString,
         }),
       )
+      .middleware(Authentication)
       .addSuccess(Account)
       .setHeaders(
         Schema.Struct({
@@ -31,11 +29,19 @@ export class AccountApi extends HttpApiGroup.make('accounts')
   )
   .add(
     HttpApiEndpoint.post('signUp', '/sign-up')
-      .setPayload(Account.jsonCreate)
+      .setPayload(SignUp)
       .addSuccess(Account),
   )
-  .add(HttpApiEndpoint.get('me', '/me').addSuccess(Account))
-  .middleware(Authentication)
+  .add(
+    HttpApiEndpoint.get('signIn', '/sign-in')
+      .setPayload(SignIn)
+      .addSuccess(Account),
+  )
+  .add(
+    HttpApiEndpoint.get('me', '/me')
+      .middleware(Authentication)
+      .addSuccess(Account),
+  )
   .prefix('/api/accounts')
   .annotateContext(
     OpenApi.annotations({

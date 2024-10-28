@@ -13,8 +13,8 @@ export const AccountIdFromString = Schema.NumberFromString.pipe(
 export class Account extends Model.Class<Account>('Account')({
   id: Model.Generated(AccountId),
   email: Email,
-  passwordHash: Schema.String,
-  passwordSalt: Schema.String,
+  passwordHash: Schema.Redacted(Schema.String),
+  passwordSalt: Schema.Redacted(Schema.String),
   profileImageUrl: Schema.optional(Schema.String),
   mainLanguage: Schema.optional(Schema.String),
   nationality: Schema.optional(Schema.String),

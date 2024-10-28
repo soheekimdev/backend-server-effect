@@ -6,6 +6,7 @@ import { Effect, Layer } from 'effect';
 import { AccountPolicy } from './account-policy.mjs';
 import { CurrentAccount } from './account-schema.mjs';
 import { AccountService } from './account-service.mjs';
+import { security } from '@/misc/security.mjs';
 
 export const AccountApiLive = HttpApiBuilder.group(
   Api,
@@ -17,12 +18,20 @@ export const AccountApiLive = HttpApiBuilder.group(
 
       return handlers
         .handle('signUp', ({ payload }) =>
-          accountService.createAccount(payload).pipe(withSystemActor),
+          accountService.signUp(payload).pipe(withSystemActor),
         )
         .handle('findById', ({ headers, path }) =>
           accountService
             .findAccountById(path.id)
             .pipe(policyUse(accountPolicy.canRead(path.id))),
+        )
+        .handle('signIn', ({ payload }) =>
+          accountService.signIn(payload).pipe(
+            withSystemActor,
+            Effect.tap((account) =>
+              HttpApiBuilder.securitySetCookie(security, account.id),
+            ),
+          ),
         )
         .handle('me', () => CurrentAccount);
     }),
