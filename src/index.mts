@@ -14,7 +14,11 @@ HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(HttpApiBuilder.middlewareOpenApi()),
   Layer.provide(ApiLive),
-  Layer.provide(HttpApiBuilder.middlewareCors()),
+  Layer.provide(
+    HttpApiBuilder.middlewareCors({
+      allowedOrigins: ['*'],
+    }),
+  ),
   HttpServer.withLogAddress,
   Layer.provide(
     NodeHttpServer.layer(createServer, {
