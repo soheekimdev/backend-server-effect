@@ -3,7 +3,7 @@ import { Schema } from 'effect';
 
 export class RootApi extends HttpApiGroup.make('root')
   .add(
-    HttpApiEndpoint.get('health', '/health')
+    HttpApiEndpoint.get('health', '/api/health')
       .addSuccess(
         Schema.Struct({
           status: Schema.String,
