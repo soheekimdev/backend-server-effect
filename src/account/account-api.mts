@@ -1,52 +1,58 @@
 import { Authentication } from '@/auth/authentication.mjs';
+import { Unauthorized } from '@/auth/error-403.mjs';
 import {
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpApiSchema,
-  OpenApi,
-} from '@effect/platform';
+  GeneratingSaltError,
+  HashingPasswordError,
+} from '@/crypto/crypto-error.mjs';
+import { ServerError } from '@/misc/common-error.mjs';
+import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
-import { Account } from './account-schema.mjs';
+import { AccountAlreadyExists, AccountNotFound } from './account-error.mjs';
+import { Account, AccountIdFromString } from './account-schema.mjs';
+import { SignIn } from './sign-in-schema.mjs';
+import { SignUp } from './sign-up-schema.mjs';
 
 export class AccountApi extends HttpApiGroup.make('accounts')
   .add(
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(
         Schema.Struct({
-          id: Schema.NumberFromString,
+          id: AccountIdFromString,
         }),
       )
-      .addSuccess(Account)
-      .setHeaders(
+      .middleware(Authentication)
+      .addSuccess(Account.json)
+      .addError(AccountNotFound)
+      .addError(Unauthorized),
+  )
+  .add(
+    HttpApiEndpoint.post('signUp', '/sign-up')
+      .setPayload(SignUp)
+      .addSuccess(Account.json)
+      .addError(GeneratingSaltError)
+      .addError(HashingPasswordError)
+      .addError(ServerError)
+      .addError(AccountAlreadyExists),
+  )
+  .add(
+    HttpApiEndpoint.post('signIn', '/sign-in')
+      .setPayload(SignIn)
+      .addSuccess(
         Schema.Struct({
-          page: Schema.NumberFromString.pipe(
-            Schema.optionalWith({ default: () => 1 }),
-          ),
+          account: Account.json,
+          accessToken: Schema.String,
+          refreshToken: Schema.String,
         }),
-      )
-      .addError(
-        Schema.String.pipe(
-          HttpApiSchema.asEmpty({ status: 413, decode: () => 'boom' }),
-        ),
       ),
   )
   .add(
-    HttpApiEndpoint.post('create', '/')
-      .setPayload(
-        HttpApiSchema.Multipart(
-          Schema.Struct({
-            name: Schema.String,
-          }),
-        ),
-      )
-      .addSuccess(Account),
+    HttpApiEndpoint.get('me', '/me')
+      .middleware(Authentication)
+      .addSuccess(Account.json),
   )
-  .add(HttpApiEndpoint.get('me', '/me').addSuccess(Account))
-  .middleware(Authentication)
-  .prefix('/accounts')
+  .prefix('/api/accounts')
   .annotateContext(
     OpenApi.annotations({
-      title: 'Accounts API',
-      description: 'API for managing accounts',
+      title: '계정 API',
     }),
   ) {}

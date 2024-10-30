@@ -1,0 +1,39 @@
+diff --git a/cf/src/large.js b/cf/src/large.js
+index 8ae150ddfd478d5f490cc0978eea0698fb29ed6d..85b3a87330e6ddf709ef58dbd33a40d70fd4e989 100644
+--- a/cf/src/large.js
++++ b/cf/src/large.js
+@@ -3,7 +3,7 @@ import Stream from 'node:stream'
+ export default function largeObject(sql, oid, mode = 0x00020000 | 0x00040000) {
+   return new Promise(async(resolve, reject) => {
+     await sql.begin(async sql => {
+-      let finish
++      let finish;
+       !oid && ([{ oid }] = await sql`select lo_creat(-1) as oid`)
+       const [{ fd }] = await sql`select lo_open(${ oid }, ${ mode }) as fd`
+ 
+diff --git a/cjs/src/large.js b/cjs/src/large.js
+index 281b088a06f35fe52021da6b4255998cdecbfc3c..21866c7081d1732ad22e9a3ef020791fad6da8db 100644
+--- a/cjs/src/large.js
++++ b/cjs/src/large.js
+@@ -3,7 +3,7 @@ const Stream = require('stream')
+ module.exports = largeObject;function largeObject(sql, oid, mode = 0x00020000 | 0x00040000) {
+   return new Promise(async(resolve, reject) => {
+     await sql.begin(async sql => {
+-      let finish
++      let finish;
+       !oid && ([{ oid }] = await sql`select lo_creat(-1) as oid`)
+       const [{ fd }] = await sql`select lo_open(${ oid }, ${ mode }) as fd`
+ 
+diff --git a/src/large.js b/src/large.js
+index f46329677cfba356d447ad163c9c1502d8d16370..858c44b9c6ed7fb4519e23e3e9aab242b6f8d37a 100644
+--- a/src/large.js
++++ b/src/large.js
+@@ -3,7 +3,7 @@ import Stream from 'stream'
+ export default function largeObject(sql, oid, mode = 0x00020000 | 0x00040000) {
+   return new Promise(async(resolve, reject) => {
+     await sql.begin(async sql => {
+-      let finish
++      let finish;
+       !oid && ([{ oid }] = await sql`select lo_creat(-1) as oid`)
+       const [{ fd }] = await sql`select lo_open(${ oid }, ${ mode }) as fd`
+ 

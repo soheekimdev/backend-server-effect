@@ -1,31 +1,56 @@
 import { Api } from '@/api.mjs';
-import { AuthenticationLive } from '@/auth/authentication.mjs';
+import { policyUse, withSystemActor } from '@/auth/authorization.mjs';
 import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
 import { Effect, Layer } from 'effect';
-import { Account, CurrentAccount } from './account-schema.mjs';
+import { AccountPolicy } from './account-policy.mjs';
+import { CurrentAccount } from './account-schema.mjs';
+import { AccountService } from './account-service.mjs';
+import { AuthenticationLive } from '@/auth/authentication.mjs';
 
 export const AccountApiLive = HttpApiBuilder.group(
   Api,
   'accounts',
   (handlers) =>
-    handlers
-      .handle('create', ({ payload }) =>
-        Effect.succeed(new Account({ ...payload, id: 123 })),
-      )
-      .handle('findById', ({ headers, path }) =>
-        Effect.as(
-          HttpApiBuilder.securitySetCookie(
-            HttpApiSecurity.apiKey({
-              in: 'cookie',
-              key: 'token',
-            }),
-            'secret123',
+    Effect.gen(function* () {
+      const accountService = yield* AccountService;
+      const accountPolicy = yield* AccountPolicy;
+
+      return handlers
+        .handle('signUp', ({ payload }) =>
+          accountService.signUp(payload).pipe(withSystemActor),
+        )
+        .handle('findById', ({ path }) =>
+          accountService
+            .findAccountById(path.id)
+            .pipe(policyUse(accountPolicy.canRead(path.id))),
+        )
+        .handle('signIn', ({ payload }) =>
+          accountService.signIn(payload).pipe(
+            withSystemActor,
+            Effect.tap((result) =>
+              HttpApiBuilder.securitySetCookie(
+                HttpApiSecurity.apiKey({
+                  in: 'cookie',
+                  key: 'access-token',
+                }),
+                result.accessToken,
+              ),
+            ),
+            Effect.tap((result) =>
+              HttpApiBuilder.securitySetCookie(
+                HttpApiSecurity.apiKey({
+                  in: 'cookie',
+                  key: 'refrest-token',
+                }),
+                result.refreshToken,
+              ),
+            ),
           ),
-          new Account({
-            id: path.id,
-            name: `John Doe (${headers.page})`,
-          }),
-        ),
-      )
-      .handle('me', (_) => CurrentAccount),
-).pipe(Layer.provide(AuthenticationLive));
+        )
+        .handle('me', () => CurrentAccount);
+    }),
+).pipe(
+  Layer.provide(AuthenticationLive),
+  Layer.provide(AccountService.Live),
+  Layer.provide(AccountPolicy.Live),
+);
