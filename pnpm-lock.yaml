@@ -29,14 +29,17 @@ importers:
         specifier: ^0.75.5
         version: 0.75.5(effect@3.10.2)
       '@effect/sql':
-        specifier: ^0.18.7
-        version: 0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
+        specifier: ^0.18.12
+        version: 0.18.12(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
       '@effect/sql-pg':
         specifier: ^0.18.7
-        version: 0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)
+        version: 0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.12(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)
       effect:
         specifier: ^3.10.2
         version: 3.10.2
+      jose:
+        specifier: ^5.9.6
+        version: 5.9.6
       undici:
         specifier: ^6.20.1
         version: 6.20.1
@@ -167,12 +170,12 @@ packages:
       '@effect/sql': ^0.18.7
       effect: ^3.10.2
 
-  '@effect/sql@0.18.7':
-    resolution: {integrity: sha512-uH/OGfiYnmqe+g+f3vRYBumXsZPux99MIsV9lUkFm32RlzPSzApvomo/ubvMFED9rsuw5fBBeJyrqvgKy/q3eA==}
+  '@effect/sql@0.18.12':
+    resolution: {integrity: sha512-S6SPiufGtbAIrSxvSqVLQE1xHLfa2WfmWfxsN3IEA/r03XPH5//pZ5L54ZH5tjtn+ErPxdjmPjLrNxanLrQ+tw==}
     peerDependencies:
-      '@effect/experimental': ^0.30.7
-      '@effect/platform': ^0.69.6
-      effect: ^3.10.2
+      '@effect/experimental': ^0.30.12
+      '@effect/platform': ^0.69.11
+      effect: ^3.10.6
 
   '@effect/vitest@0.13.2':
     resolution: {integrity: sha512-xMVa6KTs1TgppQ4Uicwcieo1ZLCoN02LvQVobDxXfGzgv2CokJqRy8ydxdex1M79yM95tH/9DhMuOXvUKSffjw==}
@@ -1320,6 +1323,9 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  jose@5.9.6:
+    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
+
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
@@ -1822,15 +1828,15 @@ snapshots:
       effect: 3.10.2
       fast-check: 3.22.0
 
-  '@effect/sql-pg@0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)':
+  '@effect/sql-pg@0.18.7(@effect/platform@0.69.6(effect@3.10.2))(@effect/sql@0.18.12(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(effect@3.10.2)':
     dependencies:
       '@effect/platform': 0.69.6(effect@3.10.2)
-      '@effect/sql': 0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
+      '@effect/sql': 0.18.12(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)
       '@opentelemetry/semantic-conventions': 1.27.0
       effect: 3.10.2
       postgres: 3.4.4(patch_hash=owu3oezhayiygvqs5u6fy66ham)
 
-  '@effect/sql@0.18.7(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)':
+  '@effect/sql@0.18.12(@effect/experimental@0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)':
     dependencies:
       '@effect/experimental': 0.30.7(@effect/platform-node@0.64.7(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2))(@effect/platform@0.69.6(effect@3.10.2))(effect@3.10.2)(ws@8.18.0)
       '@effect/platform': 0.69.6(effect@3.10.2)
@@ -2764,6 +2770,8 @@ snapshots:
   is-stream@2.0.1: {}
 
   isexe@2.0.0: {}
+
+  jose@5.9.6: {}
 
   json-buffer@3.0.1: {}
 

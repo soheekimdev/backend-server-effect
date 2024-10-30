@@ -1,8 +1,10 @@
 import { policyRequire } from '@/auth/authorization.mjs';
 import { CryptoService } from '@/crypto/crypto-service.mjs';
+import { TokenService } from '@/crypto/token-service.mjs';
+import { ServerError } from '@/misc/common-error.mjs';
 import { Email } from '@/misc/email-schema.mjs';
 import { SqlTest } from '@/sql/sql-test.mjs';
-import { Effect, Layer, Option, Redacted } from 'effect';
+import { Effect, Layer, Option } from 'effect';
 import {
   AccountAlreadyExists,
   AccountByEmailNotFound,
@@ -17,6 +19,7 @@ import { SignUp } from './sign-up-schema.mjs';
 const make = Effect.gen(function* () {
   const accountRepo = yield* AccountRepo;
   const cryptoService = yield* CryptoService;
+  const tokenService = yield* TokenService;
 
   const signUp = (signUp: SignUp) => {
     const program = Effect.gen(function* () {
@@ -36,20 +39,26 @@ const make = Effect.gen(function* () {
         salt,
       );
 
-      const newAccount = yield* accountRepo.insert(
-        Account.insert.make({
-          email: signUp.email,
-          passwordHash: Redacted.make(hashedPassword.toString('hex')),
-          passwordSalt: Redacted.make(salt),
-          isEmailVerified: false,
-        }),
-      );
+      const newAccount = yield* accountRepo
+        .insert(
+          Account.insert.make({
+            email: signUp.email,
+            passwordHash: hashedPassword.toString('hex'),
+            passwordSalt: salt,
+            isEmailVerified: false,
+          }),
+        )
+        .pipe(
+          Effect.catchAll((error) => {
+            return Effect.fail(new ServerError());
+          }),
+          Effect.withSpan('AccountService.signUp.insert'),
+        );
 
       return newAccount;
     });
 
     return program.pipe(
-      Effect.orDie,
       Effect.withSpan('AccountService.signUp', {
         attributes: { signUp },
       }),
@@ -68,16 +77,19 @@ const make = Effect.gen(function* () {
 
       const hashedPasswordBuffer = yield* cryptoService.hashPassword(
         signIn.password,
-        Redacted.value(account.passwordSalt),
+        account.passwordSalt,
       );
 
       const hashedPassword = hashedPasswordBuffer.toString('hex');
 
-      if (hashedPassword !== Redacted.value(account.passwordHash)) {
+      if (hashedPassword !== account.passwordHash) {
         return yield* Effect.fail(new InvalidPassword());
       }
 
-      return account;
+      const accessToken = yield* tokenService.generateAccessToken(account);
+      const refreshToken = yield* tokenService.generateRefreshToken(account);
+
+      return { account, accessToken, refreshToken };
     }).pipe(
       Effect.orDie,
       Effect.withSpan('AccountService.signIn', {
@@ -160,6 +172,7 @@ export class AccountService extends Effect.Tag('AccountService')<
   static Live = this.layer.pipe(
     Layer.provide(AccountRepo.Live),
     Layer.provide(CryptoService.Live),
+    Layer.provide(TokenService.Live),
   );
 
   static Test = this.layer.pipe(Layer.provideMerge(SqlTest));

@@ -5,6 +5,7 @@ export const Email = Schema.String.pipe(
   Schema.annotations({
     title: 'Email',
     description: 'An email address',
+    default: 'email@email.com',
   }),
   Schema.brand('Email'),
   Schema.annotations({ title: 'Email' }),
