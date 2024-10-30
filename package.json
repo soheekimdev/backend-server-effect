@@ -14,14 +14,14 @@
     "zip": "rm -rf artifact.zip && zip -r artifact.zip dist package.json Procfile ./.platform ./.ebextensions"
   },
   "dependencies": {
-    "@effect/experimental": "^0.30.7",
+    "@effect/experimental": "^0.30.12",
     "@effect/opentelemetry": "^0.39.2",
-    "@effect/platform": "^0.69.6",
-    "@effect/platform-node": "^0.64.7",
+    "@effect/platform": "^0.69.11",
+    "@effect/platform-node": "^0.64.12",
     "@effect/schema": "^0.75.5",
     "@effect/sql": "^0.18.12",
     "@effect/sql-pg": "^0.18.7",
-    "effect": "^3.10.2",
+    "effect": "^3.10.6",
     "jose": "^5.9.6",
     "undici": "^6.20.1"
   },
