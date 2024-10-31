@@ -37,11 +37,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      # Disabled because the bundling is not done anymore
-      # - name: Restore dependencies
-      #   run: pnpm install --frozen-lockfile
-      # - name: Build
-      #   run: pnpm run build
+      - name: Restore dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm run build
       - name: Zip
         run: pnpm run zip
       - name: Upload zip as artifact
