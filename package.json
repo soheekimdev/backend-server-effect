@@ -23,6 +23,7 @@
     "@effect/sql-pg": "^0.18.7",
     "effect": "^3.10.6",
     "jose": "^5.9.6",
+    "postgres": "^3.4.5",
     "undici": "^6.20.1"
   },
   "devDependencies": {
@@ -46,7 +47,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "postgres@3.4.4": "patches/postgres@3.4.4.patch"
+      "postgres@3.4.5": "patches/postgres@3.4.5.patch"
     }
   }
 }
