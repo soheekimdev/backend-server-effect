@@ -40,7 +40,7 @@ export const AccountApiLive = HttpApiBuilder.group(
               HttpApiBuilder.securitySetCookie(
                 HttpApiSecurity.apiKey({
                   in: 'cookie',
-                  key: 'refrest-token',
+                  key: 'refresh-token',
                 }),
                 result.refreshToken,
               ),
