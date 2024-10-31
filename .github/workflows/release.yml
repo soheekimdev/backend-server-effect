@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Restore dependencies
-        run: pnpm install  --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
       - name: Build
         run: pnpm run build
       - name: Prevent npm install on Elastic Beanstalk
@@ -47,7 +47,7 @@ jobs:
           mkdir node_modules
           touch node_modules/.gitkeep
       - name: Zip
-        run: zip -r artifact.zip dist package.json Procfile ./.platform ./.ebextensions ./node_modules
+        run: zip -r artifact.zip ./dist package.json Procfile ./.platform ./.ebextensions ./node_modules
       - name: Upload zip as artifact
         uses: actions/upload-artifact@v3
         with:
