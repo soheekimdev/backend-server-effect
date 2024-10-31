@@ -43,6 +43,7 @@ jobs:
         run: pnpm run build
       - name: Prevent npm install on Elastic Beanstalk
         run: |
+          rm -rf ./node_modules
           mkdir node_modules
           touch node_modules/.gitkeep
       - name: Zip
