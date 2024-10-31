@@ -38,7 +38,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Restore dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install  --no-frozen-lockfile
       - name: Build
         run: pnpm run build
       - name: Zip
