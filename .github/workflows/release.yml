@@ -5,15 +5,15 @@ env:
 on:
   push:
     branches:
-      - 'release/**'
+      - 'main'
   pull_request:
     branches:
-      - 'release/**'
+      - 'main'
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'refs/heads/release/')
+    # if: contains(github.ref, 'refs/heads/release/')
     steps:
       - uses: actions/checkout@v4
       # - name: extract branch part
