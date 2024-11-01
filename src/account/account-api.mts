@@ -8,7 +8,7 @@ import { ServerError } from '@/misc/common-error.mjs';
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { AccountAlreadyExists, AccountNotFound } from './account-error.mjs';
-import { Account, AccountIdFromString } from './account-schema.mjs';
+import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
 
@@ -17,7 +17,7 @@ export class AccountApi extends HttpApiGroup.make('accounts')
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(
         Schema.Struct({
-          id: AccountIdFromString,
+          id: AccountId,
         }),
       )
       .middleware(Authentication)
