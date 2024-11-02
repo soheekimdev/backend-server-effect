@@ -15,13 +15,34 @@ export class Account extends Model.Class<Account>('Account')({
   email: Email,
   passwordHash: Model.Sensitive(Schema.String),
   passwordSalt: Model.Sensitive(Schema.String),
-  profileImageUrl: Schema.UndefinedOr(Schema.String),
-  mainLanguage: Schema.UndefinedOr(Schema.String),
-  nationality: Schema.UndefinedOr(Schema.String),
-  bio: Schema.UndefinedOr(Schema.String),
-  externalUrls: Schema.UndefinedOr(Schema.Array(Schema.String)),
-  isEmailVerified: Schema.Boolean,
-  isPrivate: Schema.Boolean,
+  profileImageUrl: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  mainLanguage: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  nationality: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  bio: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  externalUrls: Schema.optionalWith(Schema.Array(Schema.String), {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  isEmailVerified: Schema.optionalWith(Schema.Boolean, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  isPrivate: Schema.optionalWith(Schema.Boolean, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
   role: Schema.Literal('admin', 'user').annotations({
     default: 'user',
   }),

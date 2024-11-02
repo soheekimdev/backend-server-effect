@@ -24,6 +24,7 @@ export const AccountApiLive = HttpApiBuilder.group(
             .findAccountById(path.id)
             .pipe(policyUse(accountPolicy.canRead(path.id))),
         )
+        .handle('updateById', ({ path, payload }) => {})
         .handle('signIn', ({ payload }) =>
           accountService.signIn(payload).pipe(
             withSystemActor,

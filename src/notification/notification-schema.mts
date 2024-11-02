@@ -29,7 +29,10 @@ export class Notification extends Model.Class<Notification>('Notification')({
     'other',
   ),
   message: Schema.String,
-  linkTo: Schema.UndefinedOr(Schema.String),
+  linkTo: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
   isRead: Schema.Boolean,
   isDeleted: Schema.Boolean,
   createdAt: CustomDateTimeInsert,

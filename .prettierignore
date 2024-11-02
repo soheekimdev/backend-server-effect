@@ -1,0 +1,32 @@
+# Ignore artifacts:
+build
+coverage
+
+# Ignore all HTML files:
+**/*.html
+
+# Ignore all files in the node_modules directory
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+
+# Ignore all files in the dist directory
+**/dist
+
+# Ignore all config files
+pnpm-lock.yaml
+tsconfig.json
+tsconfig.build.json
+tsconfig.base.json
+tsconfig.test.json
+tsconfig.src.json
+vitest.config.ts
+rollup.config.js
+Procfile
+.gitignore
+**/.platform
+**/.vscode
+**/.platform
+**/.github
+**/.ebextensions

@@ -46,6 +46,7 @@ const make = Effect.gen(function* () {
             passwordHash: hashedPassword.toString('hex'),
             passwordSalt: salt,
             isEmailVerified: false,
+            role: 'user',
           }),
         )
         .pipe(

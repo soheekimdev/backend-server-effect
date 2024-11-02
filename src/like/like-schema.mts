@@ -16,11 +16,26 @@ export type LikeId = typeof LikeId.Type;
 
 export class Like extends Model.Class<Like>('Like')({
   id: Model.Generated(LikeId),
-  postId: Schema.UndefinedOr(PostId),
-  accountId: Schema.UndefinedOr(AccountId),
-  commentId: Schema.UndefinedOr(CommentId),
-  challengeId: Schema.UndefinedOr(ChallengeId),
-  challengeEventId: Schema.UndefinedOr(ChallengeEventId),
+  postId: Schema.optionalWith(PostId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  accountId: Schema.optionalWith(AccountId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  commentId: Schema.optionalWith(CommentId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  challengeId: Schema.optionalWith(ChallengeId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  challengeEventId: Schema.optionalWith(ChallengeEventId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
   isDeleted: Schema.Boolean,
   type: Schema.Literal('like', 'dislike'),
   count: Schema.Number,

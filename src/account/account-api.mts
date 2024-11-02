@@ -1,4 +1,5 @@
 import { Authentication } from '@/auth/authentication.mjs';
+import { Unauthenticated } from '@/auth/error-401.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
 import {
   GeneratingSaltError,
@@ -26,6 +27,25 @@ export class AccountApi extends HttpApiGroup.make('accounts')
       .addError(Unauthorized),
   )
   .add(
+    HttpApiEndpoint.patch('updateById', '/:id')
+      .setPath(
+        Schema.Struct({
+          id: AccountId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(
+        Schema.Struct({
+          name: Schema.String,
+          email: Schema.String,
+          password: Schema.String,
+        }),
+      )
+      .addSuccess(Account.json)
+      .addError(AccountNotFound)
+      .addError(Unauthorized),
+  )
+  .add(
     HttpApiEndpoint.post('signUp', '/sign-up')
       .setPayload(SignUp)
       .addSuccess(Account.json)
@@ -43,12 +63,36 @@ export class AccountApi extends HttpApiGroup.make('accounts')
           accessToken: Schema.String,
           refreshToken: Schema.String,
         }),
-      ),
+      )
+      .addError(AccountNotFound)
+      .addError(Unauthenticated),
   )
   .add(
     HttpApiEndpoint.get('me', '/me')
       .middleware(Authentication)
+      .addSuccess(Account.json)
+      .addError(Unauthenticated),
+  )
+  .add(
+    HttpApiEndpoint.patch('update', '/me')
+      .middleware(Authentication)
+      .setPayload(Account.jsonUpdate)
       .addSuccess(Account.json),
+  )
+  .add(
+    HttpApiEndpoint.post('signOut', '/sign-out')
+      .middleware(Authentication)
+      .addSuccess(Schema.Void),
+  )
+  .add(
+    HttpApiEndpoint.post('refresh', '/refresh')
+      .middleware(Authentication)
+      .addSuccess(
+        Schema.Struct({
+          accessToken: Schema.String,
+          refreshToken: Schema.String,
+        }),
+      ),
   )
   .prefix('/api/accounts')
   .annotateContext(

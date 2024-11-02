@@ -8,9 +8,8 @@
     "build": "rm -rf ./dist && rollup -c",
     "watch": "rollup -cw",
     "dev": "tsx --env-file=.env --watch src/index.mts",
-    "lint": "eslint \"**/{src,test,examples,scripts,dtslint}/**/*.{ts,mjs}\"",
-    "lint-fix": "pnpm lint --fix",
-    "test": "vitest"
+    "test": "vitest",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@effect/experimental": "^0.30.12",
@@ -39,6 +38,7 @@
     "@swc/core": "^1.7.39",
     "@types/node": "^22.7.9",
     "@types/uuid": "^10.0.0",
+    "prettier": "^3.3.3",
     "rollup": "^4.24.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",

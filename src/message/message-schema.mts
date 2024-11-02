@@ -21,7 +21,10 @@ export class Message extends Model.Class<Message>('Message')({
   isSent: Schema.Boolean,
   isReceived: Schema.Boolean,
   isSystemMessage: Schema.Boolean,
-  childMessageId: Schema.UndefinedOr(MessageId),
+  childMessageId: Schema.optionalWith(MessageId, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
   messageChannelId: MessageChannelId,
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
