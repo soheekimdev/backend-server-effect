@@ -1,16 +1,12 @@
 import { Api } from '@/api.mjs';
+import { AuthenticationLive } from '@/auth/authentication.mjs';
 import { policyUse, withSystemActor } from '@/auth/authorization.mjs';
-import {
-  HttpApiBuilder,
-  HttpApiSecurity,
-  HttpApp,
-  HttpServerResponse,
-} from '@effect/platform';
-import { Effect, Layer, pipe } from 'effect';
+import { securityRemoveCookie } from '@/misc/security-remove-cookie.mjs';
+import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
+import { Effect, Layer } from 'effect';
 import { AccountPolicy } from './account-policy.mjs';
 import { CurrentAccount } from './account-schema.mjs';
 import { AccountService } from './account-service.mjs';
-import { AuthenticationLive } from '@/auth/authentication.mjs';
 
 export const AccountApiLive = HttpApiBuilder.group(
   Api,
@@ -44,6 +40,9 @@ export const AccountApiLive = HttpApiBuilder.group(
                   key: 'access-token',
                 }),
                 result.accessToken,
+                {
+                  path: '/',
+                },
               ),
             ),
             Effect.tap((result) =>
@@ -53,21 +52,28 @@ export const AccountApiLive = HttpApiBuilder.group(
                   key: 'refresh-token',
                 }),
                 result.refreshToken,
+                {
+                  path: '/',
+                },
               ),
             ),
           ),
         )
         .handle('signOut', () =>
-          HttpApp.appendPreResponseHandler((_req, response) =>
-            Effect.orDie(
-              pipe(
-                HttpServerResponse.removeCookie(response, 'access-token'),
-                Effect.tap(
-                  HttpServerResponse.removeCookie(response, 'refresh-token'),
-                ),
-              ),
-            ),
-          ),
+          Effect.gen(function* () {
+            yield* securityRemoveCookie(
+              HttpApiSecurity.apiKey({
+                in: 'cookie',
+                key: 'access-token',
+              }),
+            );
+            yield* securityRemoveCookie(
+              HttpApiSecurity.apiKey({
+                in: 'cookie',
+                key: 'refresh-token',
+              }),
+            );
+          }),
         )
         .handle('me', () => CurrentAccount)
         .handle('invalidate', ({ headers }) =>

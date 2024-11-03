@@ -29,7 +29,14 @@ export class AccountApi extends HttpApiGroup.make('accounts')
       .middleware(Authentication)
       .addSuccess(Account.json)
       .addError(AccountNotFound)
-      .addError(Unauthorized),
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          title: '계정 조회',
+          description:
+            '계정을 조회합니다. 계정이 존재하지 않는 경우 404를 반환합니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.patch('updateById', '/:id')
