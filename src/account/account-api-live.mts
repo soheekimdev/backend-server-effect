@@ -8,78 +8,75 @@ import { AccountPolicy } from './account-policy.mjs';
 import { CurrentAccount } from './account-schema.mjs';
 import { AccountService } from './account-service.mjs';
 
-export const AccountApiLive = HttpApiBuilder.group(
-  Api,
-  'accounts',
-  (handlers) =>
-    Effect.gen(function* () {
-      const accountService = yield* AccountService;
-      const accountPolicy = yield* AccountPolicy;
+export const AccountApiLive = HttpApiBuilder.group(Api, 'account', (handlers) =>
+  Effect.gen(function* () {
+    const accountService = yield* AccountService;
+    const accountPolicy = yield* AccountPolicy;
 
-      return handlers
-        .handle('signUp', ({ payload }) =>
-          accountService.signUp(payload).pipe(withSystemActor),
-        )
-        .handle('findById', ({ path }) =>
-          accountService
-            .findAccountById(path.id)
-            .pipe(policyUse(accountPolicy.canRead(path.id))),
-        )
-        .handle('updateById', ({ path, payload }) =>
-          accountService
-            .updateAccountById(path.id, payload)
-            .pipe(policyUse(accountPolicy.canUpdate(path.id))),
-        )
-        .handle('signIn', ({ payload }) =>
-          accountService.signIn(payload).pipe(
-            withSystemActor,
-            Effect.tap((result) =>
-              HttpApiBuilder.securitySetCookie(
-                HttpApiSecurity.apiKey({
-                  in: 'cookie',
-                  key: 'access-token',
-                }),
-                result.accessToken,
-                {
-                  path: '/',
-                },
-              ),
-            ),
-            Effect.tap((result) =>
-              HttpApiBuilder.securitySetCookie(
-                HttpApiSecurity.apiKey({
-                  in: 'cookie',
-                  key: 'refresh-token',
-                }),
-                result.refreshToken,
-                {
-                  path: '/',
-                },
-              ),
-            ),
-          ),
-        )
-        .handle('signOut', () =>
-          Effect.gen(function* () {
-            yield* securityRemoveCookie(
+    return handlers
+      .handle('signUp', ({ payload }) =>
+        accountService.signUp(payload).pipe(withSystemActor),
+      )
+      .handle('findById', ({ path }) =>
+        accountService
+          .findAccountById(path.id)
+          .pipe(policyUse(accountPolicy.canRead(path.id))),
+      )
+      .handle('updateById', ({ path, payload }) =>
+        accountService
+          .updateAccountById(path.id, payload)
+          .pipe(policyUse(accountPolicy.canUpdate(path.id))),
+      )
+      .handle('signIn', ({ payload }) =>
+        accountService.signIn(payload).pipe(
+          withSystemActor,
+          Effect.tap((result) =>
+            HttpApiBuilder.securitySetCookie(
               HttpApiSecurity.apiKey({
                 in: 'cookie',
                 key: 'access-token',
               }),
-            );
-            yield* securityRemoveCookie(
+              result.accessToken,
+              {
+                path: '/',
+              },
+            ),
+          ),
+          Effect.tap((result) =>
+            HttpApiBuilder.securitySetCookie(
               HttpApiSecurity.apiKey({
                 in: 'cookie',
                 key: 'refresh-token',
               }),
-            );
-          }),
-        )
-        .handle('me', () => CurrentAccount)
-        .handle('invalidate', ({ headers }) =>
-          accountService.invalidate(headers['refresh-token']),
-        );
-    }),
+              result.refreshToken,
+              {
+                path: '/',
+              },
+            ),
+          ),
+        ),
+      )
+      .handle('signOut', () =>
+        Effect.gen(function* () {
+          yield* securityRemoveCookie(
+            HttpApiSecurity.apiKey({
+              in: 'cookie',
+              key: 'access-token',
+            }),
+          );
+          yield* securityRemoveCookie(
+            HttpApiSecurity.apiKey({
+              in: 'cookie',
+              key: 'refresh-token',
+            }),
+          );
+        }),
+      )
+      .handle('me', () => CurrentAccount)
+      .handle('invalidate', ({ headers }) =>
+        accountService.invalidate(headers['refresh-token']),
+      );
+  }),
 ).pipe(
   Layer.provide(AuthenticationLive),
   Layer.provide(AccountService.Live),

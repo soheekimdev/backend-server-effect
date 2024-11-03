@@ -18,7 +18,7 @@ import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
 
-export class AccountApi extends HttpApiGroup.make('accounts')
+export class AccountApi extends HttpApiGroup.make('account')
   .add(
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(
