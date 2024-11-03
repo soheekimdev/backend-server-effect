@@ -5,10 +5,15 @@ import {
   GeneratingSaltError,
   HashingPasswordError,
 } from '@/crypto/crypto-error.mjs';
+import { VerifyTokenError } from '@/crypto/token-error.mjs';
 import { ServerError } from '@/misc/common-error.mjs';
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
-import { AccountAlreadyExists, AccountNotFound } from './account-error.mjs';
+import {
+  AccountAlreadyExists,
+  AccountNotFound,
+  InvalidPassword,
+} from './account-error.mjs';
 import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
@@ -34,13 +39,7 @@ export class AccountApi extends HttpApiGroup.make('accounts')
         }),
       )
       .middleware(Authentication)
-      .setPayload(
-        Schema.Struct({
-          name: Schema.String,
-          email: Schema.String,
-          password: Schema.String,
-        }),
-      )
+      .setPayload(Account.update)
       .addSuccess(Account.json)
       .addError(AccountNotFound)
       .addError(Unauthorized),
@@ -65,19 +64,14 @@ export class AccountApi extends HttpApiGroup.make('accounts')
         }),
       )
       .addError(AccountNotFound)
+      .addError(InvalidPassword)
       .addError(Unauthenticated),
   )
   .add(
     HttpApiEndpoint.get('me', '/me')
       .middleware(Authentication)
       .addSuccess(Account.json)
-      .addError(Unauthenticated),
-  )
-  .add(
-    HttpApiEndpoint.patch('update', '/me')
-      .middleware(Authentication)
-      .setPayload(Account.jsonUpdate)
-      .addSuccess(Account.json),
+      .addError(AccountNotFound),
   )
   .add(
     HttpApiEndpoint.post('signOut', '/sign-out')
@@ -85,8 +79,14 @@ export class AccountApi extends HttpApiGroup.make('accounts')
       .addSuccess(Schema.Void),
   )
   .add(
-    HttpApiEndpoint.post('refresh', '/refresh')
+    HttpApiEndpoint.post('invalidate', '/invalidate')
+      .setHeaders(
+        Schema.Struct({
+          'refresh-token': Schema.String,
+        }),
+      )
       .middleware(Authentication)
+      .addError(VerifyTokenError)
       .addSuccess(
         Schema.Struct({
           accessToken: Schema.String,

@@ -1,7 +1,12 @@
 import { Api } from '@/api.mjs';
 import { policyUse, withSystemActor } from '@/auth/authorization.mjs';
-import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
-import { Effect, Layer } from 'effect';
+import {
+  HttpApiBuilder,
+  HttpApiSecurity,
+  HttpApp,
+  HttpServerResponse,
+} from '@effect/platform';
+import { Effect, Layer, pipe } from 'effect';
 import { AccountPolicy } from './account-policy.mjs';
 import { CurrentAccount } from './account-schema.mjs';
 import { AccountService } from './account-service.mjs';
@@ -24,7 +29,11 @@ export const AccountApiLive = HttpApiBuilder.group(
             .findAccountById(path.id)
             .pipe(policyUse(accountPolicy.canRead(path.id))),
         )
-        .handle('updateById', ({ path, payload }) => {})
+        .handle('updateById', ({ path, payload }) =>
+          accountService
+            .updateAccountById(path.id, payload)
+            .pipe(policyUse(accountPolicy.canUpdate(path.id))),
+        )
         .handle('signIn', ({ payload }) =>
           accountService.signIn(payload).pipe(
             withSystemActor,
@@ -48,7 +57,22 @@ export const AccountApiLive = HttpApiBuilder.group(
             ),
           ),
         )
-        .handle('me', () => CurrentAccount);
+        .handle('signOut', () =>
+          HttpApp.appendPreResponseHandler((_req, response) =>
+            Effect.orDie(
+              pipe(
+                HttpServerResponse.removeCookie(response, 'access-token'),
+                Effect.tap(
+                  HttpServerResponse.removeCookie(response, 'refresh-token'),
+                ),
+              ),
+            ),
+          ),
+        )
+        .handle('me', () => CurrentAccount)
+        .handle('invalidate', ({ headers }) =>
+          accountService.invalidate(headers['refresh-token']),
+        );
     }),
 ).pipe(
   Layer.provide(AuthenticationLive),

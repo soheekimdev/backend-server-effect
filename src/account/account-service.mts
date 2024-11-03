@@ -4,7 +4,7 @@ import { TokenService } from '@/crypto/token-service.mjs';
 import { ServerError } from '@/misc/common-error.mjs';
 import { Email } from '@/misc/email-schema.mjs';
 import { SqlTest } from '@/sql/sql-test.mjs';
-import { Effect, Layer, Option } from 'effect';
+import { Effect, Layer, Option, pipe } from 'effect';
 import {
   AccountAlreadyExists,
   AccountByEmailNotFound,
@@ -15,6 +15,7 @@ import { AccountRepo } from './account-repo.mjs';
 import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
+import { VerifyTokenError } from '@/crypto/token-error.mjs';
 
 const make = Effect.gen(function* () {
   const accountRepo = yield* AccountRepo;
@@ -92,7 +93,9 @@ const make = Effect.gen(function* () {
 
       return { account, accessToken, refreshToken };
     }).pipe(
-      Effect.orDie,
+      Effect.catchAll((error) => {
+        return Effect.fail(new InvalidPassword());
+      }),
       Effect.withSpan('AccountService.signIn', {
         attributes: { email: signIn.email },
       }),
@@ -155,12 +158,54 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const updateAccountById = (
+    id: AccountId,
+    account: typeof Account.update.Type,
+  ) =>
+    accountRepo.with(id, (existing) =>
+      pipe(
+        accountRepo.updateById(existing, account),
+        policyRequire('account', 'update'),
+      ),
+    );
+
+  const invalidate = (refreshToken: string) =>
+    Effect.gen(function* () {
+      const decoded = yield* tokenService.verifyToken(refreshToken);
+
+      const maybeAccount = yield* accountRepo.findByEmail(decoded.sub);
+
+      const account = yield* Option.match(maybeAccount, {
+        onNone: () =>
+          Effect.fail(
+            new AccountByEmailNotFound({
+              email: decoded.sub,
+            }),
+          ),
+        onSome: (account) => Effect.succeed(account),
+      });
+
+      const accessToken = yield* tokenService.generateAccessToken(account);
+      const newRefreshToken = yield* tokenService.generateRefreshToken(account);
+
+      return { accessToken, refreshToken: newRefreshToken };
+    }).pipe(
+      Effect.catchAll((error) => {
+        return Effect.fail(new VerifyTokenError());
+      }),
+      Effect.withSpan('AccountService.invalidate', {
+        attributes: { refreshToken },
+      }),
+    );
+
   return {
     signUp,
     signIn,
     findAccountByEmail,
     findAccountById,
+    updateAccountById,
     embellishAccount,
+    invalidate,
   } as const;
 });
 
