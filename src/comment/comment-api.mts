@@ -4,10 +4,16 @@ import { Authentication } from '@/auth/authentication.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
 import { Comment, CommentId } from './comment-schema.mjs';
 import { CommentNotFound } from './comment-error.mjs';
+import { PostId } from '@/post/post-schema.mjs';
 
 export class CommentApi extends HttpApiGroup.make('comment')
   .add(
     HttpApiEndpoint.get('findAll', '/:postId/comments')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+        }),
+      )
       .setUrlParams(
         Schema.Struct({
           page: Schema.NumberFromString,
@@ -23,6 +29,11 @@ export class CommentApi extends HttpApiGroup.make('comment')
   )
   .add(
     HttpApiEndpoint.get('findById', '/:postId/comments/:id')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+        }),
+      )
       .setPath(
         Schema.Struct({
           id: CommentId,
@@ -44,6 +55,11 @@ export class CommentApi extends HttpApiGroup.make('comment')
   )
   .add(
     HttpApiEndpoint.post('create', '/:postId/comments')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+        }),
+      )
       .middleware(Authentication)
       .setPayload(Comment.jsonCreate)
       .annotateContext(
@@ -54,9 +70,11 @@ export class CommentApi extends HttpApiGroup.make('comment')
   )
   .add(
     HttpApiEndpoint.patch('updateById', '/:postId/comments/:id')
+
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -74,6 +92,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -91,6 +110,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -108,6 +128,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -128,6 +149,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -145,6 +167,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       .setPath(
         Schema.Struct({
           id: CommentId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
