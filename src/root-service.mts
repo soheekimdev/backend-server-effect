@@ -1,7 +1,9 @@
+import { FileSystem } from '@effect/platform';
+import { NodeContext } from '@effect/platform-node';
 import { SqlClient } from '@effect/sql';
 import { Effect, Layer } from 'effect';
-import { SqlLive } from './sql/sql-live.mjs';
 import { makeTestLayer } from './misc/test-layer.mjs';
+import { SqlLive } from './sql/sql-live.mjs';
 
 const make = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
@@ -22,6 +24,10 @@ const make = Effect.gen(function* () {
 
   const getHome = () =>
     Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const content = yield* fs.readFileString('./package.json', 'utf8');
+      const packageJson = JSON.parse(content);
+
       return yield* Effect.succeed(`<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -30,13 +36,13 @@ const make = Effect.gen(function* () {
   <title>Advanced Class Server</title>
 </head>
 <body>
-  <h1>Advanced Class Server</h1>
+  <h1>Advanced Class Server, version: ${packageJson.version as string}</h1>
    <a href="/docs">API 문서로 바로가기</a>
 </body>
 
 </html>
 `);
-    });
+    }).pipe(Effect.orDie);
 
   return {
     getHome,
@@ -52,5 +58,8 @@ export class RootService extends Effect.Tag('RootApiService')<
 
   static Test = makeTestLayer(RootService)({});
 
-  static Live = this.layer.pipe(Layer.provide(SqlLive));
+  static Live = this.layer.pipe(
+    Layer.provide(SqlLive),
+    Layer.provide(NodeContext.layer),
+  );
 }
