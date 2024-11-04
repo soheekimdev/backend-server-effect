@@ -8,11 +8,14 @@ const make = Effect.gen(function* () {
   const getHealth = () =>
     Effect.gen(function* () {
       const checkDb = yield* sql`SELECT 1`;
+      const dbStatus = checkDb.length > 0 ? 'ok' : 'error';
+
+      // 다른 서비스가 정상인지 체크하는 로직을 추가할 수 있습니다.
 
       return {
-        status: 'ok',
+        status: dbStatus,
         db: {
-          status: checkDb,
+          status: dbStatus,
         },
       };
     }).pipe(Effect.orDie);
