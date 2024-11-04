@@ -26,15 +26,13 @@ export class AccountApi extends HttpApiGroup.make('account')
           id: AccountId,
         }),
       )
-      .middleware(Authentication)
       .addSuccess(Account.json)
       .addError(AccountNotFound)
-      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           title: '계정 조회',
           description:
-            '계정을 조회합니다. 계정이 존재하지 않는 경우 404를 반환합니다.',
+            '계정을 조회합니다. 계정이 존재하지 않는 경우 404를 반환합니다. 다른 사람의 계정을 조회할 수 있습니다. 로그인하지 않아도 사용할 수 있습니다.',
         }),
       ),
   )
@@ -46,10 +44,25 @@ export class AccountApi extends HttpApiGroup.make('account')
         }),
       )
       .middleware(Authentication)
-      .setPayload(Account.update)
+      .setPayload(
+        Account.jsonUpdate.pick(
+          'profileImageUrl',
+          'mainLanguage',
+          'nationality',
+          'bio',
+          'externalUrls',
+        ),
+      )
       .addSuccess(Account.json)
       .addError(AccountNotFound)
-      .addError(Unauthorized),
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          title: '계정 상세 수정',
+          description:
+            '계정의 상세 정보를 수정합니다. 다른 사람의 계정을 수정할 수 없습니다. 로그인해야 사용할 수 있습니다. 어드민은 다른 사람의 계정을 수정할 수 있습니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.post('signUp', '/sign-up')

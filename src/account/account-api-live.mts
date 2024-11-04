@@ -17,11 +17,7 @@ export const AccountApiLive = HttpApiBuilder.group(Api, 'account', (handlers) =>
       .handle('signUp', ({ payload }) =>
         accountService.signUp(payload).pipe(withSystemActor),
       )
-      .handle('findById', ({ path }) =>
-        accountService
-          .findAccountById(path.id)
-          .pipe(policyUse(accountPolicy.canRead(path.id))),
-      )
+      .handle('findById', ({ path }) => accountService.findAccountById(path.id))
       .handle('updateById', ({ path, payload }) =>
         accountService
           .updateAccountById(path.id, payload)

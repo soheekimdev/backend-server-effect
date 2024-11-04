@@ -160,7 +160,7 @@ const make = Effect.gen(function* () {
 
   const updateAccountById = (
     id: AccountId,
-    account: typeof Account.update.Type,
+    account: Partial<typeof Account.jsonUpdate.Type>,
   ) =>
     accountRepo.with(id, (existing) =>
       pipe(

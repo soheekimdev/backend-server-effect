@@ -5,15 +5,17 @@ import { policy } from '@/auth/authorization.mjs';
 const make = Effect.gen(function* () {
   const canUpdate = (toUpdate: AccountId) =>
     policy('account', 'update', (actor) =>
-      Effect.succeed(actor.id === toUpdate),
+      Effect.succeed(actor.id === toUpdate || actor.role === 'admin'),
     );
 
   const canRead = (toRead: AccountId) =>
-    policy('account', 'read', (actor) => Effect.succeed(actor.id === toRead));
+    policy('account', 'read', (actor) =>
+      Effect.succeed(actor.id === toRead || actor.role === 'admin'),
+    );
 
   const canReadSensitive = (toRead: AccountId) =>
     policy('account', 'readSensitive', (actor) =>
-      Effect.succeed(actor.id === toRead),
+      Effect.succeed(actor.id === toRead || actor.role === 'admin'),
     );
 
   return {
