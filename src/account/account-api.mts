@@ -1,5 +1,4 @@
 import { Authentication } from '@/auth/authentication.mjs';
-import { Unauthenticated } from '@/auth/error-401.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
 import {
   GeneratingSaltError,
@@ -71,7 +70,14 @@ export class AccountApi extends HttpApiGroup.make('account')
       .addError(GeneratingSaltError)
       .addError(HashingPasswordError)
       .addError(ServerError)
-      .addError(AccountAlreadyExists),
+      .addError(AccountAlreadyExists)
+      .annotateContext(
+        OpenApi.annotations({
+          title: '회원 가입',
+          description:
+            '회원 가입합니다. 이미 가입된 이메일인 경우 409를 반환합니다. 로그인하지 않아도 사용할 수 있습니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.post('signIn', '/sign-in')
@@ -85,18 +91,37 @@ export class AccountApi extends HttpApiGroup.make('account')
       )
       .addError(AccountNotFound)
       .addError(InvalidPassword)
-      .addError(Unauthenticated),
+      .annotateContext(
+        OpenApi.annotations({
+          title: '계정 상세 수정',
+          description:
+            '계정의 상세 정보를 수정합니다. 다른 사람의 계정을 수정할 수 없습니다. 로그인해야 사용할 수 있습니다. 로그인이 실패할 경우 400에러를 반환합니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.get('me', '/me')
       .middleware(Authentication)
       .addSuccess(Account.json)
-      .addError(AccountNotFound),
+      .addError(AccountNotFound)
+      .annotateContext(
+        OpenApi.annotations({
+          title: '내 계정 조회',
+          description: '내 계정을 조회합니다. 로그인해야 사용할 수 있습니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.post('signOut', '/sign-out')
       .middleware(Authentication)
-      .addSuccess(Schema.Void),
+      .addSuccess(Schema.Void)
+      .annotateContext(
+        OpenApi.annotations({
+          title: '로그아웃',
+          description:
+            '로그아웃합니다. 로그인해야 사용할 수 있습니다. 로그아웃 후에는 쿠키가 삭제됩니다.',
+        }),
+      ),
   )
   .add(
     HttpApiEndpoint.post('invalidate', '/invalidate')
@@ -111,6 +136,13 @@ export class AccountApi extends HttpApiGroup.make('account')
         Schema.Struct({
           accessToken: Schema.String,
           refreshToken: Schema.String,
+        }),
+      )
+      .annotateContext(
+        OpenApi.annotations({
+          title: '토큰 재발급',
+          description:
+            '리프레시 토큰을 이용하여 액세스 토큰과 리프레시 토큰을 재발급합니다. 로그인해야 사용할 수 있습니다.',
         }),
       ),
   )
