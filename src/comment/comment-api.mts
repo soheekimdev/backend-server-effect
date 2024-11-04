@@ -70,6 +70,77 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
+    HttpApiEndpoint.post('likeCommentById', '/:postId/comments/:id/like')
+      .setPath(
+        Schema.Struct({
+          id: CommentId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(Comment.jsonUpdate)
+      .addError(CommentNotFound)
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 댓글에 좋아요를 누릅니다',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.del('removeLikeCommentById', '/:postId/comments/:id/like')
+      .setPath(
+        Schema.Struct({
+          id: CommentId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(Comment.jsonUpdate)
+      .addError(CommentNotFound)
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 댓글에 좋아요를 취소합니다',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post('dislikeCommentById', '/:postId/comments/:id/dislike')
+      .setPath(
+        Schema.Struct({
+          id: CommentId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(Comment.jsonUpdate)
+      .addError(CommentNotFound)
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 댓글에 싫어요를 누릅니다',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.del(
+      'removeDislikeCommentById',
+      '/:postId/comments/:id/dislike',
+    )
+      .setPath(
+        Schema.Struct({
+          id: CommentId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(Comment.jsonUpdate)
+      .addError(CommentNotFound)
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 댓글에 싫어요를 취소합니다',
+        }),
+      ),
+  )
+  .add(
     HttpApiEndpoint.del('deleteById', '/:postId/comments/:id')
       .setPath(
         Schema.Struct({
@@ -85,7 +156,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
         }),
       ),
   )
-  .prefix('/api/posts')
+  .prefix('/api/posts') // 이거 실수 아님! post 아래로 내려가는거 맞음!
   .annotateContext(
     OpenApi.annotations({
       title: '(미구현 있음) 댓글 API',

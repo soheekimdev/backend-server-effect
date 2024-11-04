@@ -37,6 +37,66 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
+    HttpApiEndpoint.post('likePostById', '/:id/like')
+      .setPath(
+        Schema.Struct({
+          id: PostId,
+        }),
+      )
+      .addError(PostNotFound)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(미구현) 게시글에 좋아요를 누릅니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.del('removeLikePostById', '/:id/like')
+      .setPath(
+        Schema.Struct({
+          id: PostId,
+        }),
+      )
+      .addError(PostNotFound)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(미구현) 게시글에 좋아요를 취소합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post('dislikePostById', '/:id/dislike')
+      .setPath(
+        Schema.Struct({
+          id: PostId,
+        }),
+      )
+      .addError(PostNotFound)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(미구현) 게시글에 싫어요를 누릅니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.del('removeDislikePostById', '/:id/dislike')
+      .setPath(
+        Schema.Struct({
+          id: PostId,
+        }),
+      )
+      .addError(PostNotFound)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(미구현) 게시글에 싫어요를 취소합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+        }),
+      ),
+  )
+  .add(
     HttpApiEndpoint.post('create', '/')
       .middleware(Authentication)
       .setPayload(Post.jsonCreate)
