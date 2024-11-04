@@ -38,6 +38,7 @@ export class PostApi extends HttpApiGroup.make('post')
   )
   .add(
     HttpApiEndpoint.post('likePostById', '/:id/like')
+      .middleware(Authentication)
       .setPath(
         Schema.Struct({
           id: PostId,
@@ -53,6 +54,7 @@ export class PostApi extends HttpApiGroup.make('post')
   )
   .add(
     HttpApiEndpoint.del('removeLikePostById', '/:id/like')
+      .middleware(Authentication)
       .setPath(
         Schema.Struct({
           id: PostId,
@@ -68,6 +70,7 @@ export class PostApi extends HttpApiGroup.make('post')
   )
   .add(
     HttpApiEndpoint.post('dislikePostById', '/:id/dislike')
+      .middleware(Authentication)
       .setPath(
         Schema.Struct({
           id: PostId,
@@ -83,6 +86,7 @@ export class PostApi extends HttpApiGroup.make('post')
   )
   .add(
     HttpApiEndpoint.del('removeDislikePostById', '/:id/dislike')
+      .middleware(Authentication)
       .setPath(
         Schema.Struct({
           id: PostId,
