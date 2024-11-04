@@ -22,7 +22,7 @@ export class FileApi extends HttpApiGroup.make('file')
       )
       .annotateContext(
         OpenApi.annotations({
-          description: '파일을 업로드합니다.',
+          description: '(미구현) 파일을 업로드합니다.',
         }),
       )
       .addSuccess(
@@ -31,4 +31,9 @@ export class FileApi extends HttpApiGroup.make('file')
         }),
       ),
   )
-  .prefix('/api/files') {}
+  .prefix('/api/files')
+  .annotateContext(
+    OpenApi.annotations({
+      title: '(미구현) 파일 API',
+    }),
+  ) {}
