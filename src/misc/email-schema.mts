@@ -1,6 +1,7 @@
 import { Schema } from 'effect';
 
 export const Email = Schema.String.pipe(
+  Schema.trimmed(),
   Schema.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
   Schema.annotations({
     title: 'Email',
