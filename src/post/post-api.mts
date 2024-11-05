@@ -1,25 +1,23 @@
-import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
-import { Schema } from 'effect';
-import { Post, PostId } from './post-schema.mjs';
-import { PostNotFound } from './post-error.mjs';
 import { Authentication } from '@/auth/authentication.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
+import { Schema } from 'effect';
+import { PostNotFound } from './post-error.mjs';
+import { Post, PostId } from './post-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
     HttpApiEndpoint.get('findAll', '/')
-      .setUrlParams(
-        Schema.Struct({
-          page: Schema.NumberFromString,
-          limit: Schema.NumberFromString,
-        }),
-      )
+      .setUrlParams(FindManyUrlParams)
       .annotateContext(
         OpenApi.annotations({
           description:
             '(미구현) 게시글 목록을 조회합니다. 페이지와 한 페이지당 게시글 수를 지정할 수 있습니다.',
         }),
-      ),
+      )
+      .addSuccess(FindManyResultSchema(Post)),
   )
   .add(
     HttpApiEndpoint.get('findById', '/:id')
