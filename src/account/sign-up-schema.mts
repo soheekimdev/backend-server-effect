@@ -17,6 +17,22 @@ export const SignUp = Schema.Struct({
       default: 'p@ss0wrd',
     }),
   ),
-});
+}).pipe(
+  Schema.filter((input) => {
+    if (input.password !== input.confirmPassword) {
+      return {
+        path: ['confirmPassword'],
+        message: 'Passwords do not match',
+      };
+    }
+  }),
+  Schema.annotations({
+    title: 'Sign Up',
+    description: 'Sign up for an account',
+    jsonSchema: {
+      required: ['email', 'password', 'confirmPassword'],
+    },
+  }),
+);
 
 export type SignUp = typeof SignUp.Type;
