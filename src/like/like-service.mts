@@ -8,11 +8,11 @@ const make = Effect.gen(function* () {
   return {} as const;
 });
 
-export class PostService extends Effect.Tag('PostService')<
-  PostService,
+export class LikeService extends Effect.Tag('LikeService')<
+  LikeService,
   Effect.Effect.Success<typeof make>
 >() {
-  static layer = Layer.effect(PostService, make);
+  static layer = Layer.effect(LikeService, make);
 
   static Live = this.layer.pipe(Layer.provide(LikeRepo.Live));
 
