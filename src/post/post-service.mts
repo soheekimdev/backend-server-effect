@@ -14,7 +14,8 @@ const make = Effect.gen(function* () {
   const findPosts = (params: FindManyUrlParams) =>
     postRepo.findAll(params).pipe(Effect.withSpan('PostService.findPosts'));
 
-  const findById = (id: PostId) => postRepo.findById(id);
+  const findById = (id: PostId) =>
+    postRepo.with(id, (post) => pipe(Effect.succeed(post)));
 
   const create = (post: typeof Post.jsonCreate.Type) =>
     pipe(

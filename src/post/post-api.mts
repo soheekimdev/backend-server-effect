@@ -31,6 +31,7 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
+      .addSuccess(Post)
       .annotateContext(
         OpenApi.annotations({
           description:
