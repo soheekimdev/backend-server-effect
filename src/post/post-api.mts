@@ -16,6 +16,9 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글 목록을 조회합니다. 페이지와 한 페이지당 게시글 수를 지정할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 게시글 목록 조회',
+          },
         }),
       )
       .addSuccess(FindManyResultSchema(Post)),
@@ -32,6 +35,9 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글을 조회합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 단일 조회',
+          },
         }),
       ),
   )
@@ -50,6 +56,9 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글에 좋아요를 누릅니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 좋아요',
+          },
         }),
       ),
   )
@@ -68,6 +77,9 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글에 좋아요를 취소합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 좋아요 취소',
+          },
         }),
       ),
   )
@@ -86,6 +98,10 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글에 싫어요를 누릅니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary:
+              '(사용가능) 게시글 싫어요 / 싫어요 구현 굳이 안해도 됩니다',
+          },
         }),
       ),
   )
@@ -104,6 +120,10 @@ export class PostApi extends HttpApiGroup.make('post')
         OpenApi.annotations({
           description:
             '게시글에 싫어요를 취소합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary:
+              '(사용가능) 게시글 싫어요 취소 / 싫어요 구현 굳이 안해도 됩니다',
+          },
         }),
       ),
   )
@@ -113,7 +133,11 @@ export class PostApi extends HttpApiGroup.make('post')
       .setPayload(Post.jsonCreate)
       .annotateContext(
         OpenApi.annotations({
-          description: '게시글을 작성합니다.',
+          description:
+            '게시글을 작성합니다. 로그인 상태에서만 작성할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 게시글 작성',
+          },
         }),
       ),
   )
@@ -130,7 +154,11 @@ export class PostApi extends HttpApiGroup.make('post')
       .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
-          description: '게시글을 수정합니다.',
+          description:
+            '게시글을 수정합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 작성자와 현재 사용자가 다른 경우 403을 반환합니다. 작성자와 어드민만 수정할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 게시글 수정',
+          },
         }),
       ),
   )
@@ -146,7 +174,11 @@ export class PostApi extends HttpApiGroup.make('post')
       .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
-          description: '게시글을 삭제합니다.',
+          description:
+            '게시글을 삭제합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 작성자와 현재 사용자가 다른 경우 403을 반환합니다. 작성자와 어드민만 삭제할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 게시글 삭제',
+          },
         }),
       ),
   )

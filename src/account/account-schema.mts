@@ -46,6 +46,14 @@ export class Account extends Model.Class<Account>('Account')({
   role: Schema.Literal('admin', 'user').annotations({
     default: 'user',
   }),
+  username: Schema.optionalWith(Schema.String, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
+  birthday: Schema.optionalWith(Schema.Date, {
+    nullable: true,
+    onNoneEncoding: () => undefined,
+  }),
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}

@@ -32,6 +32,9 @@ export class AccountApi extends HttpApiGroup.make('account')
           title: '계정 조회',
           description:
             '계정을 조회합니다. 계정이 존재하지 않는 경우 404를 반환합니다. 다른 사람의 계정을 조회할 수 있습니다. 로그인하지 않아도 사용할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 단일 계정 조회',
+          },
         }),
       ),
   )
@@ -50,6 +53,8 @@ export class AccountApi extends HttpApiGroup.make('account')
           'nationality',
           'bio',
           'externalUrls',
+          'birthday',
+          'username',
         ),
       )
       .addSuccess(Account.json)
@@ -60,6 +65,9 @@ export class AccountApi extends HttpApiGroup.make('account')
           title: '계정 상세 수정',
           description:
             '계정의 상세 정보를 수정합니다. 다른 사람의 계정을 수정할 수 없습니다. 로그인해야 사용할 수 있습니다. 어드민은 다른 사람의 계정을 수정할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 단일 계정 수정',
+          },
         }),
       ),
   )
@@ -76,6 +84,9 @@ export class AccountApi extends HttpApiGroup.make('account')
           title: '회원 가입',
           description:
             '회원 가입합니다. 이미 가입된 이메일인 경우 409를 반환합니다. 로그인하지 않아도 사용할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 회원 가입',
+          },
         }),
       ),
   )
@@ -93,9 +104,12 @@ export class AccountApi extends HttpApiGroup.make('account')
       .addError(InvalidPassword)
       .annotateContext(
         OpenApi.annotations({
-          title: '계정 상세 수정',
+          title: '로그인',
           description:
-            '계정의 상세 정보를 수정합니다. 다른 사람의 계정을 수정할 수 없습니다. 로그인해야 사용할 수 있습니다. 로그인이 실패할 경우 400에러를 반환합니다.',
+            '로그인합니다. 계정이 존재하지 않거나 비밀번호가 틀린 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) Email / 비밀번호 로그인',
+          },
         }),
       ),
   )
@@ -108,6 +122,9 @@ export class AccountApi extends HttpApiGroup.make('account')
         OpenApi.annotations({
           title: '내 계정 조회',
           description: '내 계정을 조회합니다. 로그인해야 사용할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 내 계정 조회',
+          },
         }),
       ),
   )
@@ -120,6 +137,9 @@ export class AccountApi extends HttpApiGroup.make('account')
           title: '로그아웃',
           description:
             '로그아웃합니다. 로그인해야 사용할 수 있습니다. 로그아웃 후에는 쿠키가 삭제됩니다.',
+          override: {
+            summary: '(사용가능) 로그아웃',
+          },
         }),
       ),
   )
@@ -143,6 +163,9 @@ export class AccountApi extends HttpApiGroup.make('account')
           title: '토큰 재발급',
           description:
             '리프레시 토큰을 이용하여 액세스 토큰과 리프레시 토큰을 재발급합니다. 로그인해야 사용할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 토큰 재발급',
+          },
         }),
       ),
   )
