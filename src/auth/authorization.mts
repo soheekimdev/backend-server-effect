@@ -23,6 +23,7 @@ export const policy = <Entity extends string, Action extends string, E, R>(
   entity: Entity,
   action: Action,
   f: (actor: Account) => Effect.Effect<boolean, E, R>,
+  cause?: string,
 ): Effect.Effect<
   AuthorizedActor<Entity, Action>,
   E | Unauthorized,
@@ -37,6 +38,7 @@ export const policy = <Entity extends string, Action extends string, E, R>(
               actorId: actor.id,
               entity,
               action,
+              cause,
             }),
           ),
     ),

@@ -15,9 +15,6 @@ export const FindManyUrlParams = Schema.Struct({
   ),
 }).annotations({
   description: 'Find many items with pagination',
-  jsonSchema: {
-    required: [],
-  },
 });
 
 export type FindManyUrlParams = typeof FindManyUrlParams.Type;

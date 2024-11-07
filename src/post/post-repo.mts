@@ -1,11 +1,13 @@
-import { Model, SqlClient, SqlSchema } from '@effect/sql';
-import { Effect, pipe, Option, Layer, Schema } from 'effect';
-import { Post, PostId } from './post-schema.mjs';
-import { PostNotFound } from './post-error.mjs';
-import { SqlLive } from '@/sql/sql-live.mjs';
-import { makeTestLayer } from '@/misc/test-layer.mjs';
+import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
-import { DESC } from '@/sql/order-by.mjs';
+import { makeTestLayer } from '@/misc/test-layer.mjs';
+import { CREATED_AT, DESC } from '@/sql/order-by.mjs';
+import { SqlLive } from '@/sql/sql-live.mjs';
+import { Model, SqlClient, SqlSchema } from '@effect/sql';
+import { Effect, Layer, Option, pipe } from 'effect';
+import { PostNotFound } from './post-error.mjs';
+import { Post, PostId } from './post-schema.mjs';
 
 const TABLE_NAME = 'post';
 
@@ -23,17 +25,19 @@ const make = Effect.gen(function* () {
         Request: FindManyUrlParams,
         Result: Post,
         execute: () =>
-          sql`select * from ${sql(TABLE_NAME)} limit ${params.limit} offset ${params.page * params.limit} created_at ${sql.unsafe(DESC)}`,
+          sql`select * from ${sql(TABLE_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
       })(params);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
-        Result: Schema.Struct({
-          total: Schema.Number,
-        }),
+        Result: CommonCountSchema,
         execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
       })(params);
 
-      return {
+      const ResultSchema = FindManyResultSchema(Post);
+
+      yield* Effect.log(posts);
+
+      const result = ResultSchema.make({
         data: posts,
         meta: {
           total,
@@ -41,8 +45,10 @@ const make = Effect.gen(function* () {
           limit: params.limit,
           isLastPage: params.page * params.limit + posts.length >= total,
         },
-      };
-    });
+      });
+
+      return result;
+    }).pipe(Effect.orDie, Effect.withSpan('PostRepo.findAll'));
 
   const with_ = <A, E, R>(
     id: PostId,

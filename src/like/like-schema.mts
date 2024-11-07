@@ -20,10 +20,7 @@ export class Like extends Model.Class<Like>('Like')({
     nullable: true,
     onNoneEncoding: () => undefined,
   }),
-  accountId: Schema.optionalWith(AccountId, {
-    nullable: true,
-    onNoneEncoding: () => undefined,
-  }),
+  accountId: AccountId,
   commentId: Schema.optionalWith(CommentId, {
     nullable: true,
     onNoneEncoding: () => undefined,
@@ -36,7 +33,6 @@ export class Like extends Model.Class<Like>('Like')({
     nullable: true,
     onNoneEncoding: () => undefined,
   }),
-  isDeleted: Schema.Boolean,
   type: Schema.Literal('like', 'dislike'),
   count: Schema.Number,
   createdAt: CustomDateTimeInsert,

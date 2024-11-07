@@ -6,6 +6,7 @@ import { Schema } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId } from './post-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
+import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
@@ -43,6 +44,8 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
+      .addError(LikeConflict)
+      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -59,6 +62,8 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
+      .addError(LikeNotFound)
+      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -75,6 +80,8 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
+      .addError(LikeConflict)
+      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -91,6 +98,8 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
+      .addError(LikeNotFound)
+      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           description:
