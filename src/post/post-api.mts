@@ -7,6 +7,7 @@ import { PostNotFound } from './post-error.mjs';
 import { Post, PostId } from './post-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
+import { Like } from '@/like/like-schema.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
@@ -35,9 +36,29 @@ export class PostApi extends HttpApiGroup.make('post')
       .annotateContext(
         OpenApi.annotations({
           description:
-            '게시글을 조회합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+            '게시글을 조회합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 이 API는 조회수를 1 증가시킵니다.',
           override: {
             summary: '(사용가능) 게시글 단일 조회',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.get('findLikeStatus', '/:id/like-status')
+      .middleware(Authentication)
+      .setPath(
+        Schema.Struct({
+          id: PostId,
+        }),
+      )
+      .addError(LikeNotFound)
+      .addSuccess(Like)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '현재 사용자의 게시글 좋아요 상태를 조회합니다. 게시글이나 좋아요가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 좋아요 상태 조회',
           },
         }),
       ),
@@ -50,6 +71,7 @@ export class PostApi extends HttpApiGroup.make('post')
           id: PostId,
         }),
       )
+      .addSuccess(Post)
       .addError(PostNotFound)
       .addError(LikeConflict)
       .addError(Unauthorized)
@@ -71,6 +93,7 @@ export class PostApi extends HttpApiGroup.make('post')
           id: PostId,
         }),
       )
+      .addSuccess(Post)
       .addError(PostNotFound)
       .addError(LikeNotFound)
       .addError(Unauthorized)
@@ -85,13 +108,14 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.post('dislikePostById', '/:id/dislike')
+    HttpApiEndpoint.post('addDislikePostById', '/:id/dislike')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
           id: PostId,
         }),
       )
+      .addSuccess(Post)
       .addError(PostNotFound)
       .addError(LikeConflict)
       .addError(Unauthorized)
@@ -114,6 +138,7 @@ export class PostApi extends HttpApiGroup.make('post')
           id: PostId,
         }),
       )
+      .addSuccess(Post)
       .addError(PostNotFound)
       .addError(LikeNotFound)
       .addError(Unauthorized)
@@ -150,7 +175,9 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .middleware(Authentication)
-      .setPayload(Post.jsonUpdate.omit('likeCount', 'dislikeCount'))
+      .setPayload(
+        Post.jsonUpdate.omit('likeCount', 'dislikeCount', 'viewCount'),
+      )
       .addError(PostNotFound)
       .addError(Unauthorized)
       .annotateContext(

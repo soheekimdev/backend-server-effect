@@ -20,6 +20,12 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
+  const viewRepo = yield* Model.makeRepository(Post, {
+    tableName: VIEW_NAME,
+    spanPrefix: 'PostViewRepo',
+    idColumn: 'id',
+  });
+
   const findAll = (params: FindManyUrlParams) =>
     Effect.gen(function* () {
       const posts = yield* SqlSchema.findAll({
@@ -54,7 +60,7 @@ const make = Effect.gen(function* () {
     f: (post: Post) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | PostNotFound, R> => {
     return pipe(
-      repo.findById(id),
+      viewRepo.findById(id),
       Effect.flatMap(
         Option.match({
           onNone: () => new PostNotFound({ id }),

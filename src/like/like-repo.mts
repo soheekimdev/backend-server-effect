@@ -5,7 +5,7 @@ import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe } from 'effect';
 import { LikeConflict, LikeNotFound } from './like-error.mjs';
-import { Like, LikeId } from './like-schema.mjs';
+import { Like, LikeId, LikeType } from './like-schema.mjs';
 import { LikeSelector, likeSelectorsToWhere } from './like-selector-schema.mjs';
 
 const LIKE_TABLE = 'like';
@@ -38,11 +38,11 @@ const make = Effect.gen(function* () {
 
   const withoutTarget_ = <A, E, R>(
     ids: LikeSelector,
-    type: 'like' | 'dislike' = 'like',
+    types: LikeType[] = ['like'],
     f: () => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | LikeConflict, R> => {
     return pipe(
-      findLikeByTargets(ids, type),
+      findLikeByTargets(ids, types),
       Effect.flatMap(
         Option.match({
           onNone: () => Effect.succeed(true),
@@ -72,10 +72,19 @@ const make = Effect.gen(function* () {
       )
       .pipe(Effect.withSpan('LikeRepo.createPostLike'), Effect.orDie);
 
-  const findLikeByTargets = (
-    ids: LikeSelector,
-    type: 'like' | 'dislike' = 'like',
-  ) =>
+  const createPostDislike = (postId: PostId, accountId: AccountId) =>
+    repo
+      .insert(
+        Like.insert.make({
+          postId,
+          accountId,
+          count: 1,
+          type: 'dislike',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createPostLike'), Effect.orDie);
+
+  const findLikeByTargets = (ids: LikeSelector, types: LikeType[] = ['like']) =>
     SqlSchema.findOne({
       Request: LikeSelector,
       Result: Like,
@@ -84,16 +93,18 @@ const make = Effect.gen(function* () {
           likeSelectorsToWhere(req).map(([key, value]) =>
             sql.unsafe(`${key} = '${value}'`),
           ),
-        )} and type = '${sql.unsafe(type)}'`,
+        )} and ${sql.unsafe(
+          types.length > 1 ? `and type in (${types.join(', ')})` : `1 = 1`,
+        )}`,
     })(ids).pipe(Effect.withSpan('LikeRepo.findLikeByTargets'), Effect.orDie);
 
   const withTarget_ = <A, E, R>(
     ids: LikeSelector,
-    type: 'like' | 'dislike' = 'like',
+    types: LikeType[] = ['like'],
     f: (like: Like) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | LikeNotFound, R> => {
     return pipe(
-      findLikeByTargets(ids, type),
+      findLikeByTargets(ids, types),
       Effect.flatMap(
         Option.match({
           onNone: () => new LikeNotFound({}),
@@ -109,6 +120,7 @@ const make = Effect.gen(function* () {
   return {
     ...repo,
     createPostLike,
+    createPostDislike,
     with: with_,
     withTarget: withTarget_,
     withoutTarget: withoutTarget_,

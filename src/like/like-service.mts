@@ -7,11 +7,26 @@ import { LikeRepo } from './like-repo.mjs';
 const make = Effect.gen(function* () {
   const likeRepo = yield* LikeRepo;
 
-  const likePostById = (postId: PostId) =>
+  const getLikeStatusByPostId = (postId: PostId) =>
     pipe(
       CurrentAccount,
       Effect.flatMap((curr) =>
-        likeRepo.withoutTarget({ postId, accountId: curr.id }, 'like', () =>
+        likeRepo.withTarget(
+          {
+            postId,
+            accountId: curr.id,
+          },
+          [],
+          (existing) => Effect.succeed(existing),
+        ),
+      ),
+    );
+
+  const addLikePostById = (postId: PostId) =>
+    pipe(
+      CurrentAccount,
+      Effect.flatMap((curr) =>
+        likeRepo.withoutTarget({ postId, accountId: curr.id }, [], () =>
           pipe(
             likeRepo.createPostLike(postId, curr.id),
             Effect.withSpan('LikeService.likePostById'),
@@ -29,7 +44,7 @@ const make = Effect.gen(function* () {
             postId,
             accountId: account.id,
           },
-          'like',
+          ['like'],
           (existing) =>
             pipe(
               likeRepo.delete(existing.id),
@@ -39,7 +54,48 @@ const make = Effect.gen(function* () {
       ),
     );
 
-  return { likePostById, removeLikePostById } as const;
+  const addDislikePostById = (postId: PostId) =>
+    pipe(
+      CurrentAccount,
+      Effect.flatMap((curr) =>
+        likeRepo.withoutTarget(
+          { postId, accountId: curr.id },
+          ['dislike'],
+          () =>
+            pipe(
+              likeRepo.createPostDislike(postId, curr.id),
+              Effect.withSpan('LikeService.addDislikePostById'),
+            ),
+        ),
+      ),
+    );
+
+  const removeDislikePostById = (postId: PostId) =>
+    pipe(
+      CurrentAccount,
+      Effect.flatMap((account) =>
+        likeRepo.withTarget(
+          {
+            postId,
+            accountId: account.id,
+          },
+          ['dislike'],
+          (existing) =>
+            pipe(
+              likeRepo.delete(existing.id),
+              Effect.withSpan('LikeService.removeDislikePostById'),
+            ),
+        ),
+      ),
+    );
+
+  return {
+    addLikePostById,
+    removeLikePostById,
+    addDislikePostById,
+    removeDislikePostById,
+    getLikeStatusByPostId,
+  } as const;
 });
 
 export class LikeService extends Effect.Tag('LikeService')<

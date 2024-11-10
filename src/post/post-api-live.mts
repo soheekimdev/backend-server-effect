@@ -13,7 +13,9 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
 
     return handlers
       .handle('findAll', ({ urlParams }) => postService.findPosts(urlParams))
-      .handle('findById', ({ path }) => postService.findById(path.id))
+      .handle('findById', ({ path }) =>
+        postService.increaseViewCountById(path.id),
+      )
       .handle('create', ({ payload }) =>
         postService.create(payload).pipe(withSystemActor),
       )
@@ -27,9 +29,12 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
           .deleteById(path.id)
           .pipe(policyUse(postPolicy.canDelete(path.id))),
       )
+      .handle('findLikeStatus', ({ path }) =>
+        postService.findLikeStatus(path.id),
+      )
       .handle('likePostById', ({ path }) =>
         postService
-          .likePostById(path.id)
+          .addLikePostById(path.id)
           .pipe(policyUse(postPolicy.canLike(path.id))),
       )
       .handle('removeLikePostById', ({ path }) =>
@@ -37,9 +42,9 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
           .removePostLikeById(path.id)
           .pipe(policyUse(postPolicy.canLike(path.id))),
       )
-      .handle('dislikePostById', ({ path }) =>
+      .handle('addDislikePostById', ({ path }) =>
         postService
-          .dislikePostById(path.id)
+          .addDislikePostById(path.id)
           .pipe(policyUse(postPolicy.canDislike(path.id))),
       )
       .handle('removeDislikePostById', ({ path }) =>

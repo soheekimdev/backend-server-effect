@@ -15,7 +15,9 @@ const make = Effect.gen(function* () {
     postRepo.findAll(params).pipe(Effect.withSpan('PostService.findPosts'));
 
   const findById = (id: PostId) =>
-    postRepo.with(id, (post) => pipe(Effect.succeed(post)));
+    postRepo.with(id, (post) =>
+      pipe(Effect.succeed(post), Effect.withSpan('PostService.findById')),
+    );
 
   const create = (post: typeof Post.jsonCreate.Type) =>
     pipe(
@@ -32,7 +34,10 @@ const make = Effect.gen(function* () {
       policyRequire('post', 'create'),
     );
 
-  const updateById = (postId: PostId, post: typeof Post.jsonUpdate.Type) =>
+  const updateById = (
+    postId: PostId,
+    post: Partial<typeof Post.jsonUpdate.Type>,
+  ) =>
     postRepo.with(postId, (existing) =>
       pipe(
         postRepo.update({ ...existing, ...post, updatedAt: undefined }),
@@ -50,52 +55,73 @@ const make = Effect.gen(function* () {
       ),
     );
 
-  const likePostById = (postId: PostId) =>
+  const findLikeStatus = (postId: PostId) =>
+    pipe(likeService.getLikeStatusByPostId(postId));
+
+  const addLikePostById = (postId: PostId) =>
     postRepo.with(postId, (post) =>
       likeService
-        .likePostById(postId)
+        .addLikePostById(post.id)
         .pipe(
-          Effect.withSpan('PostService.likePostById'),
+          Effect.withSpan('PostService.addLikePostById'),
           policyRequire('post', 'like'),
-        ),
+        )
+        .pipe(Effect.flatMap(() => findById(postId))),
     );
 
   const removePostLikeById = (postId: PostId) =>
     postRepo.with(postId, (post) =>
       likeService
-        .removeLikePostById(postId)
+        .removeLikePostById(post.id)
         .pipe(
-          Effect.withSpan('PostService.dislikePostById'),
+          Effect.withSpan('PostService.addDislikePostById'),
           policyRequire('post', 'dislike'),
-        ),
+        )
+        .pipe(Effect.flatMap(() => findById(postId))),
     );
 
-  const dislikePostById = (postId: PostId) =>
+  const addDislikePostById = (postId: PostId) =>
     postRepo.with(postId, (post) =>
       likeService
-        .likePostById(postId)
+        .addDislikePostById(post.id)
         .pipe(
-          Effect.withSpan('PostService.dislikePostById'),
+          Effect.withSpan('PostService.addDislikePostById'),
           policyRequire('post', 'dislike'),
-        ),
+        )
+        .pipe(Effect.flatMap(() => findById(postId))),
     );
 
   const removePostDislikeById = (postId: PostId) =>
     postRepo.with(postId, (post) =>
       likeService
-        .removeLikePostById(postId)
+        .removeDislikePostById(postId)
         .pipe(
           Effect.withSpan('PostService.removePostDislikeById'),
           policyRequire('post', 'dislike'),
-        ),
+        )
+        .pipe(Effect.flatMap(() => findById(postId))),
+    );
+
+  const increaseViewCountById = (postId: PostId) =>
+    postRepo.with(postId, (post) =>
+      pipe(
+        postRepo.update({
+          ...post,
+          viewCount: post.viewCount + 1,
+          updatedAt: undefined,
+        }),
+        Effect.withSpan('PostService.increaseViewCountById'),
+      ),
     );
 
   return {
     findPosts,
     findById,
-    likePostById,
+    findLikeStatus,
+    increaseViewCountById,
+    addLikePostById,
     removePostLikeById,
-    dislikePostById,
+    addDislikePostById,
     removePostDislikeById,
     create,
     updateById,

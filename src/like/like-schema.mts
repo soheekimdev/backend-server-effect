@@ -38,3 +38,5 @@ export class Like extends Model.Class<Like>('Like')({
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}
+
+export type LikeType = (typeof Like.Type)['type'];

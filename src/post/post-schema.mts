@@ -89,6 +89,14 @@ export class Post extends Model.Class<Post>('Post')({
       onNoneEncoding: () => undefined,
     }),
   ),
+  viewCount: Schema.Number.pipe(
+    Schema.int(),
+    Schema.nonNegative(),
+    Schema.annotations({
+      default: 0,
+      description: '이 게시글이 조회된 횟수',
+    }),
+  ),
   likeCount: Schema.Number.pipe(
     Schema.int(),
     Schema.nonNegative(),
