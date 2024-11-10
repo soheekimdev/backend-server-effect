@@ -1,8 +1,7 @@
 import { Api } from '@/api.mjs';
 import { AuthenticationLive } from '@/auth/authentication.mjs';
 import { policyUse, withSystemActor } from '@/auth/authorization.mjs';
-import { securityRemoveCookie } from '@/misc/security-remove-cookie.mjs';
-import { HttpApiBuilder, HttpApiSecurity } from '@effect/platform';
+import { HttpApiBuilder } from '@effect/platform';
 import { Effect, Layer } from 'effect';
 import { AccountPolicy } from './account-policy.mjs';
 import { CurrentAccount } from './account-schema.mjs';
@@ -24,49 +23,7 @@ export const AccountApiLive = HttpApiBuilder.group(Api, 'account', (handlers) =>
           .pipe(policyUse(accountPolicy.canUpdate(path.id))),
       )
       .handle('signIn', ({ payload }) =>
-        accountService.signIn(payload).pipe(
-          withSystemActor,
-          Effect.tap((result) =>
-            HttpApiBuilder.securitySetCookie(
-              HttpApiSecurity.apiKey({
-                in: 'cookie',
-                key: 'access-token',
-              }),
-              result.accessToken,
-              {
-                path: '/',
-              },
-            ),
-          ),
-          Effect.tap((result) =>
-            HttpApiBuilder.securitySetCookie(
-              HttpApiSecurity.apiKey({
-                in: 'cookie',
-                key: 'refresh-token',
-              }),
-              result.refreshToken,
-              {
-                path: '/',
-              },
-            ),
-          ),
-        ),
-      )
-      .handle('signOut', () =>
-        Effect.gen(function* () {
-          yield* securityRemoveCookie(
-            HttpApiSecurity.apiKey({
-              in: 'cookie',
-              key: 'access-token',
-            }),
-          );
-          yield* securityRemoveCookie(
-            HttpApiSecurity.apiKey({
-              in: 'cookie',
-              key: 'refresh-token',
-            }),
-          );
-        }),
+        accountService.signIn(payload).pipe(withSystemActor),
       )
       .handle('me', () => CurrentAccount)
       .handle('invalidate', ({ headers }) =>

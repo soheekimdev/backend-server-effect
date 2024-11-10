@@ -129,21 +129,6 @@ export class AccountApi extends HttpApiGroup.make('account')
       ),
   )
   .add(
-    HttpApiEndpoint.post('signOut', '/sign-out')
-      .middleware(Authentication)
-      .addSuccess(Schema.Void)
-      .annotateContext(
-        OpenApi.annotations({
-          title: '로그아웃',
-          description:
-            '로그아웃합니다. 로그인해야 사용할 수 있습니다. 로그아웃 후에는 쿠키가 삭제됩니다.',
-          override: {
-            summary: '(사용가능) 로그아웃',
-          },
-        }),
-      ),
-  )
-  .add(
     HttpApiEndpoint.post('invalidate', '/invalidate')
       .setHeaders(
         Schema.Struct({

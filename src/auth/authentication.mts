@@ -11,10 +11,7 @@ export class Authentication extends HttpApiMiddleware.Tag<Authentication>()(
     failure: Unauthenticated,
     provides: CurrentAccount,
     security: {
-      bearer: HttpApiSecurity.apiKey({
-        key: 'access-token',
-        in: 'cookie',
-      }),
+      bearerHeader: HttpApiSecurity.bearer,
     },
   },
 ) {}
@@ -27,11 +24,11 @@ export const AuthenticationLive = Layer.effect(
 
     // return the security handlers
     return Authentication.of({
-      bearer: (serializedToken) =>
+      bearerHeader: (serializedToken) =>
         Effect.provide(
           Effect.gen(function* () {
-            const accountRepo = yield* AccountRepo;
             const tokenService = yield* TokenService;
+            const accountRepo = yield* AccountRepo;
             const decoded = yield* tokenService.verifyToken(
               Redacted.value(serializedToken),
             );
