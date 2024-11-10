@@ -10,6 +10,7 @@ import { PostNotFound } from './post-error.mjs';
 import { Post, PostId } from './post-schema.mjs';
 
 const TABLE_NAME = 'post';
+const VIEW_NAME = 'post_like_counts';
 
 const make = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
@@ -25,7 +26,7 @@ const make = Effect.gen(function* () {
         Request: FindManyUrlParams,
         Result: Post,
         execute: () =>
-          sql`select * from ${sql(TABLE_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+          sql`select * from ${sql(VIEW_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
       })(params);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
@@ -34,8 +35,6 @@ const make = Effect.gen(function* () {
       })(params);
 
       const ResultSchema = FindManyResultSchema(Post);
-
-      yield* Effect.log(posts);
 
       const result = ResultSchema.make({
         data: posts,

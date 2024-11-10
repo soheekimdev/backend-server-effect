@@ -6,14 +6,23 @@ const program = Effect.gen(function* () {
 
   yield* sql.onDialectOrElse({
     pg: () => sql`
-ALTER TABLE post
-ADD COLUMN view_count INT DEFAULT 0;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'post' AND column_name = 'view_count'
+  ) THEN
+    ALTER TABLE post
+    ADD COLUMN view_count INT DEFAULT 0;
+  END IF;
+END $$;
 
 CREATE VIEW post_like_counts AS
 SELECT
   post.*,
-  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0) AS like_count,
-  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0) AS dislike_count
+  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
+  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count
 FROM
   post
 LEFT JOIN
@@ -24,7 +33,7 @@ GROUP BY
 CREATE VIEW post_comment_counts AS
 SELECT
   post.*,
-  COALESCE(COUNT(comment.id), 0) AS comment_count
+  COALESCE(COUNT(comment.id), 0)::integer AS comment_count
 FROM
   post
 LEFT JOIN
@@ -35,8 +44,8 @@ GROUP BY
 CREATE VIEW comment_like_counts AS
 SELECT
   comment.*,
-  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0) AS like_count,
-  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0) AS dislike_count
+  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
+  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count
 FROM
   comment
 LEFT JOIN
@@ -47,8 +56,8 @@ GROUP BY
 CREATE VIEW challenge_like_counts AS
 SELECT
   challenge.*,
-  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0) AS like_count,
-  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0) AS dislike_count
+  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
+  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count
 FROM
   challenge
 LEFT JOIN
@@ -59,8 +68,8 @@ GROUP BY
 CREATE VIEW challenge_event_like_counts AS
 SELECT
   challenge_event.*,
-  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0) AS like_count,
-  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0) AS dislike_count
+  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
+  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count
 FROM
   challenge_event
 LEFT JOIN

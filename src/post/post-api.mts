@@ -150,7 +150,7 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .middleware(Authentication)
-      .setPayload(Post.jsonUpdate)
+      .setPayload(Post.jsonUpdate.omit('likeCount', 'dislikeCount'))
       .addError(PostNotFound)
       .addError(Unauthorized)
       .annotateContext(

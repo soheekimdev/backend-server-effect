@@ -89,6 +89,22 @@ export class Post extends Model.Class<Post>('Post')({
       onNoneEncoding: () => undefined,
     }),
   ),
+  likeCount: Schema.Number.pipe(
+    Schema.int(),
+    Schema.nonNegative(),
+    Schema.annotations({
+      default: 0,
+      description: '이 게시글에 달린 좋아요의 수',
+    }),
+  ),
+  dislikeCount: Schema.Number.pipe(
+    Schema.int(),
+    Schema.nonNegative(),
+    Schema.annotations({
+      default: 0,
+      description: '이 게시글에 달린 싫어요의 수',
+    }),
+  ),
   accountId: Model.Sensitive(AccountId),
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
