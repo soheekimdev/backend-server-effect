@@ -158,6 +158,7 @@ export class PostApi extends HttpApiGroup.make('post')
       .middleware(Authentication)
       .setPayload(Post.jsonCreate)
       .addError(Unauthorized)
+      .addError(PostNotFound)
       .addSuccess(PostView)
       .annotateContext(
         OpenApi.annotations({
