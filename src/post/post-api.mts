@@ -4,7 +4,7 @@ import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { PostNotFound } from './post-error.mjs';
-import { Post, PostId } from './post-schema.mjs';
+import { Post, PostId, PostView } from './post-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
 import { Like } from '@/like/like-schema.mjs';
@@ -22,7 +22,7 @@ export class PostApi extends HttpApiGroup.make('post')
           },
         }),
       )
-      .addSuccess(FindManyResultSchema(Post)),
+      .addSuccess(FindManyResultSchema(PostView)),
   )
   .add(
     HttpApiEndpoint.get('findById', '/:id')
@@ -32,7 +32,7 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .addError(PostNotFound)
-      .addSuccess(Post)
+      .addSuccess(PostView)
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -157,6 +157,8 @@ export class PostApi extends HttpApiGroup.make('post')
     HttpApiEndpoint.post('create', '/')
       .middleware(Authentication)
       .setPayload(Post.jsonCreate)
+      .addError(Unauthorized)
+      .addSuccess(PostView)
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -175,9 +177,7 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .middleware(Authentication)
-      .setPayload(
-        Post.jsonUpdate.omit('likeCount', 'dislikeCount', 'viewCount'),
-      )
+      .setPayload(Post.jsonUpdate)
       .addError(PostNotFound)
       .addError(Unauthorized)
       .annotateContext(

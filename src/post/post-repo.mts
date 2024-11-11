@@ -26,7 +26,7 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
-  const findAll = (params: FindManyUrlParams) =>
+  const findAllWithView = (params: FindManyUrlParams) =>
     Effect.gen(function* () {
       const posts = yield* SqlSchema.findAll({
         Request: FindManyUrlParams,
@@ -75,7 +75,7 @@ const make = Effect.gen(function* () {
 
   const withView_ = <A, E, R>(
     id: PostId,
-    f: (post: Post) => Effect.Effect<A, E, R>,
+    f: (post: PostView) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | PostNotFound, R> => {
     return pipe(
       viewRepo.findById(id),
@@ -93,7 +93,8 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
-    findAll,
+    viewRepo,
+    findAllWithView,
     with: with_,
     withView: withView_,
   } as const;
