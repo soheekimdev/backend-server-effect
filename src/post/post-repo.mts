@@ -7,7 +7,7 @@ import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe } from 'effect';
 import { PostNotFound } from './post-error.mjs';
-import { Post, PostId } from './post-schema.mjs';
+import { Post, PostId, PostView } from './post-schema.mjs';
 
 const TABLE_NAME = 'post';
 const VIEW_NAME = 'post_like_counts';
@@ -20,7 +20,7 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
-  const viewRepo = yield* Model.makeRepository(Post, {
+  const viewRepo = yield* Model.makeRepository(PostView, {
     tableName: VIEW_NAME,
     spanPrefix: 'PostViewRepo',
     idColumn: 'id',
@@ -30,7 +30,7 @@ const make = Effect.gen(function* () {
     Effect.gen(function* () {
       const posts = yield* SqlSchema.findAll({
         Request: FindManyUrlParams,
-        Result: Post,
+        Result: PostView,
         execute: () =>
           sql`select * from ${sql(VIEW_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
       })(params);
@@ -40,7 +40,7 @@ const make = Effect.gen(function* () {
         execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
       })(params);
 
-      const ResultSchema = FindManyResultSchema(Post);
+      const ResultSchema = FindManyResultSchema(PostView);
 
       const result = ResultSchema.make({
         data: posts,
@@ -56,6 +56,24 @@ const make = Effect.gen(function* () {
     }).pipe(Effect.orDie, Effect.withSpan('PostRepo.findAll'));
 
   const with_ = <A, E, R>(
+    id: PostId,
+    f: (post: Post) => Effect.Effect<A, E, R>,
+  ): Effect.Effect<A, E | PostNotFound, R> => {
+    return pipe(
+      repo.findById(id),
+      Effect.flatMap(
+        Option.match({
+          onNone: () => new PostNotFound({ id }),
+          onSome: Effect.succeed,
+        }),
+      ),
+      Effect.flatMap(f),
+      sql.withTransaction,
+      Effect.catchTag('SqlError', (err) => Effect.die(err)),
+    );
+  };
+
+  const withView_ = <A, E, R>(
     id: PostId,
     f: (post: Post) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | PostNotFound, R> => {
@@ -77,6 +95,7 @@ const make = Effect.gen(function* () {
     ...repo,
     findAll,
     with: with_,
+    withView: withView_,
   } as const;
 });
 
