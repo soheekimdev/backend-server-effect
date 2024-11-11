@@ -174,12 +174,8 @@ const make = Effect.gen(function* () {
         Effect.orDie,
       );
 
-  const findLikeByTargets = (
-    ids: LikeSelector,
-    types: LikeType[] = ['like'],
-  ) => {
-    console.log(ids, types);
-    return SqlSchema.findOne({
+  const findLikeByTargets = (ids: LikeSelector, types: LikeType[] = ['like']) =>
+    SqlSchema.findOne({
       Request: LikeSelector,
       Result: Like,
       execute: (req) =>
@@ -193,7 +189,6 @@ const make = Effect.gen(function* () {
             : `1 = 1`,
         )}`,
     })(ids).pipe(Effect.withSpan('LikeRepo.findLikeByTargets'), Effect.orDie);
-  };
 
   const withTarget_ = <A, E, R>(
     ids: LikeSelector,
