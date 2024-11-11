@@ -7,6 +7,9 @@ import { Effect, Layer, Option, pipe } from 'effect';
 import { LikeConflict, LikeNotFound } from './like-error.mjs';
 import { Like, LikeId, LikeType } from './like-schema.mjs';
 import { LikeSelector, likeSelectorsToWhere } from './like-selector-schema.mjs';
+import { CommentId } from '@/comment/comment-schema.mjs';
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
+import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
 
 const LIKE_TABLE = 'like';
 
@@ -84,8 +87,99 @@ const make = Effect.gen(function* () {
       )
       .pipe(Effect.withSpan('LikeRepo.createPostLike'), Effect.orDie);
 
-  const findLikeByTargets = (ids: LikeSelector, types: LikeType[] = ['like']) =>
-    SqlSchema.findOne({
+  const createCommentLike = (commentId: CommentId, accountId: AccountId) =>
+    repo
+      .insert(
+        Like.insert.make({
+          commentId,
+          accountId,
+          count: 1,
+          type: 'like',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createCommentLike'), Effect.orDie);
+
+  const createCommentDislike = (commentId: CommentId, accountId: AccountId) =>
+    repo
+      .insert(
+        Like.insert.make({
+          commentId,
+          accountId,
+          count: 1,
+          type: 'dislike',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createCommentDislike'), Effect.orDie);
+
+  const createChallengeLike = (
+    challengeId: ChallengeId,
+    accountId: AccountId,
+  ) =>
+    repo
+      .insert(
+        Like.insert.make({
+          challengeId,
+          accountId,
+          count: 1,
+          type: 'like',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createChallengeLike'), Effect.orDie);
+
+  const createChallengeDislike = (
+    challengeId: ChallengeId,
+    accountId: AccountId,
+  ) =>
+    repo
+      .insert(
+        Like.insert.make({
+          challengeId,
+          accountId,
+          count: 1,
+          type: 'dislike',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createChallengeDislike'), Effect.orDie);
+
+  const createChallengeEventLike = (
+    challengeEventId: ChallengeEventId,
+    accountId: AccountId,
+  ) =>
+    repo
+      .insert(
+        Like.insert.make({
+          challengeEventId,
+          accountId,
+          count: 1,
+          type: 'like',
+        }),
+      )
+      .pipe(Effect.withSpan('LikeRepo.createChallengeEventLike'), Effect.orDie);
+
+  const createChallengeEventDislike = (
+    challengeEventId: ChallengeEventId,
+    accountId: AccountId,
+  ) =>
+    repo
+      .insert(
+        Like.insert.make({
+          challengeEventId,
+          accountId,
+          count: 1,
+          type: 'dislike',
+        }),
+      )
+      .pipe(
+        Effect.withSpan('LikeRepo.createChallengeEventDislike'),
+        Effect.orDie,
+      );
+
+  const findLikeByTargets = (
+    ids: LikeSelector,
+    types: LikeType[] = ['like'],
+  ) => {
+    console.log(ids, types);
+    return SqlSchema.findOne({
       Request: LikeSelector,
       Result: Like,
       execute: (req) =>
@@ -94,9 +188,12 @@ const make = Effect.gen(function* () {
             sql.unsafe(`${key} = '${value}'`),
           ),
         )} and ${sql.unsafe(
-          types.length > 1 ? `and type in (${types.join(', ')})` : `1 = 1`,
+          types.length > 0
+            ? `type in (${types.map((v) => "'" + v + "'").join(', ')})`
+            : `1 = 1`,
         )}`,
     })(ids).pipe(Effect.withSpan('LikeRepo.findLikeByTargets'), Effect.orDie);
+  };
 
   const withTarget_ = <A, E, R>(
     ids: LikeSelector,
@@ -121,6 +218,12 @@ const make = Effect.gen(function* () {
     ...repo,
     createPostLike,
     createPostDislike,
+    createCommentLike,
+    createCommentDislike,
+    createChallengeLike,
+    createChallengeDislike,
+    createChallengeEventLike,
+    createChallengeEventDislike,
     with: with_,
     withTarget: withTarget_,
     withoutTarget: withoutTarget_,

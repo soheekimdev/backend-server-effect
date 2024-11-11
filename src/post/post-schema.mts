@@ -146,3 +146,24 @@ export class PostView extends Model.Class<PostView>('PostView')({
     ),
   ),
 }) {}
+
+export class PostCommentView extends Model.Class<PostCommentView>(
+  'PostCommentView',
+)({
+  id: Post.fields.id,
+  commentCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.int(),
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 게시글에 달린 댓글의 수',
+      }),
+    ),
+  ),
+}) {}
