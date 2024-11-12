@@ -8,10 +8,10 @@ const make = Effect.gen(function* () {
       Effect.succeed(actor.id === toUpdate || actor.role === 'admin'),
     );
 
-  const canRead = (toRead: AccountId) =>
-    policy('account', 'read', (actor) =>
-      Effect.succeed(actor.id === toRead || actor.role === 'admin'),
-    );
+  // const canRead = (toRead: AccountId) =>
+  //   policy('account', 'read', (actor) =>
+  //     Effect.succeed(actor.id === toRead || actor.role === 'admin'),
+  //   );
 
   const canReadSensitive = (toRead: AccountId) =>
     policy('account', 'readSensitive', (actor) =>
@@ -20,7 +20,7 @@ const make = Effect.gen(function* () {
 
   return {
     canUpdate,
-    canRead,
+    // canRead,
     canReadSensitive,
   } as const;
 });

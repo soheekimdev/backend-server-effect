@@ -135,7 +135,6 @@ const make = Effect.gen(function* () {
       return matched;
     }).pipe(
       Effect.orDie,
-      policyRequire('account', 'read'),
       Effect.withSpan('AccountService.findAccountById', {
         attributes: { id },
       }),

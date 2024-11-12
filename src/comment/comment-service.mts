@@ -101,7 +101,7 @@ const make = Effect.gen(function* () {
     commentRepo.with(commentId, (comment) =>
       likeService.removeLikeCommentById(comment.id).pipe(
         Effect.withSpan('CommentService.removeLikeCommentById'),
-        policyRequire('comment', 'dislike'),
+        policyRequire('comment', 'like'),
         Effect.flatMap(() => findByIdWithView(comment.id)),
       ),
     );

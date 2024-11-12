@@ -79,7 +79,7 @@ const make = Effect.gen(function* () {
         .removeLikePostById(post.id)
         .pipe(
           Effect.withSpan('PostService.addDislikePostById'),
-          policyRequire('post', 'dislike'),
+          policyRequire('post', 'like'),
         )
         .pipe(Effect.flatMap(() => findByIdWithView(post.id))),
     );

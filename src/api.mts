@@ -8,8 +8,8 @@ import { FileApi } from './file/file-api.mjs';
 
 export class Api extends HttpApi.empty
   .add(RootApi)
-  .add(FileApi)
   .add(AccountApi)
   .add(PostApi)
   .add(CommentApi)
+  .add(FileApi)
   .add(ChallengeApi) {}
