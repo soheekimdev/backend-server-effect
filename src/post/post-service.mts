@@ -11,6 +11,8 @@ const make = Effect.gen(function* () {
   const postRepo = yield* PostRepo;
   const likeService = yield* LikeService;
 
+  const findByIdFromRepo = (id: PostId) => postRepo.findById(id);
+
   const findPosts = (params: FindManyUrlParams) =>
     postRepo
       .findAllWithView(params)
@@ -120,6 +122,7 @@ const make = Effect.gen(function* () {
     );
 
   return {
+    findByIdFromRepo,
     findPosts,
     findByIdWithView,
     findLikeStatus,

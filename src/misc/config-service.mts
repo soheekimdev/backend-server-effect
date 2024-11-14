@@ -32,7 +32,34 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  return { port, jwtSecret, host, dbDirectUrl } as const;
+  const supabaseAnon = yield* Config.string('SUPABASE_ANON').pipe(
+    Config.withDefault('anon'),
+  );
+
+  const supabaseServiceRole = yield* Config.string(
+    'SUPABASE_SERVICE_ROLE',
+  ).pipe(Config.withDefault('supabase_service_role'));
+
+  const supabaseUrl = yield* Config.string('SUPABASE_URL').pipe(
+    Config.withDefault('supabase_url'),
+  );
+
+  const supabaseId = yield* Config.string('SUPABASE_PROJECT_ID').pipe(
+    Config.withDefault('id'),
+  );
+
+  return {
+    port,
+    jwtSecret,
+    host,
+    dbDirectUrl,
+    supabase: {
+      anon: supabaseAnon,
+      serviceRole: supabaseServiceRole,
+      id: supabaseId,
+      url: supabaseUrl,
+    },
+  } as const;
 });
 
 export class ConfigService extends Effect.Tag('ConfigService')<

@@ -5,6 +5,7 @@ import alias from '@rollup/plugin-alias';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import multi from '@rollup/plugin-multi-entry';
+import json from '@rollup/plugin-json';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,7 @@ export default [
     input: './src/index.mts',
     external: ['fs', 'path'], // Treat Node built-ins as external
     output: {
-      file: './dist/index.mjs',
+      dir: './dist',
       format: 'es',
       sourcemap: false,
     },
@@ -40,11 +41,8 @@ export default [
       commonjs({
         sourceMap: false,
       }), // Convert CommonJS to ES modules
-      swc({
-        swc: {
-          sourceMaps: false,
-        },
-      }),
+      json({ preferConst: true }),
+      swc(),
     ],
   },
   {

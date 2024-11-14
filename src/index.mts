@@ -3,6 +3,7 @@ import {
   HttpApiSwagger,
   HttpMiddleware,
   HttpServer,
+  Etag,
 } from '@effect/platform';
 import { NodeHttpServer, NodeRuntime, NodeSocket } from '@effect/platform-node';
 import { Console, Effect, Layer } from 'effect';
@@ -19,11 +20,13 @@ HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer()),
   Layer.provide(HttpApiBuilder.middlewareOpenApi()),
   Layer.provide(ApiLive),
+
   Layer.provide(
     HttpApiBuilder.middlewareCors({
       allowedOrigins: ['*'],
     }),
   ),
+  Layer.provide(Etag.layerWeak),
   HttpServer.withLogAddress,
   Layer.provide(
     NodeHttpServer.layer(createServer, {
