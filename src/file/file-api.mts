@@ -40,9 +40,9 @@ export class FileApi extends HttpApiGroup.make('file')
       )
       .annotateContext(
         OpenApi.annotations({
-          description: '(테스트중/사용불가) 파일을 업로드합니다.',
+          description: '(사용가능) 파일을 업로드합니다.',
           override: {
-            summary: '(테스트중/사용불가)이미지 업로드',
+            summary: '(사용가능)이미지 업로드',
           },
         }),
       ),
