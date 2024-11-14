@@ -1,1 +1,1 @@
-web: NO_COLOR=true node dist/index.mjs
+web: NO_COLOR=true node dist/index.js
