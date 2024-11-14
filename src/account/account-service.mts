@@ -48,6 +48,7 @@ const make = Effect.gen(function* () {
             passwordSalt: salt,
             isEmailVerified: false,
             role: 'user',
+            username: signUp.username,
           }),
         )
         .pipe(

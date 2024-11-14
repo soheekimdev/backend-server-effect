@@ -17,6 +17,15 @@ export const SignUp = Schema.Struct({
       default: 'p@ss0wrd',
     }),
   ),
+  username: Schema.String.pipe(
+    Schema.minLength(1),
+    Schema.trimmed(),
+    Schema.annotations({
+      title: 'Username',
+      description: '유저이름, 최소 1글자 이상, 앞뒤 공백은 제거하여야 합니다.',
+      default: 'user123',
+    }),
+  ),
 }).pipe(
   Schema.filter((input) => {
     if (input.password !== input.confirmPassword) {
