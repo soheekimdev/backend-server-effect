@@ -12,7 +12,7 @@ import { Comment, CommentId, CommentView } from './comment-schema.mjs';
 
 const TABLE_NAME = 'comment';
 const LIKE_VIEW_NAME = 'comment_like_counts';
-const POST_COMMENT_VIEW_NAME = 'post_comment_counts';
+const POST_COMMENT_VIEW_NAME = 'post_like_counts';
 
 const make = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

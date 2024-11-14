@@ -115,6 +115,24 @@ export class Post extends Model.Class<Post>('Post')({
 
 export class PostView extends Model.Class<PostView>('PostView')({
   ...Post.fields,
+  accountUsername: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.optionalWith(
+      Schema.String.pipe(
+        Schema.annotations({
+          description: '이 게시글을 쓴 유저의 username',
+        }),
+      ),
+      {
+        nullable: true,
+        onNoneEncoding: () => undefined,
+      },
+    ),
+  ),
   likeCount: Model.FieldExcept(
     'update',
     'insert',
@@ -142,6 +160,36 @@ export class PostView extends Model.Class<PostView>('PostView')({
       Schema.annotations({
         default: 0,
         description: '이 게시글에 달린 싫어요의 수',
+      }),
+    ),
+  ),
+  commentCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.int(),
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 게시글에 달린 댓글의 수',
+      }),
+    ),
+  ),
+  pureLikeCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.int(),
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 게시글에 달린 댓글의 수',
       }),
     ),
   ),

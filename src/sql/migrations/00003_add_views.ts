@@ -21,14 +21,22 @@ END $$;
 CREATE VIEW post_like_counts AS
 SELECT
   post.*,
+  account.username as account_username,
   COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
-  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count
+  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count,
+  COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer - COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer as pure_like_count,
+  COALESCE(COUNT(comment.id), 0)::integer AS comment_count
 FROM
   post
 LEFT JOIN
   "like" ON post.id = "like".post_id
+LEFT JOIN
+  account ON post.account_id = account.id
+LEFT JOIN
+  comment ON post.id = comment.post_id
 GROUP BY
-  post.id;
+  post.id,
+  account.id;
 
 CREATE VIEW post_comment_counts AS
 SELECT
