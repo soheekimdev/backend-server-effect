@@ -56,7 +56,7 @@ const viewFields = {
     Schema.nonNegative(),
     Schema.annotations({
       default: 0,
-      description: '이 게시글에 달린 좋아요의 수',
+      description: '이 댓글에 달린 좋아요의 수',
     }),
   ),
   dislikeCount: Schema.Number.pipe(
@@ -64,8 +64,27 @@ const viewFields = {
     Schema.nonNegative(),
     Schema.annotations({
       default: 0,
-      description: '이 게시글에 달린 싫어요의 수',
+      description: '이 댓글에 달린 싫어요의 수',
     }),
+  ),
+  pureLikeCount: Schema.Number.pipe(
+    Schema.int(),
+    Schema.nonNegative(),
+    Schema.annotations({
+      default: 0,
+      description: '이 댓글에 달린 댓글의 수',
+    }),
+  ),
+  accountUsername: Schema.optionalWith(
+    Schema.String.pipe(
+      Schema.annotations({
+        description: '이 댓글을 쓴 유저의 username',
+      }),
+    ),
+    {
+      nullable: true,
+      onNoneEncoding: () => undefined,
+    },
   ),
 };
 
