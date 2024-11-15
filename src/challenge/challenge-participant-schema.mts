@@ -20,7 +20,7 @@ export class ChallengeParticipant extends Model.Class<ChallengeParticipant>(
   id: Model.Generated(ChallengeParticipantId),
   challengeEventId: ChallengeEventId,
   accountId: AccountId,
-  ChallengeId: ChallengeId,
+  challengeId: ChallengeId,
   isDeleted: Schema.Boolean,
   isFinished: Schema.Boolean,
   isWinner: Schema.Boolean,

@@ -1,25 +1,26 @@
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
-import { Challenge, ChallengeId } from './challenge-schema.mjs';
+import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
 import { ChallengeNotFound } from './challenge-error.mjs';
 import { Authentication } from '@/auth/authentication.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
+import { Unauthorized } from '@/auth/error-403.mjs';
 
 export class ChallengeApi extends HttpApiGroup.make('challenge')
   .add(
     HttpApiEndpoint.get('findAll', '/')
-      .setUrlParams(
-        Schema.Struct({
-          page: Schema.NumberFromString,
-          limit: Schema.NumberFromString,
-        }),
-      )
+      .setUrlParams(FindManyUrlParams)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지 목록을 조회합니다. 페이지와 한 페이지당 챌린지 수를 지정할 수 있습니다.',
+            '(사용가능) 챌린지 목록을 조회합니다. 페이지와 한 페이지당 챌린지 수를 지정할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 챌린지 목록 조회',
+          },
         }),
       )
-      .addSuccess(Schema.Literal('not implemented yet')),
+      .addSuccess(FindManyResultSchema(ChallengeView)),
   )
   .add(
     HttpApiEndpoint.get('findById', '/:id')
@@ -28,14 +29,66 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
           id: ChallengeId,
         }),
       )
+      .addError(ChallengeNotFound)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지를 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지를 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 단일 챌린지 조회',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post('create', '/')
+      .middleware(Authentication)
+      .setPayload(Challenge.jsonCreate)
+      .addError(Unauthorized)
+      .addError(ChallengeNotFound)
+      .addSuccess(ChallengeView)
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(사용가능) 챌린지를 생성합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 생성',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.patch('updateById', '/:id')
+      .middleware(Authentication)
+      .setPath(
+        Schema.Struct({
+          id: ChallengeId,
         }),
       )
-      .addSuccess(Schema.Literal('not implemented yet')),
+      .setPayload(Schema.partialWith(Challenge.jsonUpdate, { exact: true }))
+      .addSuccess(Schema.Literal('not implemented yet'))
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 챌린지를 수정합니다.',
+        }),
+      ),
   )
+  .add(
+    HttpApiEndpoint.del('deleteById', '/:id')
+      .middleware(Authentication)
+      .setPath(
+        Schema.Struct({
+          id: ChallengeId,
+        }),
+      )
+      .addSuccess(Schema.Literal('not implemented yet'))
+      .annotateContext(
+        OpenApi.annotations({
+          description: '(미구현) 챌린지를 삭제합니다.',
+        }),
+      ),
+  )
+
   .add(
     HttpApiEndpoint.get('findLikeStatus', '/:id/like-status')
       .middleware(Authentication)
@@ -168,48 +221,6 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(미구현) 챌린지에서 탈퇴합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
-        }),
-      ),
-  )
-  .add(
-    HttpApiEndpoint.post('create', '/')
-      .middleware(Authentication)
-      .setPayload(Challenge.jsonCreate)
-      .addSuccess(Schema.Literal('not implemented yet'))
-      .annotateContext(
-        OpenApi.annotations({
-          description: '(미구현) 챌린지를 생성합니다.',
-        }),
-      ),
-  )
-  .add(
-    HttpApiEndpoint.patch('updateById', '/:id')
-      .middleware(Authentication)
-      .setPath(
-        Schema.Struct({
-          id: ChallengeId,
-        }),
-      )
-      .setPayload(Challenge.jsonUpdate)
-      .addSuccess(Schema.Literal('not implemented yet'))
-      .annotateContext(
-        OpenApi.annotations({
-          description: '(미구현) 챌린지를 수정합니다.',
-        }),
-      ),
-  )
-  .add(
-    HttpApiEndpoint.del('deleteById', '/:id')
-      .middleware(Authentication)
-      .setPath(
-        Schema.Struct({
-          id: ChallengeId,
-        }),
-      )
-      .addSuccess(Schema.Literal('not implemented yet'))
-      .annotateContext(
-        OpenApi.annotations({
-          description: '(미구현) 챌린지를 삭제합니다.',
         }),
       ),
   )

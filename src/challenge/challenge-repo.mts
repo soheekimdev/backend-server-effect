@@ -1,9 +1,13 @@
-import { Model, SqlClient } from '@effect/sql';
-import { Effect, Layer, Option, pipe } from 'effect';
+import { Model, SqlClient, SqlSchema } from '@effect/sql';
+import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { makeTestLayer } from '@/misc/test-layer.mjs';
 import { SqlLive } from '@/sql/sql-live.mjs';
 import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
 import { ChallengeNotFound } from './challenge-error.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { CREATED_AT, DESC } from '@/sql/order-by.mjs';
+import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 
 const TABLE_NAME = 'challenge';
 const VIEW_NAME = 'challenge_like_counts';
@@ -21,6 +25,45 @@ const make = Effect.gen(function* () {
     spanPrefix: 'ChallengeViewRepo',
     idColumn: 'id',
   });
+
+  const findAllWithView = (params: FindManyUrlParams) =>
+    Effect.gen(function* () {
+      const challenges = yield* SqlSchema.findAll({
+        Request: FindManyUrlParams,
+        Result: ChallengeView,
+        execute: () =>
+          sql`select * from ${sql(VIEW_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+      })(params);
+      const { total } = yield* SqlSchema.single({
+        Request: FindManyUrlParams,
+        Result: CommonCountSchema,
+        execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
+      })(params);
+
+      const ResultSchema = FindManyResultSchema(ChallengeView);
+
+      const result = ResultSchema.make({
+        data: challenges,
+        meta: {
+          total,
+          page: params.page,
+          limit: params.limit,
+          isLastPage: params.page * params.limit + challenges.length >= total,
+        },
+      });
+
+      return result;
+    }).pipe(Effect.orDie, Effect.withSpan('ChallengeRepo.findAll'));
+
+  const insert = (challenge: typeof Challenge.insert.Type) =>
+    SqlSchema.single({
+      Request: Challenge.insert,
+      Result: Schema.Any,
+      execute: (request) =>
+        sql`insert into ${sql(TABLE_NAME)} ${sql
+          .insert(request)
+          .returning('*')}`,
+    })(challenge).pipe(Effect.orDie);
 
   const with_ = <A, E, R>(
     id: ChallengeId,
@@ -60,6 +103,9 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    insert,
+    viewRepo,
+    findAllWithView,
     with: with_,
     withView: withView_,
   } as const;

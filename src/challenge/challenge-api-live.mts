@@ -9,17 +9,15 @@ export const ChallengeApiLive = HttpApiBuilder.group(
   'challenge',
   (handlers) =>
     Effect.gen(function* () {
+      const challengeService = yield* ChallengeService;
       return handlers
         .handle('findAll', ({ urlParams }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
+          challengeService.findChallenges(urlParams),
         )
         .handle('findById', ({ path }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
+          challengeService.findByIdWithView(path.id),
         )
+        .handle('create', ({ payload }) => challengeService.create(payload))
         .handle('updateById', ({ path }) =>
           Effect.gen(function* () {
             return yield* Effect.succeed('not implemented yet' as const);
@@ -65,11 +63,7 @@ export const ChallengeApiLive = HttpApiBuilder.group(
             return yield* Effect.succeed('not implemented yet' as const);
           }),
         )
-        .handle('create', ({ payload }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
-        )
+
         .handle('findLikeStatus', ({}) =>
           Effect.gen(function* () {
             return yield* Effect.succeed('not implemented yet' as const);
