@@ -104,6 +104,7 @@ create table post (
   type text,
   is_comment_allowed boolean default true,
   is_like_allowed boolean default true,
+  view_count int4 DEFAULT 0 NULL,
   challenge_id uuid,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
@@ -195,7 +196,7 @@ create table challenge_event (
   is_finished boolean default false,
   start_datetime timestamp with time zone,
   end_datetime timestamp with time zone,
-  constraint fk_challenge_event_challenge_id foreign key (challenge_id) references challenge (id),
+  constraint fk_challenge_event_challenge_id foreign key (challenge_id) references challenge (id)
 );
 
 create table challenge_participant (
