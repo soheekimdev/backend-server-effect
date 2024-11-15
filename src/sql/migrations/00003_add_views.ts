@@ -75,15 +75,23 @@ BEGIN
     account.username as account_username,
     COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
     COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count,
-    COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer - COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer as pure_like_count
+    COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer - COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer as pure_like_count,
+    COALESCE(COUNT(challenge_event.id), 0)::integer AS challenge_event_count,
+    COALESCE(COUNT(challenge_participant.id), 0)::integer AS challenge_participant_count
   FROM
     challenge
   LEFT JOIN
     "like" ON challenge.id = "like".challenge_id
   LEFT JOIN
     account ON challenge.account_id = account.id
+  LEFT JOIN
+    challenge_event ON challenge.id= challenge_event.challenge_id
+  LEFT JOIN
+    challenge_participant ON challenge.id= challenge_participant.challenge_id
   GROUP BY
+    challenge_event.id,
     challenge.id,
+    challenge_participant.id,
     account.id;
   
   CREATE VIEW challenge_event_like_counts AS
