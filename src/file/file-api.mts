@@ -55,6 +55,9 @@ export class FileApi extends HttpApiGroup.make('file')
       .annotateContext(
         OpenApi.annotations({
           description: '(사용가능) 경로로부터 이미지 정보를 가져옵니다.',
+          override: {
+            summary: '(사용가능)이미지 정보 가져오기',
+          },
         }),
       ),
   )
