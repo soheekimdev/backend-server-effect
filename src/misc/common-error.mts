@@ -4,10 +4,7 @@ import { Schema } from 'effect';
 export class ServerError extends Schema.TaggedError<ServerError>()(
   'ServerError',
   {
-    message: Schema.optionalWith(Schema.String, {
-      default: () => 'An error occurred',
-      nullable: true,
-    }),
+    message: Schema.NullishOr(Schema.String),
   },
   HttpApiSchema.annotations({ status: 500 }),
 ) {}

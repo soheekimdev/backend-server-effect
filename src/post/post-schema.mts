@@ -39,7 +39,7 @@ export class Post extends Model.Class<Post>('Post')({
     }),
     Schema.nonEmptyString(),
   ),
-  contentType: Schema.optional(
+  contentType: Schema.NullishOr(
     Schema.String.pipe(
       Schema.annotations({
         description:
@@ -49,7 +49,7 @@ export class Post extends Model.Class<Post>('Post')({
       }),
     ),
   ),
-  externalLink: Schema.optional(
+  externalLink: Schema.NullishOr(
     Schema.String.pipe(
       Schema.annotations({
         description:
@@ -112,16 +112,12 @@ export class PostView extends Model.Class<PostView>('PostView')({
     'jsonUpdate',
     'jsonCreate',
   )(
-    Schema.optionalWith(
+    Schema.NullishOr(
       Schema.String.pipe(
         Schema.annotations({
           description: '이 게시글을 쓴 유저의 username',
         }),
       ),
-      {
-        nullable: true,
-        onNoneEncoding: () => undefined,
-      },
     ),
   ),
   likeCount: Model.FieldExcept(

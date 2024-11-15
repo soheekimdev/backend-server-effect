@@ -75,16 +75,12 @@ const viewFields = {
       description: '이 댓글에 달린 댓글의 수',
     }),
   ),
-  accountUsername: Schema.optionalWith(
+  accountUsername: Schema.NullishOr(
     Schema.String.pipe(
       Schema.annotations({
         description: '이 댓글을 쓴 유저의 username',
       }),
     ),
-    {
-      nullable: true,
-      onNoneEncoding: () => undefined,
-    },
   ),
 };
 

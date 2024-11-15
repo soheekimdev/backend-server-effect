@@ -69,16 +69,12 @@ export class ChallengeView extends Model.Class<ChallengeView>('ChallengeView')({
     'jsonUpdate',
     'jsonCreate',
   )(
-    Schema.optionalWith(
+    Schema.NullishOr(
       Schema.String.pipe(
         Schema.annotations({
           description: '이 챌린지을 쓴 유저의 username',
         }),
       ),
-      {
-        nullable: true,
-        onNoneEncoding: () => undefined,
-      },
     ),
   ),
   likeCount: Model.FieldExcept(

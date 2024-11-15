@@ -8,7 +8,7 @@ export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
     actorId: AccountId,
     entity: Schema.String,
     action: Schema.String,
-    cause: Schema.optional(Schema.String),
+    cause: Schema.NullishOr(Schema.String),
   },
   HttpApiSchema.annotations({ status: 403 }),
 ) {
@@ -35,6 +35,7 @@ export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
                 actorId: actor.id,
                 entity,
                 action,
+                cause: null,
               }),
           ),
       );
