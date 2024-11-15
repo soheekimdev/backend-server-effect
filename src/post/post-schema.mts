@@ -49,7 +49,7 @@ export class Post extends Model.Class<Post>('Post')({
       }),
     ),
   ),
-  externalLink: Schema.optionalWith(
+  externalLink: Schema.optional(
     Schema.String.pipe(
       Schema.annotations({
         description:
@@ -57,10 +57,6 @@ export class Post extends Model.Class<Post>('Post')({
         default: 'https://google.com',
       }),
     ),
-    {
-      nullable: true,
-      onNoneEncoding: () => undefined,
-    },
   ),
   isDeleted: Schema.Boolean.pipe(
     Schema.annotations({
@@ -88,12 +84,7 @@ export class Post extends Model.Class<Post>('Post')({
       description: '이 게시글에 좋아요를 누를 수 있는지 여부',
     }),
   ),
-  challengeId: Model.Sensitive(
-    Schema.optionalWith(ChallengeId, {
-      nullable: true,
-      onNoneEncoding: () => undefined,
-    }),
-  ),
+  challengeId: Schema.NullishOr(ChallengeId),
   viewCount: Model.FieldExcept(
     'insert',
     'jsonCreate',

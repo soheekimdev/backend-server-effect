@@ -47,14 +47,19 @@ export class AccountApi extends HttpApiGroup.make('account')
       )
       .middleware(Authentication)
       .setPayload(
-        Account.jsonUpdate.pick(
-          'profileImageUrl',
-          'mainLanguage',
-          'nationality',
-          'bio',
-          'externalUrls',
-          'birthday',
-          'username',
+        Schema.partialWith(
+          Account.jsonUpdate.pick(
+            'profileImageUrl',
+            'mainLanguage',
+            'nationality',
+            'bio',
+            'externalUrls',
+            'birthday',
+            'username',
+          ),
+          {
+            exact: true,
+          },
         ),
       )
       .addSuccess(Account.json)

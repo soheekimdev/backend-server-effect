@@ -180,7 +180,8 @@ export class PostApi extends HttpApiGroup.make('post')
         }),
       )
       .middleware(Authentication)
-      .setPayload(Post.jsonUpdate)
+      .setPayload(Schema.partialWith(Post.jsonUpdate, { exact: true }))
+      .addSuccess(PostView)
       .addError(PostNotFound)
       .addError(Unauthorized)
       .annotateContext(

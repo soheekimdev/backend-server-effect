@@ -45,7 +45,11 @@ const make = Effect.gen(function* () {
   ) =>
     postRepo.with(postId, (existing) =>
       pipe(
-        postRepo.update({ ...existing, ...post, updatedAt: undefined }),
+        postRepo.update({
+          ...existing,
+          ...post,
+          updatedAt: undefined,
+        }),
         Effect.withSpan('PostService.updatePost'),
         policyRequire('post', 'update'),
         Effect.flatMap((post) => findByIdWithView(post.id)),

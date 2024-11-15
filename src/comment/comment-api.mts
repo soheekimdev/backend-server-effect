@@ -133,10 +133,11 @@ export class CommentApi extends HttpApiGroup.make('comment')
         }),
       )
       .middleware(Authentication)
-      .setPayload(CommentView.jsonUpdate)
+      .setPayload(Schema.partialWith(Comment.jsonUpdate, { exact: true }))
       .addError(CommentNotFound)
       .addError(PostNotFound)
       .addError(Unauthorized)
+      .addSuccess(CommentView)
       .annotateContext(
         OpenApi.annotations({
           description: '(사용가능) 댓글을 수정합니다.',
