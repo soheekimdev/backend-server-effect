@@ -5,7 +5,6 @@ import {
 import { Model } from '@effect/sql';
 import { Schema } from 'effect';
 import { ChallengeId } from './challenge-schema.mjs';
-import { AccountId } from '@/account/account-schema.mjs';
 
 export const ChallengeEventId = Schema.String.pipe(
   Schema.brand('ChallengeEventId'),
@@ -20,7 +19,6 @@ export class ChallengeEvent extends Model.Class<ChallengeEvent>(
   checkType: Schema.Literal('distance', 'duration', 'manual', 'other'),
   challengeId: ChallengeId,
   isDeleted: Schema.Boolean,
-  challengeWriterId: AccountId,
   isPublished: Schema.Boolean,
   isFinished: Schema.Boolean,
   startDatetime: Schema.DateTimeUtc,

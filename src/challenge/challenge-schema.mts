@@ -17,7 +17,7 @@ export class Challenge extends Model.Class<Challenge>('Challenge')({
   type: Schema.String,
   startDate: Schema.Date,
   endDate: Schema.Date,
-  writerAccountId: AccountId,
+  accountId: AccountId,
   isDeleted: Schema.Boolean.annotations({
     default: false,
   }),

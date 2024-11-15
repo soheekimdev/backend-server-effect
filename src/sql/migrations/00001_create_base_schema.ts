@@ -32,11 +32,11 @@ create table challenge (
   end_date date,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
-  writer_account_id uuid,
+  account_id uuid,
   is_deleted boolean default false,
   is_published boolean default false,
   is_finished boolean default false,
-  constraint fk_challenge_writer_account_id foreign key (writer_account_id) references account (id)
+  constraint fk_challenge_writer_account_id foreign key (account_id) references account (id)
 );
 
 create table message_channel (
@@ -191,13 +191,11 @@ create table challenge_event (
   updated_at timestamp with time zone default now(),
   challenge_id uuid not null,
   is_deleted boolean default false,
-  challenge_writer_id uuid,
   is_published boolean default false,
   is_finished boolean default false,
   start_datetime timestamp with time zone,
   end_datetime timestamp with time zone,
   constraint fk_challenge_event_challenge_id foreign key (challenge_id) references challenge (id),
-  constraint fk_challenge_event_challenge_writer_id foreign key (challenge_writer_id) references account (id)
 );
 
 create table challenge_participant (
