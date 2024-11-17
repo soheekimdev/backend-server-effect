@@ -9,26 +9,11 @@ import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
 export class LikeNotFound extends Schema.TaggedError<LikeNotFound>()(
   'LikeNotFound',
   {
-    id: Schema.optionalWith(Schema.NullishOr(LikeId), {
-      onNoneEncoding: () => undefined,
-      nullable: true,
-    }),
-    postId: Schema.optionalWith(Schema.NullishOr(PostId), {
-      onNoneEncoding: () => undefined,
-      nullable: true,
-    }),
-    commentId: Schema.optionalWith(Schema.NullishOr(CommentId), {
-      onNoneEncoding: () => undefined,
-      nullable: true,
-    }),
-    challengeId: Schema.optionalWith(Schema.NullishOr(ChallengeId), {
-      onNoneEncoding: () => undefined,
-      nullable: true,
-    }),
-    challengeEventId: Schema.optionalWith(Schema.NullishOr(ChallengeEventId), {
-      onNoneEncoding: () => undefined,
-      nullable: true,
-    }),
+    id: Schema.NullishOr(LikeId),
+    postId: Schema.NullishOr(PostId),
+    commentId: Schema.NullishOr(CommentId),
+    challengeId: Schema.NullishOr(ChallengeId),
+    challengeEventId: Schema.NullishOr(ChallengeEventId),
   },
   HttpApiSchema.annotations({
     status: 404,
