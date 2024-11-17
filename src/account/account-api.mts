@@ -56,6 +56,7 @@ export class AccountApi extends HttpApiGroup.make('account')
             'externalUrls',
             'birthday',
             'username',
+            'isPrivate',
           ),
           {
             exact: true,
