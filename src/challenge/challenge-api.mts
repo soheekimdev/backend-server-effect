@@ -6,6 +6,8 @@ import { Authentication } from '@/auth/authentication.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
+import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
+import { Like } from '@/like/like-schema.mjs';
 
 export class ChallengeApi extends HttpApiGroup.make('challenge')
   .add(
@@ -66,10 +68,12 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .setPayload(Schema.partialWith(Challenge.jsonUpdate, { exact: true }))
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(Unauthorized)
+      .addError(ChallengeNotFound)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
-          description: '(미구현) 챌린지를 수정합니다.',
+          description: '(사용가능) 챌린지를 수정합니다.',
         }),
       ),
   )
@@ -81,14 +85,14 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
           id: ChallengeId,
         }),
       )
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(Unauthorized)
+      .addError(ChallengeNotFound)
       .annotateContext(
         OpenApi.annotations({
-          description: '(미구현) 챌린지를 삭제합니다.',
+          description: '(사용가능) 챌린지를 삭제합니다.',
         }),
       ),
   )
-
   .add(
     HttpApiEndpoint.get('findLikeStatus', '/:id/like-status')
       .middleware(Authentication)
@@ -97,12 +101,13 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
           id: ChallengeId,
         }),
       )
-      .addError(ChallengeNotFound)
+      .addError(LikeNotFound)
+      .addSuccess(Like)
       .addSuccess(Schema.Literal('not implemented yet'))
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 좋아요를 눌렀는지 확인합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 좋아요를 눌렀는지 확인합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
         }),
       ),
   )
@@ -115,11 +120,13 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(LikeConflict)
+      .addError(Unauthorized)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 좋아요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 좋아요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
         }),
       ),
   )
@@ -132,11 +139,13 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(LikeNotFound)
+      .addError(Unauthorized)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 좋아요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 좋아요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
         }),
       ),
   )
@@ -149,11 +158,13 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(LikeConflict)
+      .addError(Unauthorized)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 싫어요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 싫어요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
         }),
       ),
   )
@@ -166,11 +177,13 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(LikeNotFound)
+      .addError(Unauthorized)
+      .addSuccess(ChallengeView)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 싫어요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 싫어요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
         }),
       ),
   )
