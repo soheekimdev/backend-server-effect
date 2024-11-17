@@ -74,6 +74,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       .annotateContext(
         OpenApi.annotations({
           description: '(사용가능) 챌린지를 수정합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 수정',
+          },
         }),
       ),
   )
@@ -90,6 +93,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       .annotateContext(
         OpenApi.annotations({
           description: '(사용가능) 챌린지를 삭제합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 삭제',
+          },
         }),
       ),
   )
@@ -108,6 +114,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(사용가능) 챌린지에 좋아요를 눌렀는지 확인합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 좋아요 상태 조회',
+          },
         }),
       ),
   )
@@ -127,6 +136,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(사용가능) 챌린지에 좋아요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 좋아요',
+          },
         }),
       ),
   )
@@ -146,6 +158,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(사용가능) 챌린지에 좋아요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 좋아요 취소',
+          },
         }),
       ),
   )
@@ -165,6 +180,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(사용가능) 챌린지에 싫어요를 누릅니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 싫어요',
+          },
         }),
       ),
   )
@@ -184,6 +202,9 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         OpenApi.annotations({
           description:
             '(사용가능) 챌린지에 싫어요를 취소합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 싫어요 취소',
+          },
         }),
       ),
   )
