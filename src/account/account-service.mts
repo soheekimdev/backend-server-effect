@@ -49,11 +49,22 @@ const make = Effect.gen(function* () {
             isEmailVerified: false,
             role: 'user',
             username: signUp.username,
+            bio: null,
+            birthday: null,
+            externalUrls: null,
+            isPrivate: false,
+            mainLanguage: null,
+            profileImageUrl: null,
+            nationality: null,
           }),
         )
         .pipe(
           Effect.catchAll((error) => {
-            return Effect.fail(new ServerError());
+            return Effect.fail(
+              new ServerError({
+                message: `Failed to create account: ${signUp.email}`,
+              }),
+            );
           }),
           Effect.withSpan('AccountService.signUp.insert'),
         );

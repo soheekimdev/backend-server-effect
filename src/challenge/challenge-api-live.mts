@@ -20,7 +20,11 @@ export const ChallengeApiLive = HttpApiBuilder.group(
         .handle('findById', ({ path }) =>
           challengeService.findByIdWithView(path.id),
         )
-        .handle('create', ({ payload }) => challengeService.create(payload))
+        .handle('create', ({ payload }) =>
+          challengeService
+            .create(payload)
+            .pipe(policyUse(challengePolicy.canCreate(payload))),
+        )
         .handle('updateById', ({ path, payload }) =>
           challengeService
             .updateById(path.id, payload)

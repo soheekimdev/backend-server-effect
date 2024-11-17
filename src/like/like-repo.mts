@@ -29,7 +29,14 @@ const make = Effect.gen(function* () {
       repo.findById(id),
       Effect.flatMap(
         Option.match({
-          onNone: () => new LikeNotFound({ id }),
+          onNone: () =>
+            new LikeNotFound({
+              id,
+              challengeEventId: null,
+              commentId: null,
+              postId: null,
+              challengeId: null,
+            }),
           onSome: Effect.succeed,
         }),
       ),
@@ -71,6 +78,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'like',
+          challengeEventId: null,
+          commentId: null,
+          challengeId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createPostLike'), Effect.orDie);
@@ -83,6 +93,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'dislike',
+          challengeEventId: null,
+          commentId: null,
+          challengeId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createPostLike'), Effect.orDie);
@@ -95,6 +108,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'like',
+          challengeEventId: null,
+          postId: null,
+          challengeId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createCommentLike'), Effect.orDie);
@@ -107,6 +123,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'dislike',
+          challengeEventId: null,
+          postId: null,
+          challengeId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createCommentDislike'), Effect.orDie);
@@ -122,6 +141,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'like',
+          challengeEventId: null,
+          commentId: null,
+          postId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createChallengeLike'), Effect.orDie);
@@ -137,6 +159,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'dislike',
+          challengeEventId: null,
+          commentId: null,
+          postId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createChallengeDislike'), Effect.orDie);
@@ -152,6 +177,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'like',
+          commentId: null,
+          postId: null,
+          challengeId: null,
         }),
       )
       .pipe(Effect.withSpan('LikeRepo.createChallengeEventLike'), Effect.orDie);
@@ -167,6 +195,9 @@ const make = Effect.gen(function* () {
           accountId,
           count: 1,
           type: 'dislike',
+          commentId: null,
+          postId: null,
+          challengeId: null,
         }),
       )
       .pipe(
@@ -199,7 +230,14 @@ const make = Effect.gen(function* () {
       findLikeByTargets(ids, types),
       Effect.flatMap(
         Option.match({
-          onNone: () => new LikeNotFound({}),
+          onNone: () =>
+            new LikeNotFound({
+              id: null,
+              challengeEventId: null,
+              commentId: null,
+              postId: null,
+              challengeId: null,
+            }),
           onSome: Effect.succeed,
         }),
       ),

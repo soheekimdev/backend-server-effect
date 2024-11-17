@@ -18,6 +18,9 @@ const make = Effect.gen(function* () {
           {
             postId,
             accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            challengeId: null,
           },
           [],
           (existing) => Effect.succeed(existing),
@@ -29,11 +32,20 @@ const make = Effect.gen(function* () {
     pipe(
       CurrentAccount,
       Effect.flatMap((curr) =>
-        likeRepo.withoutTarget({ postId, accountId: curr.id }, [], () =>
-          pipe(
-            likeRepo.createPostLike(postId, curr.id),
-            Effect.withSpan('LikeService.addLikePostById'),
-          ),
+        likeRepo.withoutTarget(
+          {
+            postId,
+            accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            challengeId: null,
+          },
+          [],
+          () =>
+            pipe(
+              likeRepo.createPostLike(postId, curr.id),
+              Effect.withSpan('LikeService.addLikePostById'),
+            ),
         ),
       ),
     );
@@ -46,6 +58,9 @@ const make = Effect.gen(function* () {
           {
             postId,
             accountId: account.id,
+            challengeEventId: null,
+            commentId: null,
+            challengeId: null,
           },
           ['like'],
           (existing) =>
@@ -62,7 +77,13 @@ const make = Effect.gen(function* () {
       CurrentAccount,
       Effect.flatMap((curr) =>
         likeRepo.withoutTarget(
-          { postId, accountId: curr.id },
+          {
+            postId,
+            accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            challengeId: null,
+          },
           ['dislike'],
           () =>
             pipe(
@@ -81,6 +102,9 @@ const make = Effect.gen(function* () {
           {
             postId,
             accountId: account.id,
+            challengeEventId: null,
+            commentId: null,
+            challengeId: null,
           },
           ['dislike'],
           (existing) =>
@@ -100,6 +124,9 @@ const make = Effect.gen(function* () {
           {
             commentId,
             accountId: curr.id,
+            challengeEventId: null,
+            postId: null,
+            challengeId: null,
           },
           [],
           (existing) => Effect.succeed(existing),
@@ -111,11 +138,20 @@ const make = Effect.gen(function* () {
     pipe(
       CurrentAccount,
       Effect.flatMap((curr) =>
-        likeRepo.withoutTarget({ commentId, accountId: curr.id }, [], () =>
-          pipe(
-            likeRepo.createCommentLike(commentId, curr.id),
-            Effect.withSpan('LikeService.addLikeCommentById'),
-          ),
+        likeRepo.withoutTarget(
+          {
+            commentId,
+            accountId: curr.id,
+            challengeEventId: null,
+            postId: null,
+            challengeId: null,
+          },
+          [],
+          () =>
+            pipe(
+              likeRepo.createCommentLike(commentId, curr.id),
+              Effect.withSpan('LikeService.addLikeCommentById'),
+            ),
         ),
       ),
     );
@@ -128,6 +164,9 @@ const make = Effect.gen(function* () {
           {
             commentId,
             accountId: account.id,
+            challengeEventId: null,
+            postId: null,
+            challengeId: null,
           },
           ['like'],
           (existing) =>
@@ -144,7 +183,13 @@ const make = Effect.gen(function* () {
       CurrentAccount,
       Effect.flatMap((curr) =>
         likeRepo.withoutTarget(
-          { commentId, accountId: curr.id },
+          {
+            commentId,
+            accountId: curr.id,
+            challengeEventId: null,
+            postId: null,
+            challengeId: null,
+          },
           ['dislike'],
           () =>
             pipe(
@@ -163,6 +208,9 @@ const make = Effect.gen(function* () {
           {
             commentId,
             accountId: account.id,
+            challengeEventId: null,
+            postId: null,
+            challengeId: null,
           },
           ['dislike'],
           (existing) =>
@@ -182,6 +230,9 @@ const make = Effect.gen(function* () {
           {
             challengeId,
             accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            postId: null,
           },
           [],
           (existing) => Effect.succeed(existing),
@@ -194,11 +245,20 @@ const make = Effect.gen(function* () {
     pipe(
       CurrentAccount,
       Effect.flatMap((curr) =>
-        likeRepo.withoutTarget({ challengeId, accountId: curr.id }, [], () =>
-          pipe(
-            likeRepo.createChallengeLike(challengeId, curr.id),
-            Effect.withSpan('LikeService.addLikeChallengeById'),
-          ),
+        likeRepo.withoutTarget(
+          {
+            challengeId,
+            accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            postId: null,
+          },
+          [],
+          () =>
+            pipe(
+              likeRepo.createChallengeLike(challengeId, curr.id),
+              Effect.withSpan('LikeService.addLikeChallengeById'),
+            ),
         ),
       ),
     );
@@ -211,6 +271,9 @@ const make = Effect.gen(function* () {
           {
             challengeId,
             accountId: account.id,
+            challengeEventId: null,
+            commentId: null,
+            postId: null,
           },
           ['like'],
           (existing) =>
@@ -227,7 +290,13 @@ const make = Effect.gen(function* () {
       CurrentAccount,
       Effect.flatMap((curr) =>
         likeRepo.withoutTarget(
-          { challengeId, accountId: curr.id },
+          {
+            challengeId,
+            accountId: curr.id,
+            challengeEventId: null,
+            commentId: null,
+            postId: null,
+          },
           ['dislike'],
           () =>
             pipe(
@@ -246,6 +315,9 @@ const make = Effect.gen(function* () {
           {
             challengeId,
             accountId: account.id,
+            challengeEventId: null,
+            commentId: null,
+            postId: null,
           },
           ['dislike'],
           (existing) =>
@@ -266,6 +338,9 @@ const make = Effect.gen(function* () {
           {
             challengeEventId,
             accountId: curr.id,
+            commentId: null,
+            postId: null,
+            challengeId: null,
           },
           [],
           (existing) => Effect.succeed(existing),
@@ -279,7 +354,13 @@ const make = Effect.gen(function* () {
       CurrentAccount,
       Effect.flatMap((curr) =>
         likeRepo.withoutTarget(
-          { challengeEventId, accountId: curr.id },
+          {
+            challengeEventId,
+            accountId: curr.id,
+            commentId: null,
+            postId: null,
+            challengeId: null,
+          },
           [],
           () =>
             pipe(
@@ -298,6 +379,9 @@ const make = Effect.gen(function* () {
           {
             challengeEventId,
             accountId: account.id,
+            commentId: null,
+            postId: null,
+            challengeId: null,
           },
           ['like'],
           (existing) =>
@@ -314,7 +398,13 @@ const make = Effect.gen(function* () {
       CurrentAccount,
       Effect.flatMap((curr) =>
         likeRepo.withoutTarget(
-          { challengeEventId, accountId: curr.id },
+          {
+            challengeEventId,
+            accountId: curr.id,
+            commentId: null,
+            postId: null,
+            challengeId: null,
+          },
           ['dislike'],
           () =>
             pipe(
@@ -335,6 +425,9 @@ const make = Effect.gen(function* () {
           {
             challengeEventId,
             accountId: account.id,
+            commentId: null,
+            postId: null,
+            challengeId: null,
           },
           ['dislike'],
           (existing) =>

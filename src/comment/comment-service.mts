@@ -71,6 +71,7 @@ const make = Effect.gen(function* () {
             }),
             Effect.withSpan('CommentService.update'),
             policyRequire('comment', 'update'),
+            Effect.flatMap(() => findByIdWithView(comment.id)),
           ),
         ),
       ),
