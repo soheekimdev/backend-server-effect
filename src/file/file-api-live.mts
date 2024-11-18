@@ -8,12 +8,15 @@ import { FileSystem, HttpApiBuilder } from '@effect/platform';
 import { Effect, Layer, Option } from 'effect';
 import { FileUploadError } from './file-error.mjs';
 import { FileService } from './file-service.mjs';
+import { AccountService } from '@/account/account-service.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
 
 export const FileApiLive = HttpApiBuilder.group(Api, 'file', (handlers) =>
   Effect.gen(function* () {
     const fileService = yield* FileService;
     const challengeService = yield* ChallengeService;
     const postService = yield* PostService;
+    const accountService = yield* AccountService;
     const fs = yield* FileSystem.FileSystem;
 
     return handlers
@@ -52,6 +55,22 @@ export const FileApiLive = HttpApiBuilder.group(Api, 'file', (handlers) =>
             });
           }
 
+          const maybeAccount = yield* accountService.findByIdFromRepo(
+            AccountId.make(target.id),
+          );
+
+          if (Option.isSome(maybeAccount)) {
+            const url = yield* fileService.uploadImage(
+              new File([temp], target.filename, {
+                type: `image/${target.extension}`,
+              }),
+              target,
+            );
+            return yield* Effect.succeed({
+              url,
+            });
+          }
+
           return yield* Effect.fail(
             new FileUploadError({
               name: 'FileUploadError',
@@ -69,4 +88,5 @@ export const FileApiLive = HttpApiBuilder.group(Api, 'file', (handlers) =>
   Layer.provide(FileService.Live),
   Layer.provide(ChallengeService.Live),
   Layer.provide(PostService.Live),
+  Layer.provide(AccountService.Live),
 );

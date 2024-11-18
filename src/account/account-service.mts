@@ -133,6 +133,8 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const findByIdFromRepo = (id: AccountId) => accountRepo.findById(id);
+
   const findAccountById = (id: AccountId) =>
     Effect.gen(function* () {
       yield* Effect.annotateCurrentSpan('account', id);
@@ -212,6 +214,7 @@ const make = Effect.gen(function* () {
   return {
     signUp,
     signIn,
+    findByIdFromRepo,
     findAccountByEmail,
     findAccountById,
     updateAccountById,

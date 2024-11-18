@@ -1,6 +1,6 @@
 {
   "name": "@oz-adv/backend",
-  "version": "0.0.2 (2024-11-17.003)",
+  "version": "0.0.2 (2024-11-18.001)",
   "description": "Backend for the Oz-Adv project",
   "type": "module",
   "scripts": {
