@@ -3,7 +3,9 @@ import { Schema } from 'effect';
 export const ImageUploadTargetSchema = Schema.Struct({
   type: Schema.Literal('post', 'challenge', 'account'),
   id: Schema.String.pipe(
-    Schema.annotations({ description: 'challengeId / postId 둘 중 하나' }),
+    Schema.annotations({
+      description: 'challengeId / postId / accountId 셋 중 하나',
+    }),
   ),
   filename: Schema.String.pipe(
     Schema.annotations({
