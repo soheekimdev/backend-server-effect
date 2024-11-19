@@ -91,7 +91,6 @@ BEGIN
   GROUP BY
     challenge_event.id,
     challenge.id,
-    challenge_participant.id,
     account.id;
   
   CREATE VIEW challenge_event_like_counts AS
