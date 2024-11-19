@@ -8,6 +8,12 @@ import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
 import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
 import { Like } from '@/like/like-schema.mjs';
+import { ChallengeParticipant } from './challenge-participant-schema.mjs';
+import {
+  ChallengeParticipantConflict,
+  ChallengeParticipantNotFound,
+} from './challenge-participant-error.mjs';
+import { Account } from '@/account/account-schema.mjs';
 
 export class ChallengeApi extends HttpApiGroup.make('challenge')
   .add(
@@ -216,11 +222,14 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addSuccess(Schema.Array(Account.json))
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 참여한 사용자 목록을 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 참여한 사용자 목록을 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 참여자 목록 조회',
+          },
         }),
       ),
   )
@@ -233,11 +242,16 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(ChallengeParticipantConflict)
+      .addError(Unauthorized)
+      .addSuccess(ChallengeParticipant)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에 참여합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에 참여합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다. 이미 참여하였을 경우 409를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 참여',
+          },
         }),
       ),
   )
@@ -249,18 +263,21 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
           id: ChallengeId,
         }),
       )
-      .addError(ChallengeNotFound)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addError(ChallengeParticipantNotFound)
+      .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지에서 탈퇴합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지에서 탈퇴합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다. 챌린지에 참여하지 않았을 경우에도 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 탈퇴',
+          },
         }),
       ),
   )
   .prefix('/api/challenges')
   .annotateContext(
     OpenApi.annotations({
-      title: '(미구현 있음) 챌린지 API',
+      title: '(사용가능) 챌린지 API',
     }),
   ) {}

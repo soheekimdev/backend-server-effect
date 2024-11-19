@@ -13,7 +13,6 @@ const today = new Date().toISOString().split('T')[0];
 const twoWeeksLater = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
   .toISOString()
   .split('T')[0];
-
 export class Challenge extends Model.Class<Challenge>('Challenge')({
   id: Model.Generated(ChallengeId),
   title: Schema.String,
@@ -25,24 +24,19 @@ export class Challenge extends Model.Class<Challenge>('Challenge')({
       default: 'self-check',
     }),
   ),
-  startDate: Schema.NullishOr(
-    Schema.String.pipe(
-      Schema.annotations({
-        description: '챌린지 시작일',
-        default: today,
-        examples: [today],
-      }),
-    ),
+  startDate: Schema.NullishOr(Schema.Any).pipe(
+    Schema.annotations({
+      description: '챌린지 시작일',
+      default: today,
+    }),
   ),
-  endDate: Schema.NullishOr(
-    Schema.String.pipe(
-      Schema.annotations({
-        description: '챌린지 종료일',
-        default: twoWeeksLater,
-        examples: [twoWeeksLater],
-      }),
-    ),
+  endDate: Schema.NullishOr(Schema.Any).pipe(
+    Schema.annotations({
+      description: '챌린지 종료일',
+      default: twoWeeksLater,
+    }),
   ),
+
   accountId: Model.Sensitive(AccountId),
   isDeleted: Schema.Boolean.annotations({
     default: false,
@@ -59,8 +53,6 @@ export class Challenge extends Model.Class<Challenge>('Challenge')({
 
 export class ChallengeView extends Model.Class<ChallengeView>('ChallengeView')({
   ...Challenge.fields,
-  startDate: Schema.Any,
-  endDate: Schema.Any,
   createdAt: Schema.Any,
   updatedAt: Schema.Any,
   accountUsername: Model.FieldExcept(

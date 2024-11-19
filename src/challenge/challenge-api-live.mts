@@ -5,6 +5,7 @@ import { ChallengeService } from './challenge-service.mjs';
 import { AuthenticationLive } from '@/auth/authentication.mjs';
 import { policyUse } from '@/auth/authorization.mjs';
 import { ChallengePolicy } from './challenge-policy.mjs';
+import { ChallengeParticipantService } from './challenge-participant-service.mjs';
 
 export const ChallengeApiLive = HttpApiBuilder.group(
   Api,
@@ -12,7 +13,9 @@ export const ChallengeApiLive = HttpApiBuilder.group(
   (handlers) =>
     Effect.gen(function* () {
       const challengeService = yield* ChallengeService;
+      const challengeParticipantService = yield* ChallengeParticipantService;
       const challengePolicy = yield* ChallengePolicy;
+
       return handlers
         .handle('findAll', ({ urlParams }) =>
           challengeService.findChallenges(urlParams),
@@ -59,23 +62,22 @@ export const ChallengeApiLive = HttpApiBuilder.group(
             .pipe(policyUse(challengePolicy.canDislike(path.id))),
         )
         .handle('getChallengeMembers', ({ path }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
+          challengeParticipantService.getChallengeMembers(path.id),
         )
         .handle('joinChallengeById', ({ path }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
+          challengeParticipantService
+            .join(path.id)
+            .pipe(policyUse(challengePolicy.canJoin(path.id))),
         )
         .handle('leaveChallengeById', ({ path }) =>
-          Effect.gen(function* () {
-            return yield* Effect.succeed('not implemented yet' as const);
-          }),
+          challengeParticipantService
+            .leave(path.id)
+            .pipe(policyUse(challengePolicy.canJoin(path.id))),
         );
     }),
 ).pipe(
   Layer.provide(AuthenticationLive),
   Layer.provide(ChallengeService.Live),
+  Layer.provide(ChallengeParticipantService.Live),
   Layer.provide(ChallengePolicy.Live),
 );

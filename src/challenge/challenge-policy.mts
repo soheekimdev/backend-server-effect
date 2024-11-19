@@ -72,6 +72,9 @@ const make = Effect.gen(function* () {
       '챌린지 작성자는 챌린지를 좋아요 취소할 수 없습니다.',
     );
 
+  const canJoin = (_toJoin: ChallengeId) =>
+    policy('challenge', 'join', () => Effect.succeed(true));
+
   return {
     canCreate,
     canRead,
@@ -79,6 +82,7 @@ const make = Effect.gen(function* () {
     canDelete,
     canLike,
     canDislike,
+    canJoin,
   } as const;
 });
 

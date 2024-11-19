@@ -208,6 +208,7 @@ create table challenge_participant (
   is_deleted boolean default false,
   status text,
   is_winner boolean default false,
+  is_finished boolean default false,
   constraint fk_challenge_participant_account_id foreign key (account_id) references account (id),
   constraint fk_challenge_participant_challenge_id foreign key (challenge_id) references challenge (id)
 );
