@@ -1,5 +1,5 @@
 import { AccountId } from '@/account/account-schema.mjs';
-import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { CommentId } from '@/comment/comment-schema.mjs';
 import {

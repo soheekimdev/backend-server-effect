@@ -9,7 +9,7 @@ import { Like, LikeId, LikeType } from './like-schema.mjs';
 import { LikeSelector, likeSelectorsToWhere } from './like-selector-schema.mjs';
 import { CommentId } from '@/comment/comment-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 
 const LIKE_TABLE = 'like';
 

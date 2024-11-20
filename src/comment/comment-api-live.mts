@@ -16,7 +16,7 @@ export const CommentApiLive = HttpApiBuilder.group(Api, 'comment', (handlers) =>
         commentService.findAllByPostId(path.postId, urlParams),
       )
       .handle('findById', ({ path }) =>
-        commentService.findByIdWithView(path.id),
+        commentService.findByIdWithView(path.commentId),
       )
       .handle('getCommentCount', ({ path }) =>
         commentService.getCommentCount(path.postId),
@@ -26,36 +26,36 @@ export const CommentApiLive = HttpApiBuilder.group(Api, 'comment', (handlers) =>
       )
       .handle('updateById', ({ path, payload }) =>
         commentService
-          .update(path.postId, path.id, payload)
-          .pipe(policyUse(commentPolicy.canUpdate(path.id))),
+          .update(path.postId, path.commentId, payload)
+          .pipe(policyUse(commentPolicy.canUpdate(path.commentId))),
       )
       .handle('deleteById', ({ path }) =>
         commentService
-          .deleteById(path.id)
-          .pipe(policyUse(commentPolicy.canDelete(path.id))),
+          .deleteById(path.commentId)
+          .pipe(policyUse(commentPolicy.canDelete(path.commentId))),
       )
       .handle('findLikeStatus', ({ path }) =>
-        commentService.findLikeStatus(path.id),
+        commentService.findLikeStatus(path.commentId),
       )
       .handle('likeCommentById', ({ path }) =>
         commentService
-          .addLikeCommentById(path.id)
-          .pipe(policyUse(commentPolicy.canLike(path.id))),
+          .addLikeCommentById(path.commentId)
+          .pipe(policyUse(commentPolicy.canLike(path.commentId))),
       )
       .handle('removeLikeCommentById', ({ path }) =>
         commentService
-          .removeLikeCommentById(path.id)
-          .pipe(policyUse(commentPolicy.canLike(path.id))),
+          .removeLikeCommentById(path.commentId)
+          .pipe(policyUse(commentPolicy.canLike(path.commentId))),
       )
       .handle('dislikeCommentById', ({ path }) =>
         commentService
-          .addDislikeCommentById(path.id)
-          .pipe(policyUse(commentPolicy.canDislike(path.id))),
+          .addDislikeCommentById(path.commentId)
+          .pipe(policyUse(commentPolicy.canDislike(path.commentId))),
       )
       .handle('removeDislikeCommentById', ({ path }) =>
         commentService
-          .removeDislikeCommentById(path.id)
-          .pipe(policyUse(commentPolicy.canDislike(path.id))),
+          .removeDislikeCommentById(path.commentId)
+          .pipe(policyUse(commentPolicy.canDislike(path.commentId))),
       );
   }),
 ).pipe(

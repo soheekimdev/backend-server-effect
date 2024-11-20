@@ -4,7 +4,7 @@ import { LikeId } from './like-schema.mjs';
 import { PostId } from '@/post/post-schema.mjs';
 import { CommentId } from '@/comment/comment-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 
 export class LikeNotFound extends Schema.TaggedError<LikeNotFound>()(
   'LikeNotFound',

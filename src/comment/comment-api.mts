@@ -50,7 +50,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.get('findById', '/:postId/comments/:id')
+    HttpApiEndpoint.get('findById', '/:postId/comments/:commentId')
       .setPath(
         Schema.Struct({
           postId: PostId,
@@ -58,7 +58,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
       )
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
         }),
       )
       .setUrlParams(
@@ -80,12 +80,15 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.get('findLikeStatus', '/:postId/comments/:id/like-status')
+    HttpApiEndpoint.get(
+      'findLikeStatus',
+      '/:postId/comments/:commentId/like-status',
+    )
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
           postId: PostId,
-          id: CommentId,
+          commentId: CommentId,
         }),
       )
       .addSuccess(Like)
@@ -125,10 +128,10 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.patch('updateById', '/:postId/comments/:id')
+    HttpApiEndpoint.patch('updateById', '/:postId/comments/:commentId')
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )
@@ -148,10 +151,10 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.post('likeCommentById', '/:postId/comments/:id/like')
+    HttpApiEndpoint.post('likeCommentById', '/:postId/comments/:commentId/like')
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )
@@ -170,10 +173,13 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.del('removeLikeCommentById', '/:postId/comments/:id/like')
+    HttpApiEndpoint.del(
+      'removeLikeCommentById',
+      '/:postId/comments/:commentId/like',
+    )
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )
@@ -193,10 +199,13 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.post('dislikeCommentById', '/:postId/comments/:id/dislike')
+    HttpApiEndpoint.post(
+      'dislikeCommentById',
+      '/:postId/comments/:commentId/dislike',
+    )
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )
@@ -216,11 +225,11 @@ export class CommentApi extends HttpApiGroup.make('comment')
   .add(
     HttpApiEndpoint.del(
       'removeDislikeCommentById',
-      '/:postId/comments/:id/dislike',
+      '/:postId/comments/:commentId/dislike',
     )
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )
@@ -240,10 +249,10 @@ export class CommentApi extends HttpApiGroup.make('comment')
       ),
   )
   .add(
-    HttpApiEndpoint.del('deleteById', '/:postId/comments/:id')
+    HttpApiEndpoint.del('deleteById', '/:postId/comments/:commentId')
       .setPath(
         Schema.Struct({
-          id: CommentId,
+          commentId: CommentId,
           postId: PostId,
         }),
       )

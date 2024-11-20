@@ -5,7 +5,7 @@ import { Effect, Layer, pipe } from 'effect';
 import { LikeRepo } from './like-repo.mjs';
 import { CommentId } from '@/comment/comment-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 
 const make = Effect.gen(function* () {
   const likeRepo = yield* LikeRepo;

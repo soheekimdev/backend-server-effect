@@ -31,10 +31,10 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       .addSuccess(FindManyResultSchema(ChallengeView)),
   )
   .add(
-    HttpApiEndpoint.get('findById', '/:id')
+    HttpApiEndpoint.get('findById', '/:challengeId')
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -66,11 +66,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.patch('updateById', '/:id')
+    HttpApiEndpoint.patch('updateById', '/:challengeId')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .setPayload(Schema.partialWith(Challenge.jsonUpdate, { exact: true }))
@@ -87,11 +87,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.del('deleteById', '/:id')
+    HttpApiEndpoint.del('deleteById', '/:challengeId')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(Unauthorized)
@@ -106,11 +106,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.get('findLikeStatus', '/:id/like-status')
+    HttpApiEndpoint.get('findLikeStatus', '/:challengeId/like-status')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(LikeNotFound)
@@ -127,11 +127,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.post('likeChallengeById', '/:id/like')
+    HttpApiEndpoint.post('likeChallengeById', '/:challengeId/like')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -149,11 +149,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.del('removeLikeChallengeById', '/:id/like')
+    HttpApiEndpoint.del('removeLikeChallengeById', '/:challengeId/like')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -171,11 +171,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.post('dislikeChallengeById', '/:id/dislike')
+    HttpApiEndpoint.post('dislikeChallengeById', '/:challengeId/dislike')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -193,11 +193,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.del('removeDislikeChallengeById', '/:id/dislike')
+    HttpApiEndpoint.del('removeDislikeChallengeById', '/:challengeId/dislike')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -215,10 +215,10 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.get('getChallengeMembers', '/:id/member')
+    HttpApiEndpoint.get('getChallengeMembers', '/:challengeId/member')
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -234,11 +234,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.post('joinChallengeById', '/:id/member')
+    HttpApiEndpoint.post('joinChallengeById', '/:challengeId/member')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeNotFound)
@@ -256,11 +256,11 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
-    HttpApiEndpoint.del('leaveChallengeById', '/:id/member')
+    HttpApiEndpoint.del('leaveChallengeById', '/:challengeId/member')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: ChallengeId,
+          challengeId: ChallengeId,
         }),
       )
       .addError(ChallengeParticipantNotFound)

@@ -21,7 +21,7 @@ export const ChallengeApiLive = HttpApiBuilder.group(
           challengeService.findChallenges(urlParams),
         )
         .handle('findById', ({ path }) =>
-          challengeService.findByIdWithView(path.id),
+          challengeService.findByIdWithView(path.challengeId),
         )
         .handle('create', ({ payload }) =>
           challengeService
@@ -30,49 +30,49 @@ export const ChallengeApiLive = HttpApiBuilder.group(
         )
         .handle('updateById', ({ path, payload }) =>
           challengeService
-            .updateById(path.id, payload)
-            .pipe(policyUse(challengePolicy.canUpdate(path.id))),
+            .updateById(path.challengeId, payload)
+            .pipe(policyUse(challengePolicy.canUpdate(path.challengeId))),
         )
         .handle('deleteById', ({ path }) =>
           challengeService
-            .deleteById(path.id)
-            .pipe(policyUse(challengePolicy.canDelete(path.id))),
+            .deleteById(path.challengeId)
+            .pipe(policyUse(challengePolicy.canDelete(path.challengeId))),
         )
         .handle('findLikeStatus', ({ path }) =>
-          challengeService.findLikeStatus(path.id),
+          challengeService.findLikeStatus(path.challengeId),
         )
         .handle('likeChallengeById', ({ path }) =>
           challengeService
-            .addLikeChallengeById(path.id)
-            .pipe(policyUse(challengePolicy.canLike(path.id))),
+            .addLikeChallengeById(path.challengeId)
+            .pipe(policyUse(challengePolicy.canLike(path.challengeId))),
         )
         .handle('removeLikeChallengeById', ({ path }) =>
           challengeService
-            .removeLikeChallengeById(path.id)
-            .pipe(policyUse(challengePolicy.canLike(path.id))),
+            .removeLikeChallengeById(path.challengeId)
+            .pipe(policyUse(challengePolicy.canLike(path.challengeId))),
         )
         .handle('dislikeChallengeById', ({ path }) =>
           challengeService
-            .addDislikeChallengeById(path.id)
-            .pipe(policyUse(challengePolicy.canDislike(path.id))),
+            .addDislikeChallengeById(path.challengeId)
+            .pipe(policyUse(challengePolicy.canDislike(path.challengeId))),
         )
         .handle('removeDislikeChallengeById', ({ path }) =>
           challengeService
-            .removeDislikeChallengeById(path.id)
-            .pipe(policyUse(challengePolicy.canDislike(path.id))),
+            .removeDislikeChallengeById(path.challengeId)
+            .pipe(policyUse(challengePolicy.canDislike(path.challengeId))),
         )
         .handle('getChallengeMembers', ({ path }) =>
-          challengeParticipantService.getChallengeMembers(path.id),
+          challengeParticipantService.getChallengeMembers(path.challengeId),
         )
         .handle('joinChallengeById', ({ path }) =>
           challengeParticipantService
-            .join(path.id)
-            .pipe(policyUse(challengePolicy.canJoin(path.id))),
+            .join(path.challengeId)
+            .pipe(policyUse(challengePolicy.canJoin(path.challengeId))),
         )
         .handle('leaveChallengeById', ({ path }) =>
           challengeParticipantService
-            .leave(path.id)
-            .pipe(policyUse(challengePolicy.canJoin(path.id))),
+            .leave(path.challengeId)
+            .pipe(policyUse(challengePolicy.canJoin(path.challengeId))),
         );
     }),
 ).pipe(

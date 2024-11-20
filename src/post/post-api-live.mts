@@ -14,43 +14,43 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
     return handlers
       .handle('findAll', ({ urlParams }) => postService.findPosts(urlParams))
       .handle('findById', ({ path }) =>
-        postService.increaseViewCountById(path.id),
+        postService.increaseViewCountById(path.postId),
       )
       .handle('create', ({ payload }) =>
         postService.create(payload).pipe(withSystemActor),
       )
       .handle('updateById', ({ path, payload }) =>
         postService
-          .updateById(path.id, payload)
-          .pipe(policyUse(postPolicy.canUpdate(path.id))),
+          .updateById(path.postId, payload)
+          .pipe(policyUse(postPolicy.canUpdate(path.postId))),
       )
       .handle('deleteById', ({ path }) =>
         postService
-          .deleteById(path.id)
-          .pipe(policyUse(postPolicy.canDelete(path.id))),
+          .deleteById(path.postId)
+          .pipe(policyUse(postPolicy.canDelete(path.postId))),
       )
       .handle('findLikeStatus', ({ path }) =>
-        postService.findLikeStatus(path.id),
+        postService.findLikeStatus(path.postId),
       )
       .handle('likePostById', ({ path }) =>
         postService
-          .addLikePostById(path.id)
-          .pipe(policyUse(postPolicy.canLike(path.id))),
+          .addLikePostById(path.postId)
+          .pipe(policyUse(postPolicy.canLike(path.postId))),
       )
       .handle('removeLikePostById', ({ path }) =>
         postService
-          .removePostLikeById(path.id)
-          .pipe(policyUse(postPolicy.canLike(path.id))),
+          .removePostLikeById(path.postId)
+          .pipe(policyUse(postPolicy.canLike(path.postId))),
       )
       .handle('addDislikePostById', ({ path }) =>
         postService
-          .addDislikePostById(path.id)
-          .pipe(policyUse(postPolicy.canDislike(path.id))),
+          .addDislikePostById(path.postId)
+          .pipe(policyUse(postPolicy.canDislike(path.postId))),
       )
       .handle('removeDislikePostById', ({ path }) =>
         postService
-          .removePostDislikeById(path.id)
-          .pipe(policyUse(postPolicy.canDislike(path.id))),
+          .removePostDislikeById(path.postId)
+          .pipe(policyUse(postPolicy.canDislike(path.postId))),
       );
   }),
 ).pipe(

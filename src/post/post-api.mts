@@ -25,10 +25,10 @@ export class PostApi extends HttpApiGroup.make('post')
       .addSuccess(FindManyResultSchema(PostView)),
   )
   .add(
-    HttpApiEndpoint.get('findById', '/:id')
+    HttpApiEndpoint.get('findById', '/:postId')
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addError(PostNotFound)
@@ -44,11 +44,11 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.get('findLikeStatus', '/:id/like-status')
+    HttpApiEndpoint.get('findLikeStatus', '/:postId/like-status')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addError(LikeNotFound)
@@ -64,11 +64,11 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.post('likePostById', '/:id/like')
+    HttpApiEndpoint.post('likePostById', '/:postId/like')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addSuccess(Post)
@@ -86,11 +86,11 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.del('removeLikePostById', '/:id/like')
+    HttpApiEndpoint.del('removeLikePostById', '/:postId/like')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addSuccess(Post)
@@ -108,11 +108,11 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.post('addDislikePostById', '/:id/dislike')
+    HttpApiEndpoint.post('addDislikePostById', '/:postId/dislike')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addSuccess(Post)
@@ -131,11 +131,11 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.del('removeDislikePostById', '/:id/dislike')
+    HttpApiEndpoint.del('removeDislikePostById', '/:postId/dislike')
       .middleware(Authentication)
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .addSuccess(Post)
@@ -173,10 +173,10 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.patch('updateById', '/:id')
+    HttpApiEndpoint.patch('updateById', '/:postId')
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
@@ -195,10 +195,10 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
-    HttpApiEndpoint.del('deleteById', '/:id')
+    HttpApiEndpoint.del('deleteById', '/:postId')
       .setPath(
         Schema.Struct({
-          id: PostId,
+          postId: PostId,
         }),
       )
       .middleware(Authentication)
