@@ -4,7 +4,7 @@ import {
 } from '@/misc/date-schema.mjs';
 import { Model } from '@effect/sql';
 import { Schema } from 'effect';
-import { ChallengeId } from './challenge-schema.mjs';
+import { ChallengeId } from '../challenge/challenge-schema.mjs';
 
 export const ChallengeEventId = Schema.String.pipe(
   Schema.brand('ChallengeEventId'),
@@ -23,6 +23,7 @@ export class ChallengeEvent extends Model.Class<ChallengeEvent>(
   isFinished: Schema.Boolean,
   startDatetime: Schema.DateTimeUtc,
   endDatetime: Schema.DateTimeUtc,
+  coordinate: Schema.Any,
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}
