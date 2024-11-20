@@ -1,13 +1,14 @@
 import { Authentication } from '@/auth/authentication.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
+import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
+import { Like } from '@/like/like-schema.mjs';
+import { EmptySchema } from '@/misc/empty-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId, PostView } from './post-schema.mjs';
-import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
-import { LikeConflict, LikeNotFound } from '@/like/like-error.mjs';
-import { Like } from '@/like/like-schema.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
@@ -53,6 +54,7 @@ export class PostApi extends HttpApiGroup.make('post')
       )
       .addError(LikeNotFound)
       .addSuccess(Like)
+      .addSuccess(EmptySchema)
       .annotateContext(
         OpenApi.annotations({
           description:

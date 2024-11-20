@@ -10,6 +10,7 @@ import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { CommentNotFound } from './comment-error.mjs';
 import { CommentId, Comment, CommentView } from './comment-schema.mjs';
+import { EmptySchema } from '@/misc/empty-schema.mjs';
 
 export class CommentApi extends HttpApiGroup.make('comment')
   .add(
@@ -92,6 +93,7 @@ export class CommentApi extends HttpApiGroup.make('comment')
         }),
       )
       .addSuccess(Like)
+      .addSuccess(EmptySchema)
       .addError(PostNotFound)
       .addError(CommentNotFound)
       .addError(LikeNotFound)

@@ -14,6 +14,7 @@ import {
   ChallengeParticipantNotFound,
 } from './challenge-participant-error.mjs';
 import { Account } from '@/account/account-schema.mjs';
+import { EmptySchema } from '@/misc/empty-schema.mjs';
 
 export class ChallengeApi extends HttpApiGroup.make('challenge')
   .add(
@@ -115,7 +116,7 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       )
       .addError(LikeNotFound)
       .addSuccess(Like)
-      .addSuccess(Schema.Literal('not implemented yet'))
+      .addSuccess(EmptySchema)
       .annotateContext(
         OpenApi.annotations({
           description:

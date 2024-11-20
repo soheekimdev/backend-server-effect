@@ -26,6 +26,7 @@ const make = Effect.gen(function* () {
           (existing) => Effect.succeed(existing),
         ),
       ),
+      Effect.catchAll((err) => Effect.succeed({})),
     );
 
   const addLikePostById = (postId: PostId) =>
@@ -132,6 +133,7 @@ const make = Effect.gen(function* () {
           (existing) => Effect.succeed(existing),
         ),
       ),
+      Effect.catchAll((err) => Effect.succeed({})),
     );
 
   const addLikeCommentById = (commentId: CommentId) =>
@@ -239,6 +241,7 @@ const make = Effect.gen(function* () {
         ),
       ),
       Effect.withSpan('LikeService.getLikeStatusByChallengeId'),
+      Effect.catchAll((err) => Effect.succeed({})),
     );
 
   const addLikeChallengeById = (challengeId: ChallengeId) =>
@@ -347,6 +350,7 @@ const make = Effect.gen(function* () {
         ),
       ),
       Effect.withSpan('LikeService.getLikeStatusByChallengeEventId'),
+      Effect.catchAll((err) => Effect.succeed({})),
     );
 
   const addLikeChallengeEventById = (challengeEventId: ChallengeEventId) =>

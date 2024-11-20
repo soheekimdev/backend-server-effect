@@ -233,10 +233,7 @@ const make = Effect.gen(function* () {
           onNone: () =>
             new LikeNotFound({
               id: null,
-              challengeEventId: null,
-              commentId: null,
-              postId: null,
-              challengeId: null,
+              ...ids,
             }),
           onSome: Effect.succeed,
         }),
