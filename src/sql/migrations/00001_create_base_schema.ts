@@ -191,11 +191,14 @@ create table challenge_event (
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   challenge_id uuid not null,
+  account_id uuid not null,
   is_deleted boolean default false,
   is_published boolean default false,
   is_finished boolean default false,
   start_datetime timestamp with time zone,
   end_datetime timestamp with time zone,
+  coordinate extensions.geography NULL,
+  constraint fk_challenge_event_account_id foreign key (challenge_id) references challenge (id),
   constraint fk_challenge_event_challenge_id foreign key (challenge_id) references challenge (id)
 );
 

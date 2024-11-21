@@ -163,6 +163,6 @@ export class AccountApi extends HttpApiGroup.make('account')
   .prefix('/api/accounts')
   .annotateContext(
     OpenApi.annotations({
-      title: '계정 API',
+      title: '(사용가능) 계정 API',
     }),
   ) {}

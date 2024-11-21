@@ -1,4 +1,4 @@
-import { ChallengeEventId } from '@/challenge/challenge-event-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import {
   CustomDateTimeInsert,

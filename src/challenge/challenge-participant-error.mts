@@ -13,6 +13,18 @@ export class ChallengeParticipantNotFound extends Schema.TaggedError<ChallengePa
   }),
 ) {}
 
+export class ChallengeParticipantTargetNotFound extends Schema.TaggedError<ChallengeParticipantTargetNotFound>()(
+  'ChallengeParticipantTargetNotFound',
+  {
+    accountId: Schema.NullishOr(AccountId),
+    challengeId: Schema.NullishOr(ChallengeId),
+  },
+  HttpApiSchema.annotations({
+    status: 404,
+    description: '해당 챌린지 참가자를 찾을 수 없습니다.',
+  }),
+) {}
+
 export class ChallengeParticipantConflict extends Schema.TaggedError<ChallengeParticipantConflict>()(
   'ChallengeParticipantConflict',
   { accountId: AccountId, challengeId: ChallengeId },

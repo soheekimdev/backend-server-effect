@@ -273,6 +273,6 @@ export class CommentApi extends HttpApiGroup.make('comment')
   .prefix('/api/posts') // 이거 실수 아님! post 아래로 내려가는거 맞음!
   .annotateContext(
     OpenApi.annotations({
-      title: '댓글 API',
+      title: '(사용가능) 댓글 API',
     }),
   ) {}

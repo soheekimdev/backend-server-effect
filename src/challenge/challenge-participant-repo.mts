@@ -107,6 +107,7 @@ const make = Effect.gen(function* () {
   return {
     ...repo,
     findParticipantsByChallengeId,
+    findParticipantByTarget,
     with: with_,
     withTarget: withTarget_,
     withoutTarget: withoutTarget_,

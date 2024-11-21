@@ -219,6 +219,6 @@ export class PostApi extends HttpApiGroup.make('post')
   .prefix('/api/posts')
   .annotateContext(
     OpenApi.annotations({
-      title: '게시글 API',
+      title: '(사용가능) 게시글 API',
     }),
   ) {}
