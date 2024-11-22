@@ -1,4 +1,6 @@
-import { HttpApi, OpenApi } from '@effect/platform';
+import { FileSystem, HttpApi, OpenApi } from '@effect/platform';
+import { NodeContext } from '@effect/platform-node';
+import { Effect } from 'effect';
 import { AccountApi } from './account/account-api.mjs';
 import { ChallengeEventApi } from './challenge-event/challenge-event-api.mjs';
 import { ChallengeApi } from './challenge/challenge-api.mjs';
@@ -6,6 +8,19 @@ import { CommentApi } from './comment/comment-api.mjs';
 import { FileApi } from './file/file-api.mjs';
 import { PostApi } from './post/post-api.mjs';
 import { RootApi } from './root-api.mjs';
+
+const program = Effect.provide(
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const content = yield* fs.readFileString('./package.json', 'utf8');
+    const packageJson = JSON.parse(content);
+
+    return yield* Effect.succeed(packageJson.version as string);
+  }),
+  NodeContext.layer,
+);
+
+const version = await Effect.runPromise(program);
 
 export class Api extends HttpApi.empty
   .add(RootApi)
@@ -28,7 +43,7 @@ export class Api extends HttpApi.empty
 * 챌린지 이벤트에 챌린지 참가자가 이벤트 업데이트하는 기능 추가
 * account, post, challenge에 태그 기능      
       `,
-      version: '0.0.2 (2024-11-21.002)',
+      version: version,
       override: {},
     }),
   ) {}
