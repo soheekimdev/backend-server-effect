@@ -1,26 +1,25 @@
 import { policy } from '@/auth/authorization.mjs';
 import { ChallengeParticipantRepo } from '@/challenge/challenge-participant-repo.mjs';
 import { ChallengeRepo } from '@/challenge/challenge-repo.mjs';
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { Effect, Layer, Option, pipe } from 'effect';
-import { ChallengeEventNotFound } from './challenge-event-error.mjs';
 import { ChallengeEventRepo } from './challenge-event-repo.mjs';
 import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
-import {
-  ChallengeParticipantNotFound,
-  ChallengeParticipantTargetNotFound,
-} from '@/challenge/challenge-participant-error.mjs';
 
 const make = Effect.gen(function* () {
   const challengeEventRepo = yield* ChallengeEventRepo;
   const challengeRepo = yield* ChallengeRepo;
   const challengeParticipantRepo = yield* ChallengeParticipantRepo;
 
-  const canCreate = (toCreate: typeof ChallengeEvent.jsonCreate.Type) =>
+  const canCreate = (
+    challengeId: ChallengeId,
+    toCreate: typeof ChallengeEvent.jsonCreate.Type,
+  ) =>
     policy(
       'challenge-event',
       'create',
       (actor) =>
-        challengeRepo.with(toCreate.challengeId, (challenge) =>
+        challengeRepo.with(challengeId, (challenge) =>
           Effect.succeed(
             actor.id === challenge.accountId || actor.role === 'admin',
           ),

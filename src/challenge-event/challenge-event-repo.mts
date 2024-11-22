@@ -1,9 +1,14 @@
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { makeTestLayer } from '@/misc/test-layer.mjs';
 import { SqlLive } from '@/sql/sql-live.mjs';
-import { Model, SqlClient } from '@effect/sql';
-import { Effect, Layer, Option, pipe } from 'effect';
+import { Model, SqlClient, SqlSchema } from '@effect/sql';
+import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { ChallengeEventNotFound } from './challenge-event-error.mjs';
-import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
+import {
+  ChallengeEvent,
+  ChallengeEventId,
+  FromStringToCoordinate,
+} from './challenge-event-schema.mjs';
 
 const TABLE_NAME = 'challenge_event';
 
@@ -14,6 +19,39 @@ const make = Effect.gen(function* () {
     spanPrefix: 'ChallengeEventRepo',
     idColumn: 'id',
   });
+
+  const findAllByChallengeId = (challengeId: ChallengeId) =>
+    Effect.gen(function* () {
+      const events = yield* SqlSchema.findAll({
+        Request: ChallengeId,
+        Result: Schema.Struct({
+          ...ChallengeEvent.fields,
+          coordinate: FromStringToCoordinate,
+        }),
+        execute: () =>
+          sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where challenge_id = ${challengeId}`,
+      })(challengeId);
+
+      return events;
+    }).pipe(
+      Effect.orDie,
+      Effect.withSpan('ChallengeEventRepo.findAllByChallengeId'),
+    );
+
+  const insert = (event: typeof ChallengeEvent.insert.Type) =>
+    SqlSchema.single({
+      Request: ChallengeEvent.insert,
+      Result: Schema.Struct({
+        ...ChallengeEvent.fields,
+        coordinate: FromStringToCoordinate,
+      }),
+      execute: (request) =>
+        sql`insert into ${sql(TABLE_NAME)} ${sql.insert(request).returning('*, ST_AsText(coordinate) as coordinate')}`,
+    })(event).pipe(
+      Effect.tap((event) => Effect.log(event)),
+      Effect.orDie,
+      Effect.withSpan('ChallengeEventRepo.insert'),
+    );
 
   const with_ = <A, E, R>(
     id: ChallengeEventId,
@@ -39,7 +77,9 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    insert,
     with: with_,
+    findAllByChallengeId,
   } as const;
 });
 
