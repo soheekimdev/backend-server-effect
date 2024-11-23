@@ -59,7 +59,11 @@ const make = Effect.gen(function* () {
   const deleteById = (id: ChallengeId) =>
     challengeRepo.with(id, (challenge) =>
       pipe(
-        challengeRepo.delete(id),
+        challengeRepo.update({
+          ...challenge,
+          isDeleted: true,
+          updatedAt: undefined,
+        }),
         Effect.withSpan('ChallengeService.deleteById'),
         policyRequire('challenge', 'delete'),
       ),

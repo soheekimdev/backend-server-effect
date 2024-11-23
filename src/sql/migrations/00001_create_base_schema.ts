@@ -27,6 +27,7 @@ create table challenge (
   id uuid primary key default gen_random_uuid (),
   title text,
   description text,
+  challenge_image_url text,
   type text,
   start_date date,
   end_date date,

@@ -17,6 +17,7 @@ export class Challenge extends Model.Class<Challenge>('Challenge')({
   id: Model.Generated(ChallengeId),
   title: Schema.String,
   description: Schema.String,
+  challengeImageUrl: Schema.NullishOr(Schema.String),
   type: Schema.String.pipe(
     Schema.annotations({
       description: '챌린지의 종류',

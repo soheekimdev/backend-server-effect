@@ -5,6 +5,7 @@ import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
 import { Authentication } from '@/auth/authentication.mjs';
 import { ChallengeNotFound } from '@/challenge/challenge-error.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
+import { ChallengeEventNotFound } from './challenge-event-error.mjs';
 
 export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
   .add(
@@ -92,11 +93,17 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
           challengeEventId: ChallengeEventId,
         }),
       )
+      .setPayload(
+        Schema.partialWith(ChallengeEvent.jsonUpdate, { exact: true }),
+      )
+      .addError(Unauthorized)
+      .addError(ChallengeEventNotFound)
+      .addSuccess(ChallengeEvent.json)
       .annotateContext(
         OpenApi.annotations({
-          title: '(미구현) 챌린지 이벤트 수정 API',
+          title: '(사용가능) 챌린지 이벤트 수정 API',
           override: {
-            summary: '(미구현) 챌린지 이벤트 수정',
+            summary: '(사용가능) 챌린지 이벤트 수정',
           },
         }),
       ),
@@ -110,11 +117,20 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
           challengeEventId: ChallengeEventId,
         }),
       )
+      .addError(Unauthorized)
+      .addError(ChallengeEventNotFound)
       .annotateContext(
         OpenApi.annotations({
-          title: '(미구현) 챌린지 이벤트 삭제 API',
+          title: '(사용가능) 챌린지 이벤트 삭제 API',
+          description: `
+* 주의: 이 API는 챌린지 이벤트 자체를 완전 삭제하지 않고, isDeleted를 true로 변경합니다. (soft delete)
+
+* 삭제된 이벤트는 챌린지 참가자에게 삭제되었음을 알려야합니다.
+
+* 전체 순위 등을 계산할 때 삭제된 이벤트는 제외해야합니다.
+          `,
           override: {
-            summary: '(미구현) 챌린지 이벤트 삭제',
+            summary: '(사용가능) 챌린지 이벤트 삭제',
           },
         }),
       ),

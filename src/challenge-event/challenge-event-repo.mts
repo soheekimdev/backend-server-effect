@@ -20,6 +20,17 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
+  const findById = (id: ChallengeEventId) =>
+    SqlSchema.findOne({
+      Request: ChallengeEventId,
+      Result: Schema.Struct({
+        ...ChallengeEvent.fields,
+        coordinate: FromStringToCoordinate,
+      }),
+      execute: (id) =>
+        sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where ${sql('id')} = ${id};`,
+    })(id).pipe(Effect.orDie, Effect.withSpan('ChallengeEventRepo.findById'));
+
   const findAllByChallengeId = (challengeId: ChallengeId) =>
     Effect.gen(function* () {
       const events = yield* SqlSchema.findAll({
@@ -29,7 +40,7 @@ const make = Effect.gen(function* () {
           coordinate: FromStringToCoordinate,
         }),
         execute: () =>
-          sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where challenge_id = ${challengeId}`,
+          sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where challenge_id = ${challengeId};`,
       })(challengeId);
 
       return events;
@@ -53,12 +64,28 @@ const make = Effect.gen(function* () {
       Effect.withSpan('ChallengeEventRepo.insert'),
     );
 
+  const update = (event: typeof ChallengeEvent.update.Type) =>
+    SqlSchema.single({
+      Request: ChallengeEvent.update,
+      Result: Schema.Struct({
+        ...ChallengeEvent.fields,
+        coordinate: FromStringToCoordinate,
+      }),
+      execute: (request) =>
+        sql`
+update ${sql(TABLE_NAME)} 
+set ${sql.update(request, ['id'])} 
+where ${sql('id')} = ${request.id} 
+returning *, ST_AsText(coordinate) as coordinate;
+;`,
+    })(event).pipe(Effect.orDie, Effect.withSpan('ChallengeEventRepo.update'));
+
   const with_ = <A, E, R>(
     id: ChallengeEventId,
     f: (event: ChallengeEvent) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | ChallengeEventNotFound, R> =>
     pipe(
-      repo.findById(id),
+      findById(id),
       Effect.flatMap(
         Option.match({
           onNone: () =>
@@ -77,7 +104,9 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    findById,
     insert,
+    update,
     with: with_,
     findAllByChallengeId,
   } as const;

@@ -30,11 +30,19 @@ export const ChallengeEventApiLive = HttpApiBuilder.group(
               ),
             ),
         )
-        .handle('updateById', ({ path }) =>
-          Effect.succeed('not implemented' as const),
+        .handle('updateById', ({ path, payload }) =>
+          challengeEventService
+            .update(path.challengeEventId, payload)
+            .pipe(
+              policyUse(challengeEventPolicy.canUpdate(path.challengeEventId)),
+            ),
         )
         .handle('deleteById', ({ path }) =>
-          Effect.succeed('not implemented' as const),
+          challengeEventService
+            .deleteById(path.challengeEventId)
+            .pipe(
+              policyUse(challengeEventPolicy.canDelete(path.challengeEventId)),
+            ),
         )
         .handle('check', () => Effect.succeed('not implemented' as const));
     }),

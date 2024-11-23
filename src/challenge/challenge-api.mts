@@ -99,7 +99,15 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       .addError(ChallengeNotFound)
       .annotateContext(
         OpenApi.annotations({
-          description: '(사용가능) 챌린지를 삭제합니다.',
+          description: `
+(사용가능) 챌린지를 삭제합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.
+
+* Row가 삭제되는것이 아니라, isDeleted 필드를 true로 변경합니다.
+
+* 삭제처리를 취소하기 위해서는 update로 처리해야합니다.
+
+* 프론트엔드에서 삭제되었음을 알려야합니다.
+`,
           override: {
             summary: '(사용가능) 챌린지 삭제',
           },

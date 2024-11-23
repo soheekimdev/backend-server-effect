@@ -1,10 +1,11 @@
 import { CurrentAccount } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { Effect, Layer, Schema } from 'effect';
+import { Effect, Layer, pipe, Schema } from 'effect';
 import { ChallengeEventRepo } from './challenge-event-repo.mjs';
 import {
   ChallengeEvent,
+  ChallengeEventId,
   FromStringToCoordinate,
 } from './challenge-event-schema.mjs';
 
@@ -46,9 +47,46 @@ const make = Effect.gen(function* () {
       policyRequire('challenge-event', 'create'),
     );
 
+  const update = (
+    challengeEventId: ChallengeEventId,
+    toUpdate: Partial<typeof ChallengeEvent.jsonUpdate.Type>,
+  ) =>
+    repo.with(challengeEventId, (event) =>
+      pipe(
+        repo.update({
+          ...event,
+          ...toUpdate,
+          coordinate: Schema.encodeUnknownSync(FromStringToCoordinate)(
+            event.coordinate,
+          ),
+          updatedAt: undefined,
+        }),
+        Effect.withSpan('ChallengeEventService.update'),
+        policyRequire('challenge-event', 'update'),
+      ),
+    );
+
+  const deleteById = (challengeEventId: ChallengeEventId) =>
+    repo.with(challengeEventId, (event) =>
+      pipe(
+        repo.update({
+          ...event,
+          coordinate: Schema.encodeUnknownSync(FromStringToCoordinate)(
+            event.coordinate,
+          ),
+          isDeleted: true,
+          updatedAt: undefined,
+        }),
+        Effect.withSpan('ChallengeEventService.delete'),
+        policyRequire('challenge-event', 'delete'),
+      ),
+    );
+
   return {
     findAllByChallengeId,
     create,
+    update,
+    deleteById,
   } as const;
 });
 
