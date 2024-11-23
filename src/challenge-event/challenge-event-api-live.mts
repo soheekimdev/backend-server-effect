@@ -44,7 +44,13 @@ export const ChallengeEventApiLive = HttpApiBuilder.group(
               policyUse(challengeEventPolicy.canDelete(path.challengeEventId)),
             ),
         )
-        .handle('check', () => Effect.succeed('not implemented' as const));
+        .handle('check', ({ path, payload }) =>
+          challengeEventService
+            .check(path.challengeId, path.challengeEventId, payload)
+            .pipe(
+              policyUse(challengeEventPolicy.canCheck(path.challengeEventId)),
+            ),
+        );
     }),
 ).pipe(
   Layer.provide(AuthenticationLive),

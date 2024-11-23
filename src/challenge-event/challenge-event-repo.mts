@@ -4,11 +4,8 @@ import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { ChallengeEventNotFound } from './challenge-event-error.mjs';
-import {
-  ChallengeEvent,
-  ChallengeEventId,
-  FromStringToCoordinate,
-} from './challenge-event-schema.mjs';
+import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
+import { FromStringToCoordinate, Meters } from './helper-schema.mjs';
 
 const TABLE_NAME = 'challenge_event';
 
@@ -80,6 +77,34 @@ returning *, ST_AsText(coordinate) as coordinate;
 ;`,
     })(event).pipe(Effect.orDie, Effect.withSpan('ChallengeEventRepo.update'));
 
+  const getDistanceFromChallengeEvent = (
+    id: ChallengeEventId,
+    coordinate: readonly [number, number],
+  ) =>
+    SqlSchema.single({
+      Request: Schema.Struct({
+        id: ChallengeEventId,
+        coordinate: Schema.Tuple(Schema.Number, Schema.Number),
+      }),
+      Result: Meters, // distance in meters
+      execute: (request) => sql`
+SELECT
+*,
+ST_Distance(
+  ${sql('coordinate')},
+  ST_SetSRID(ST_MakePoint(${coordinate[1]},${coordinate[0]}), 4326)::geography
+) AS distance
+from ${sql(TABLE_NAME)}
+where ${sql('id')} = ${request.id};
+`,
+    })({
+      id,
+      coordinate,
+    }).pipe(
+      Effect.orDie,
+      Effect.withSpan('ChallengeEventRepo.getDistanceFromChallengeEvent'),
+    );
+
   const with_ = <A, E, R>(
     id: ChallengeEventId,
     f: (event: ChallengeEvent) => Effect.Effect<A, E, R>,
@@ -109,6 +134,7 @@ returning *, ST_AsText(coordinate) as coordinate;
     update,
     with: with_,
     findAllByChallengeId,
+    getDistanceFromChallengeEvent,
   } as const;
 });
 

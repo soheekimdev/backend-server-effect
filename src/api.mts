@@ -34,6 +34,8 @@ export class Api extends HttpApi.empty
     OpenApi.annotations({
       title: '오즈 6기 심화반 챌린지 서비스를 위한 백엔드',
       description: `최신변경점:
+* 챌린지 이벤트에 챌린지 참가자가 이벤트 업데이트하는 기능 추가 / 현재 테스트중 (2024-11-23.002)
+* 챌린지 이벤트 참가 스키마 변경 (2024-11-23.002)
 * 챌린지 삭제방법을 softDelete로 변경 (2024-11-23.001)
 * 챌린지 썸네일 추가 (2024-11-23.001)
 * 챌린지 이벤트 update / softDelete 추가 (2024-11-23.001)
@@ -41,7 +43,6 @@ export class Api extends HttpApi.empty
 * 챌린지 이벤트 생성 구현 (2024-11-22.002)
 
 예정변경점:
-* 챌린지 이벤트에 챌린지 참가자가 이벤트 업데이트하는 기능 추가
 * account, post, challenge에 태그 기능
       `,
       version: version,

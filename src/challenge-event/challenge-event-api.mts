@@ -5,7 +5,14 @@ import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
 import { Authentication } from '@/auth/authentication.mjs';
 import { ChallengeNotFound } from '@/challenge/challenge-error.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
-import { ChallengeEventNotFound } from './challenge-event-error.mjs';
+import {
+  ChallengeEventCheckRequestLocationBadRequest,
+  ChallengeEventNotFound,
+} from './challenge-event-error.mjs';
+import {
+  ChallengeEventCheckRequest,
+  ChallengeEventCheckResponse,
+} from './helper-schema.mjs';
 
 export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
   .add(
@@ -147,13 +154,18 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
           challengeEventId: ChallengeEventId,
         }),
       )
+      .setPayload(ChallengeEventCheckRequest)
+      .addError(Unauthorized)
+      .addError(ChallengeEventNotFound)
+      .addError(ChallengeEventCheckRequestLocationBadRequest)
+      .addSuccess(ChallengeEventCheckResponse)
       .annotateContext(
         OpenApi.annotations({
-          title: '(미구현) 챌린지 이벤트 체크 API',
+          title: '(테스트중) 챌린지 이벤트 체크 API',
           description:
-            '(미구현) 챌린지 참가자가 이벤트를 진행중인지 체크하고 챌린지 상황을 업데이트합니다.',
+            '(테스트중) 챌린지 참가자가 이벤트를 진행중인지 체크하고 챌린지 상황을 업데이트합니다.',
           override: {
-            summary: '(미구현) 챌린지 이벤트 체크',
+            summary: '(테스트중) 챌린지 이벤트 체크',
           },
         }),
       ),
@@ -161,6 +173,6 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
   .prefix('/api/challenges')
   .annotateContext(
     OpenApi.annotations({
-      title: '(미구현 있음) 챌린지 이벤트 API',
+      title: '(사용가능/테스트중) 챌린지 이벤트 API',
     }),
   ) {}

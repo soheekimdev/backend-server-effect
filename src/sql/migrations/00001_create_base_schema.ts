@@ -223,9 +223,7 @@ create table challenge_event_participant (
   challenge_event_id uuid,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
-  is_deleted boolean default false,
-  status text,
-  is_winner boolean default false,
+  is_checked boolean default false,
   constraint fk_challenge_event_participant_account_id foreign key (account_id) references account (id),
   constraint fk_challenge_event_participant_challenge_event_id foreign key (challenge_event_id) references challenge_event (id)
 );

@@ -1,4 +1,4 @@
-import { Model, SqlClient } from '@effect/sql';
+import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Option, Effect, Layer, pipe } from 'effect';
 import {
   ChallengeEventParticipant,
@@ -6,6 +6,7 @@ import {
 } from './challenge-event-participant-schema.mjs';
 import { makeTestLayer } from '@/misc/test-layer.mjs';
 import { ChallengeEventParticipantNotFound } from './challenge-event-participant-error.mjs';
+import { SqlLive } from '@/sql/sql-live.mjs';
 
 const TABLE_NAME = 'challenge_event_participant';
 
@@ -16,6 +17,17 @@ const make = Effect.gen(function* () {
     spanPrefix: 'ChallengeEventParticipantRepo',
     idColumn: 'id',
   });
+
+  const upsert = (participant: typeof ChallengeEventParticipant.insert.Type) =>
+    SqlSchema.single({
+      Request: ChallengeEventParticipant.insert,
+      Result: ChallengeEventParticipant,
+      execute: (request) =>
+        sql`insert into ${sql(TABLE_NAME)} ${sql.insert(request).returning('*')} on conflict (challenge_event_id, account_id) do update set ${sql.update(request).returning('*')}`,
+    })(participant).pipe(
+      Effect.orDie,
+      Effect.withSpan('ChallengeEventParticipantRepo.upsert'),
+    );
 
   const with_ = <A, E, R>(
     id: ChallengeEventParticipantId,
@@ -42,6 +54,7 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    upsert,
     with: with_,
   } as const;
 });
@@ -51,7 +64,7 @@ export class ChallengeEventParticipantRepo extends Effect.Tag(
 )<ChallengeEventParticipantRepo, Effect.Effect.Success<typeof make>>() {
   static layer = Layer.effect(ChallengeEventParticipantRepo, make);
 
-  static Live = this.layer;
+  static Live = this.layer.pipe(Layer.provide(SqlLive));
 
   static Test = makeTestLayer(ChallengeEventParticipantRepo)({});
 }
