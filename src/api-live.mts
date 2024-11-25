@@ -8,6 +8,7 @@ import { CommentApiLive } from './comment/comment-api-live.mjs';
 import { FileApiLive } from './file/file-api-live.mjs';
 import { PostApiLive } from './post/post-api-live.mjs';
 import { RootApiLive } from './root-api-live.mjs';
+import { TagApiLive } from './tag/tag-api-live.mjs';
 
 export const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide([
@@ -18,5 +19,6 @@ export const ApiLive = HttpApiBuilder.api(Api).pipe(
     FileApiLive,
     ChallengeApiLive,
     ChallengeEventApiLive,
+    TagApiLive,
   ]),
 );

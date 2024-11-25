@@ -1,3 +1,7 @@
+import {
+  CustomDateTimeInsert,
+  CustomDateTimeUpdate,
+} from '@/misc/date-schema.mjs';
 import { Model } from '@effect/sql';
 import { Schema } from 'effect';
 
@@ -7,9 +11,8 @@ export type TagId = typeof TagId.Type;
 
 export class Tag extends Model.Class<Tag>('Tag')({
   id: Model.Generated(TagId),
-  name: Schema.String,
+  name: Model.FieldExcept('jsonUpdate')(Schema.String),
   description: Schema.String,
-  isDeleted: Schema.Boolean,
-  createdAt: Schema.DateTimeUtc,
-  updatedAt: Schema.DateTimeUtc,
+  createdAt: CustomDateTimeInsert,
+  updatedAt: CustomDateTimeUpdate,
 }) {}

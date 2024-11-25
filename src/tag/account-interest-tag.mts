@@ -19,7 +19,6 @@ export class AccountInterestTag extends Model.Class<AccountInterestTag>(
   id: Model.Generated(AccountInterestTagId),
   accountId: AccountId,
   tagId: TagId,
-  isDeleted: Schema.Boolean,
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}

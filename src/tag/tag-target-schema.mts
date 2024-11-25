@@ -1,4 +1,3 @@
-import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import {
   CustomDateTimeInsert,
@@ -18,8 +17,6 @@ export class TagTarget extends Model.Class<TagTarget>('TagTarget')({
   tagId: TagId,
   postId: PostId,
   challengeId: ChallengeId,
-  challengeEventId: ChallengeEventId,
-  isDeleted: Schema.Boolean,
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}

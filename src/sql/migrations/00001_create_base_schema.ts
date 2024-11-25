@@ -231,19 +231,21 @@ create table challenge_event_participant (
   constraint fk_challenge_event_participant_challenge_id foreign key (challenge_id) references challenge (id)
 );
 
-create table tag (
-  id uuid primary key default gen_random_uuid (),
-  name text,
-  description text,
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now(),
-  is_deleted boolean default false
+CREATE TABLE tag (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  is_deleted BOOLEAN DEFAULT FALSE,
+  CONSTRAINT unique_name UNIQUE (name)
 );
 
 create table account_interest_tag (
   id uuid primary key default gen_random_uuid (),
   account_id uuid not null,
   tag_id uuid not null,
+  unique (account_id, tag_id),
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   is_deleted boolean default false,
