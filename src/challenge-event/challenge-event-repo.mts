@@ -4,10 +4,16 @@ import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { ChallengeEventNotFound } from './challenge-event-error.mjs';
-import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
+import {
+  ChallengeEvent,
+  ChallengeEventId,
+  ChallengeEventView,
+} from './challenge-event-schema.mjs';
 import { FromStringToCoordinate, Meters } from './helper-schema.mjs';
 
 const TABLE_NAME = 'challenge_event';
+
+const VIEW_NAME = 'challenge_event_counts';
 
 const make = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
@@ -21,11 +27,11 @@ const make = Effect.gen(function* () {
     SqlSchema.findOne({
       Request: ChallengeEventId,
       Result: Schema.Struct({
-        ...ChallengeEvent.fields,
+        ...ChallengeEventView.fields,
         coordinate: Schema.NullishOr(FromStringToCoordinate),
       }),
       execute: (id) =>
-        sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where ${sql('id')} = ${id};`,
+        sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(VIEW_NAME)} where ${sql('id')} = ${id};`,
     })(id).pipe(Effect.orDie, Effect.withSpan('ChallengeEventRepo.findById'));
 
   const findAllByChallengeId = (challengeId: ChallengeId) =>
@@ -33,11 +39,11 @@ const make = Effect.gen(function* () {
       const events = yield* SqlSchema.findAll({
         Request: ChallengeId,
         Result: Schema.Struct({
-          ...ChallengeEvent.fields,
+          ...ChallengeEventView.fields,
           coordinate: Schema.NullishOr(FromStringToCoordinate),
         }),
         execute: () =>
-          sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where challenge_id = ${challengeId};`,
+          sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(VIEW_NAME)} where challenge_id = ${challengeId};`,
       })(challengeId);
 
       return events;

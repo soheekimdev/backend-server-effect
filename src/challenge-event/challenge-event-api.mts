@@ -1,7 +1,11 @@
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
-import { ChallengeEvent, ChallengeEventId } from './challenge-event-schema.mjs';
+import {
+  ChallengeEvent,
+  ChallengeEventId,
+  ChallengeEventView,
+} from './challenge-event-schema.mjs';
 import { Authentication } from '@/auth/authentication.mjs';
 import { ChallengeNotFound } from '@/challenge/challenge-error.mjs';
 import { Unauthorized } from '@/auth/error-403.mjs';
@@ -24,7 +28,7 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Array(ChallengeEvent.json))
+      .addSuccess(Schema.Array(ChallengeEventView.json))
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -45,7 +49,7 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
       )
       .addError(ChallengeNotFound)
       .addError(ChallengeEventNotFound)
-      .addSuccess(ChallengeEvent.json)
+      .addSuccess(ChallengeEventView.json)
       .annotateContext(
         OpenApi.annotations({
           description:

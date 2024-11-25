@@ -61,3 +61,53 @@ export class ChallengeEvent extends Model.Class<ChallengeEvent>(
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}
+
+export class ChallengeEventView extends Model.Class<ChallengeEventView>(
+  'ChallengeEventView',
+)({
+  ...ChallengeEvent.fields,
+  totalParticipants: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description:
+          '이 챌린지에 참여한 유저의 수 (이벤트에 참여한 유저의 수가 아님!)',
+      }),
+    ),
+  ),
+  challengeEventCheckedParticipantsCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 이벤트를 완료한 유저의 수',
+      }),
+    ),
+  ),
+  challengeEventCheckedParticipantsFraction: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description:
+          '이 이벤트를 완료한 유저의 비율 (분모: 챌린지 참가자 수 = totalParticipants)',
+      }),
+    ),
+  ),
+}) {}

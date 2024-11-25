@@ -196,7 +196,7 @@ LEFT JOIN account ON challenge.account_id = account.id
 LEFT JOIN like_counts ON challenge.id = like_counts.challenge_id
 LEFT JOIN challenge_event_counts ON challenge.id = challenge_event_counts.challenge_id
 LEFT JOIN challenge_participant_counts ON challenge.id = challenge_participant_counts.challenge_id
-LEFT JOIN average_fractions ON challenge.id = average_fractions.challenge_id;
+LEFT JOIN average_fractions ON challenge.id = average_fractions.challenge_id
 -------------------------------------------------------------------------
 
 -------------------------------------------------------------------------
@@ -223,7 +223,8 @@ GROUP BY
 -------------------------------------------------------------------------
 
 -------------------------------------------------------------------------
-CREATE VIEW challenge_event_participation_stats AS
+
+CREATE VIEW challenge_event_counts AS
 WITH total_participants AS (
   -- Calculate total participants per challenge
   SELECT
@@ -235,9 +236,9 @@ WITH total_participants AS (
     challenge_id
 ),
 event_checked_counts AS (
-  -- Calculate number of checked participants per event
-  SELECT
-    ce.challenge_id,
+  -- Calculate number of checked participants per event and include challenge_event columns
+  select
+  	ce.*,
     ce.id AS event_id,
     COUNT(cep.account_id)::float AS num_checked
   FROM
@@ -246,14 +247,16 @@ event_checked_counts AS (
     ce.id = cep.challenge_event_id AND cep.is_checked = TRUE
   GROUP BY
     ce.challenge_id,
-    ce.id
+    ce.id,
+    ce.title,
+    ce.description,
+    ce.start_datetime,
+    ce.end_datetime
 ),
 event_fractions AS (
-  -- Calculate fraction of checked participants per event
+  -- Calculate fraction of checked participants per event and include challenge_event columns
   SELECT
-    ecc.challenge_id,
-    ecc.event_id,
-    ecc.num_checked,
+    ecc.*,
     tp.total_participants,
     CASE
       WHEN tp.total_participants > 0 THEN (ecc.num_checked / tp.total_participants)
@@ -277,13 +280,12 @@ challenge_averages AS (
     challenge_id
 )
 SELECT
-  -- Combine challenge averages with event details for verification
-  ca.challenge_id,
-  ca.total_participants as challenge_participants,
-  ca.number_of_events as challenge_events_count,
-  ca.average_fraction as challenge_event_participant_check_average,
-  ef.event_id as challenge_event_id,
-  ef.num_checked as challenge_event_checked_participants_count,
+  -- Combine challenge averages with event details and include challenge_event columns
+  ca.total_participants AS challenge_participants,
+  ca.number_of_events AS challenge_events_count,
+  ca.average_fraction AS challenge_event_participant_check_average,
+  ef.*,
+  ef.num_checked AS challenge_event_checked_participants_count,
   ef.fraction AS challenge_event_checked_participants_fraction
 FROM
   challenge_averages ca
