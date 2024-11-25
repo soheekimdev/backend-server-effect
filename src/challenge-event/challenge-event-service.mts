@@ -26,6 +26,9 @@ const make = Effect.gen(function* () {
       .findAllByChallengeId(challengeId)
       .pipe(Effect.withSpan('ChallengeEventService.findAllByChallengeId'));
 
+  const findById = (challengeEventId: ChallengeEventId) =>
+    repo.with(challengeEventId, (event) => Effect.succeed(event));
+
   const create = (
     challengeId: ChallengeId,
     challengeEvent: typeof ChallengeEvent.jsonCreate.Type,
@@ -103,6 +106,37 @@ const make = Effect.gen(function* () {
         Effect.succeed(ev),
       );
 
+      if (event.checkType !== payload.checkType) {
+        return yield* Effect.succeed(
+          ChallengeEventCheckResponse.make({
+            result: 'fail',
+            message: 'checkType does not match',
+          }),
+        );
+      }
+
+      const maybeEvParticipant =
+        yield* challengeEventParticipantRepo.findByTarget({
+          accountId: account.id,
+          challengeEventId,
+        });
+
+      const evParticipant = Option.getOrElse(
+        Option.flatMapNullable(maybeEvParticipant, (ev) => ev.isChecked),
+        () => {
+          return false;
+        },
+      );
+
+      if (evParticipant) {
+        return yield* Effect.succeed(
+          ChallengeEventCheckResponse.make({
+            result: 'success',
+            message: 'Already checked to success',
+          }),
+        );
+      }
+
       if (event.checkType === 'manual') {
         // check manually
         yield* challengeEventParticipantRepo.upsert({
@@ -126,7 +160,7 @@ const make = Effect.gen(function* () {
           () => new ChallengeEventCheckRequestLocationBadRequest(),
         );
 
-        const distance = yield* repo.getDistanceFromChallengeEvent(
+        const { distance } = yield* repo.getDistanceFromChallengeEvent(
           challengeEventId,
           location,
         );
@@ -193,12 +227,17 @@ const make = Effect.gen(function* () {
       );
     });
 
+  const getChecks = (challengeEventId: ChallengeEventId) =>
+    challengeEventParticipantRepo.findAllByChallengeEventId(challengeEventId);
+
   return {
+    findById,
     findAllByChallengeId,
     create,
     update,
     deleteById,
     check,
+    getChecks,
   } as const;
 });
 

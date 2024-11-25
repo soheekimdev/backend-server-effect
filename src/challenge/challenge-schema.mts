@@ -115,6 +115,21 @@ export class ChallengeView extends Model.Class<ChallengeView>('ChallengeView')({
       }),
     ),
   ),
+  controversialCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.int(),
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 챌린지에 달린 like + dislike 수',
+      }),
+    ),
+  ),
   challengeEventCount: Model.FieldExcept(
     'update',
     'insert',
@@ -127,6 +142,35 @@ export class ChallengeView extends Model.Class<ChallengeView>('ChallengeView')({
       Schema.annotations({
         default: 0,
         description: '이 챌린지에 달린 이벤트의 수',
+      }),
+    ),
+  ),
+  challengeParticipantCount: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.int(),
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 챌린지에 참여한 유저의 수',
+      }),
+    ),
+  ),
+  challengeEventCheckedParticipantsFraction: Model.FieldExcept(
+    'update',
+    'insert',
+    'jsonUpdate',
+    'jsonCreate',
+  )(
+    Schema.Number.pipe(
+      Schema.nonNegative(),
+      Schema.annotations({
+        default: 0,
+        description: '이 챌린지에 참여한 유저 중 이벤트를 완료한 유저의 비율',
       }),
     ),
   ),

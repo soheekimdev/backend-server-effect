@@ -1,5 +1,5 @@
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
-import { Option, Effect, Layer, pipe } from 'effect';
+import { Option, Effect, Layer, pipe, Schema } from 'effect';
 import {
   ChallengeEventParticipant,
   ChallengeEventParticipantId,
@@ -7,6 +7,8 @@ import {
 import { makeTestLayer } from '@/misc/test-layer.mjs';
 import { ChallengeEventParticipantNotFound } from './challenge-event-participant-error.mjs';
 import { SqlLive } from '@/sql/sql-live.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
+import { ChallengeEventId } from './challenge-event-schema.mjs';
 
 const TABLE_NAME = 'challenge_event_participant';
 
@@ -18,12 +20,44 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
+  const findByTarget = (target: {
+    accountId: AccountId;
+    challengeEventId: ChallengeEventId;
+  }) =>
+    SqlSchema.findOne({
+      Request: Schema.Struct({
+        accountId: Schema.String,
+        challengeEventId: Schema.String,
+      }),
+      Result: ChallengeEventParticipant,
+      execute: (request) =>
+        sql`select * from ${sql(TABLE_NAME)} where account_id = ${request.accountId} and challenge_event_id = ${request.challengeEventId}`,
+    })(target).pipe(
+      Effect.orDie,
+      Effect.withSpan(
+        'ChallengeEventParticipantRepo.findByAccountIdAndChallengeEventId',
+      ),
+    );
+
+  const findAllByChallengeEventId = (challengeEventId: ChallengeEventId) =>
+    SqlSchema.findAll({
+      Request: ChallengeEventId,
+      Result: ChallengeEventParticipant,
+      execute: (request) =>
+        sql`select * from ${sql(TABLE_NAME)} where challenge_event_id = ${request}`,
+    })(challengeEventId).pipe(
+      Effect.orDie,
+      Effect.withSpan(
+        'ChallengeEventParticipantRepo.findAllByChallengeEventId',
+      ),
+    );
+
   const upsert = (participant: typeof ChallengeEventParticipant.insert.Type) =>
     SqlSchema.single({
       Request: ChallengeEventParticipant.insert,
       Result: ChallengeEventParticipant,
       execute: (request) =>
-        sql`insert into ${sql(TABLE_NAME)} ${sql.insert(request).returning('*')} on conflict (challenge_event_id, account_id) do update set ${sql.update(request).returning('*')}`,
+        sql`insert into ${sql(TABLE_NAME)} ${sql.insert(request)} on conflict (challenge_event_id, account_id) do update set ${sql.update(request).returning('*')}`,
     })(participant).pipe(
       Effect.orDie,
       Effect.withSpan('ChallengeEventParticipantRepo.upsert'),
@@ -54,6 +88,8 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    findByTarget,
+    findAllByChallengeEventId,
     upsert,
     with: with_,
   } as const;

@@ -219,13 +219,16 @@ create table challenge_participant (
 
 create table challenge_event_participant (
   id uuid primary key default gen_random_uuid (),
-  account_id uuid,
-  challenge_event_id uuid,
+  account_id uuid not null,
+  challenge_event_id uuid not null,
+  challenge_id uuid not null,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   is_checked boolean default false,
+  unique (account_id, challenge_event_id),
   constraint fk_challenge_event_participant_account_id foreign key (account_id) references account (id),
-  constraint fk_challenge_event_participant_challenge_event_id foreign key (challenge_event_id) references challenge_event (id)
+  constraint fk_challenge_event_participant_challenge_event_id foreign key (challenge_event_id) references challenge_event (id),
+  constraint fk_challenge_event_participant_challenge_id foreign key (challenge_id) references challenge (id)
 );
 
 create table tag (

@@ -13,6 +13,12 @@ export const FindManyUrlParams = Schema.Struct({
       default: () => 20,
     },
   ),
+  sortBy: Schema.optionalWith(Schema.String.pipe(Schema.nonEmptyString()), {
+    default: () => 'updatedAt',
+  }),
+  order: Schema.optionalWith(Schema.Literal('asc', 'desc'), {
+    default: () => 'desc',
+  }),
 }).annotations({
   description: 'Find many items with pagination',
 });

@@ -19,7 +19,7 @@ export const ChallengeEventApiLive = HttpApiBuilder.group(
           challengeEventService.findAllByChallengeId(path.challengeId),
         )
         .handle('findById', ({ path }) =>
-          Effect.succeed('not implemented' as const),
+          challengeEventService.findById(path.challengeEventId),
         )
         .handle('create', ({ path, payload }) =>
           challengeEventService
@@ -50,6 +50,9 @@ export const ChallengeEventApiLive = HttpApiBuilder.group(
             .pipe(
               policyUse(challengeEventPolicy.canCheck(path.challengeEventId)),
             ),
+        )
+        .handle('getChecks', ({ path }) =>
+          challengeEventService.getChecks(path.challengeEventId),
         );
     }),
 ).pipe(

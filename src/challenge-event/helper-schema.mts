@@ -44,7 +44,6 @@ export const FromStringToCoordinate = Schema.transform(
 
 export const ChallengeEventCheckRequest = Schema.Struct({
   checkType: Schema.Literal('location', 'duration', 'manual', 'other'),
-  manualOrDuration: Schema.NullishOr(Schema.Boolean),
   location: Schema.NullishOr(CoordinateForFrontend),
 });
 

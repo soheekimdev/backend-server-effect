@@ -1,13 +1,15 @@
-import { Model, SqlClient, SqlSchema } from '@effect/sql';
-import { Effect, Layer, Option, pipe, Schema } from 'effect';
-import { makeTestLayer } from '@/misc/test-layer.mjs';
-import { SqlLive } from '@/sql/sql-live.mjs';
-import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
-import { ChallengeNotFound } from './challenge-error.mjs';
-import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
-import { CREATED_AT, DESC } from '@/sql/order-by.mjs';
 import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { makeTestLayer } from '@/misc/test-layer.mjs';
+import { SqlLive } from '@/sql/sql-live.mjs';
+import { Model, SqlClient, SqlSchema } from '@effect/sql';
+import { Effect, Layer, Option, pipe, Schema } from 'effect';
+import { ChallengeNotFound } from './challenge-error.mjs';
+import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
+
+const snakeCase = (str: string) =>
+  str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 const TABLE_NAME = 'challenge';
 const VIEW_NAME = 'challenge_like_counts';
@@ -31,8 +33,13 @@ const make = Effect.gen(function* () {
       const challenges = yield* SqlSchema.findAll({
         Request: FindManyUrlParams,
         Result: ChallengeView,
-        execute: () =>
-          sql`select * from ${sql(VIEW_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+        execute: (req) =>
+          sql`select * 
+from ${sql(VIEW_NAME)} 
+order by ${sql(snakeCase(params.sortBy))} 
+ ${sql.unsafe(params.order)} 
+limit ${params.limit} 
+offset ${(params.page - 1) * params.limit}`,
       })(params);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,

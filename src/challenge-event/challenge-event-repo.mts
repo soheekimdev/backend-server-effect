@@ -22,7 +22,7 @@ const make = Effect.gen(function* () {
       Request: ChallengeEventId,
       Result: Schema.Struct({
         ...ChallengeEvent.fields,
-        coordinate: FromStringToCoordinate,
+        coordinate: Schema.NullishOr(FromStringToCoordinate),
       }),
       execute: (id) =>
         sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where ${sql('id')} = ${id};`,
@@ -34,7 +34,7 @@ const make = Effect.gen(function* () {
         Request: ChallengeId,
         Result: Schema.Struct({
           ...ChallengeEvent.fields,
-          coordinate: FromStringToCoordinate,
+          coordinate: Schema.NullishOr(FromStringToCoordinate),
         }),
         execute: () =>
           sql`select *, ST_AsText(${sql('coordinate')}) as coordinate from ${sql(TABLE_NAME)} where challenge_id = ${challengeId};`,
@@ -86,7 +86,7 @@ returning *, ST_AsText(coordinate) as coordinate;
         id: ChallengeEventId,
         coordinate: Schema.Tuple(Schema.Number, Schema.Number),
       }),
-      Result: Meters, // distance in meters
+      Result: Schema.Struct({ distance: Meters }), // distance in meters
       execute: (request) => sql`
 SELECT
 *,

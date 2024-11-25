@@ -13,6 +13,7 @@ import {
   ChallengeEventCheckRequest,
   ChallengeEventCheckResponse,
 } from './helper-schema.mjs';
+import { ChallengeEventParticipant } from './challenge-event-participant-schema.mjs';
 
 export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
   .add(
@@ -42,12 +43,15 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
           challengeEventId: ChallengeEventId,
         }),
       )
+      .addError(ChallengeNotFound)
+      .addError(ChallengeEventNotFound)
+      .addSuccess(ChallengeEvent.json)
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(미구현) 챌린지 이벤트를 조회합니다. 챌린지 이벤트가 존재하지 않는 경우 404를 반환합니다.',
+            '(사용가능) 챌린지 이벤트를 조회합니다. 챌린지 이벤트가 존재하지 않는 경우 404를 반환합니다.',
           override: {
-            summary: '(미구현) 단일 챌린지 이벤트 조회',
+            summary: '(사용가능) 단일 챌린지 이벤트 조회',
           },
         }),
       ),
@@ -161,11 +165,37 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
       .addSuccess(ChallengeEventCheckResponse)
       .annotateContext(
         OpenApi.annotations({
-          title: '(테스트중) 챌린지 이벤트 체크 API',
+          title: '(사용가능) 챌린지 이벤트 체크 API',
           description:
-            '(테스트중) 챌린지 참가자가 이벤트를 진행중인지 체크하고 챌린지 상황을 업데이트합니다.',
+            '(사용가능) 챌린지 참가자가 이벤트를 진행중인지 체크하고 챌린지 상황을 업데이트합니다.',
           override: {
-            summary: '(테스트중) 챌린지 이벤트 체크',
+            summary: '(사용가능) 챌린지 이벤트 체크',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.get(
+      'getChecks',
+      '/:challengeId/events/:challengeEventId/check',
+    )
+      .middleware(Authentication)
+      .setPath(
+        Schema.Struct({
+          challengeId: ChallengeId,
+          challengeEventId: ChallengeEventId,
+        }),
+      )
+      .addError(Unauthorized)
+      .addError(ChallengeEventNotFound)
+      .addSuccess(Schema.Array(ChallengeEventParticipant.json))
+      .annotateContext(
+        OpenApi.annotations({
+          title: '(사용가능) 챌린지 이벤트 참가 조회 API',
+          description:
+            '(사용가능) 해당 챌린지 이벤트에 참가중인 사용자의 현황을 조회합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 이벤트 참가 조회',
           },
         }),
       ),

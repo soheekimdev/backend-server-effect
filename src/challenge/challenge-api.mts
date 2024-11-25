@@ -23,7 +23,7 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       .annotateContext(
         OpenApi.annotations({
           description:
-            '(사용가능) 챌린지 목록을 조회합니다. 페이지와 한 페이지당 챌린지 수를 지정할 수 있습니다.',
+            '(사용가능) 챌린지 목록을 조회합니다. 페이지와 한 페이지당 챌린지 수를 지정할 수 있습니다. column을 지정하여 정렬할 수 있습니다.',
           override: {
             summary: '(사용가능) 챌린지 목록 조회',
           },

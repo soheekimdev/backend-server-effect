@@ -2,6 +2,7 @@ import { AccountId } from '@/account/account-schema.mjs';
 import {
   CustomDateTimeInsert,
   CustomDateTimeUpdate,
+  DateTimeFromDate,
 } from '@/misc/date-schema.mjs';
 import { Model } from '@effect/sql';
 import { Schema } from 'effect';
@@ -28,24 +29,27 @@ export class ChallengeEvent extends Model.Class<ChallengeEvent>(
   challengeId: Model.Sensitive(ChallengeId),
   isDeleted: Schema.Boolean.pipe(
     Schema.annotations({
-      description: '챌린지 이벤트가 삭제되었는지 여부',
+      description:
+        '챌린지 이벤트가 삭제되었는지 여부 (사용하지 않습니다; 추후 확장성을 위해 만들어둠)',
       default: false,
     }),
   ),
   isPublished: Schema.Boolean.pipe(
     Schema.annotations({
-      description: '챌린지 이벤트가 챌린지 참가자에게 공개되었는지 여부',
+      description:
+        '챌린지 이벤트가 챌린지 참가자에게 공개되었는지 여부 (사용하지 않습니다; 추후 확장성을 위해 만들어둠)',
       default: false,
     }),
   ),
   isFinished: Schema.Boolean.pipe(
     Schema.annotations({
-      description: '챌린지 이벤트가 종료되었는지 여부',
+      description:
+        '챌린지 이벤트가 종료되었는지 여부 (사용하지 않습니다; 추후 확장성을 위해 만들어둠)',
       default: false,
     }),
   ),
-  startDatetime: Schema.NullishOr(Schema.DateTimeUtc),
-  endDatetime: Schema.NullishOr(Schema.DateTimeUtc),
+  startDatetime: Schema.NullishOr(DateTimeFromDate),
+  endDatetime: Schema.NullishOr(DateTimeFromDate),
   coordinate: Model.Field({
     select: Schema.NullishOr(FromStringToCoordinate.to),
     insert: Schema.NullishOr(FromStringToCoordinate.from),
