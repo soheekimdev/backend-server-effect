@@ -15,8 +15,8 @@ export type TagTargetId = typeof TagTargetId.Type;
 export class TagTarget extends Model.Class<TagTarget>('TagTarget')({
   id: Model.Generated(TagTargetId),
   tagId: TagId,
-  postId: PostId,
-  challengeId: ChallengeId,
+  postId: Model.FieldOption(PostId),
+  challengeId: Model.FieldOption(ChallengeId),
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,
 }) {}

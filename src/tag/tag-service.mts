@@ -3,6 +3,9 @@ import { TagRepo } from './tag-repo.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { Tag, TagId } from './tag-schema.mjs';
 import { TagNotFound } from './tag-error.mjs';
+import { PostId } from '@/post/post-schema.mjs';
+import { policyRequire } from '@/auth/authorization.mjs';
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 
 const make = Effect.gen(function* () {
   const repo = yield* TagRepo;
@@ -30,25 +33,64 @@ const make = Effect.gen(function* () {
       ),
     );
 
-  const getOrInsert = (payload: typeof Tag.jsonCreate.Type) =>
-    repo.getOrInsert(payload);
-
-  const update = (id: TagId, payload: Partial<typeof Tag.jsonUpdate.Type>) =>
-    repo.with(id, (tag) =>
-      repo.update({
-        ...tag,
-        ...(payload?.description && { description: payload.description }),
-        updatedAt: undefined,
-      }),
+  const connectPostByNames = (payload: {
+    postId: PostId;
+    names: readonly string[];
+  }) =>
+    repo.getManyOrInsertMany(payload.names).pipe(
+      Effect.flatMap((tags) =>
+        repo.connectTagsToPost({
+          postId: payload.postId,
+          tagIds: tags.map((v) => v.id),
+        }),
+      ),
+      Effect.flatMap((targets) =>
+        repo.findManyByIds(targets.map((v) => v.tagId)),
+      ),
+      policyRequire('tag', 'create'),
     );
 
-  const deleteById = (id: TagId) => repo.delete(id);
+  const connectChallengeByNames = (payload: {
+    challengeId: ChallengeId;
+    names: readonly string[];
+  }) =>
+    repo.getManyOrInsertMany(payload.names).pipe(
+      Effect.flatMap((tags) =>
+        repo.connectTagsToChallenge({
+          challengeId: payload.challengeId,
+          tagIds: tags.map((v) => v.id),
+        }),
+      ),
+      Effect.flatMap((targets) =>
+        repo.findManyByIds(targets.map((v) => v.tagId)),
+      ),
+      policyRequire('tag', 'create'),
+    );
+
+  const getOrInsert = (payload: typeof Tag.jsonCreate.Type) =>
+    repo.getOrInsert(payload).pipe(policyRequire('tag', 'create'));
+
+  const update = (id: TagId, payload: Partial<typeof Tag.jsonUpdate.Type>) =>
+    repo
+      .with(id, (tag) =>
+        repo.update({
+          ...tag,
+          ...(payload?.description && { description: payload.description }),
+          updatedAt: undefined,
+        }),
+      )
+      .pipe(policyRequire('tag', 'update'));
+
+  const deleteById = (id: TagId) =>
+    repo.delete(id).pipe(policyRequire('tag', 'delete'));
 
   return {
     findAll,
     findById,
     findByName,
     getOrInsert,
+    connectPostByNames,
+    connectChallengeByNames,
     update,
     deleteById,
   } as const;

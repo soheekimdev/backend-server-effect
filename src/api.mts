@@ -36,6 +36,7 @@ export class Api extends HttpApi.empty
     OpenApi.annotations({
       title: '오즈 6기 심화반 챌린지 서비스를 위한 백엔드',
       description: `최신변경점:
+* account, post, challenge에 태그 추가 기능 (2024-11-26.001)
 * 챌린지 태그 CRUD 추가 (2024-11-25.003)
 * 챌린지 이벤트에서 챌린지 참가자 대비 이벤트에 체크한 참가자 비율을 구하는 기능 추가 (2024-11-25.002)
 * 챌린지 이벤트에 챌린지 참가자가 얼마나 참여하였는지 보는 기능 추가 (2024-11-25.002)
@@ -44,7 +45,10 @@ export class Api extends HttpApi.empty
 * 챌린지 조회시 챌린지 좋아요로 정렬하여 보는 기능 추가 (2024-11-25.001)
 
 예정변경점:
-* account, post, challenge에 태그 기능
+* 챌린지 / 게시글 isDeleted 반영
+* 챌린지 / 게시글의 태그를 가져올 수 있는 기능
+* 챌린지 / 게시글의 태그를 삭제하는 기능
+* [유저가 참여한 챌린지]와 [유저가 쓴 글]의 태그를 찾아, 그를 프로필에 표시할 수 있게 지원하는 기능 (개인 관심사쪽...)
       `,
       version: version,
       override: {},

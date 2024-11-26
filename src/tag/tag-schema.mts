@@ -11,7 +11,7 @@ export type TagId = typeof TagId.Type;
 
 export class Tag extends Model.Class<Tag>('Tag')({
   id: Model.Generated(TagId),
-  name: Model.FieldExcept('jsonUpdate')(Schema.String),
+  name: Model.FieldExcept('jsonUpdate')(Schema.String.pipe(Schema.trimmed())),
   description: Schema.String,
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,

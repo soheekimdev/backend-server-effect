@@ -255,17 +255,22 @@ create table account_interest_tag (
 
 create table tag_target (
   id uuid primary key default gen_random_uuid (),
-  post_id uuid,
-  challenge_id uuid,
-  challenge_event_id uuid,
+  post_id uuid ,
+  challenge_id uuid ,
+  challenge_event_id uuid ,
   tag_id uuid not null,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
   is_deleted boolean default false,
+  constraint unique_tag_target_post unique (post_id, tag_id),
+  constraint unique_tag_target_challenge unique (challenge_id, tag_id),
+  constraint unique_tag_target_challenge_event unique (challenge_event_id, tag_id),
   constraint fk_tag_target_post_id foreign key (post_id) references post (id),
   constraint fk_tag_target_tag_id foreign key (tag_id) references tag (id),
   constraint fk_tag_target_challenge_id foreign key (challenge_id) references challenge (id)
 );
+
+
 
 create table message (
   id uuid primary key default gen_random_uuid (),

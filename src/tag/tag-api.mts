@@ -1,11 +1,13 @@
+import { Authentication } from '@/auth/authentication.mjs';
+import { Unauthorized } from '@/auth/error-403.mjs';
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
-import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
-import { Tag, TagId } from './tag-schema.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { PostId } from '@/post/post-schema.mjs';
+import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { TagNotFound } from './tag-error.mjs';
-import { Authentication } from '@/auth/authentication.mjs';
-import { Unauthenticated } from '@/auth/error-401.mjs';
+import { Tag, TagId } from './tag-schema.mjs';
 
 export class TagApi extends HttpApiGroup.make('tag')
   .add(
@@ -64,13 +66,53 @@ export class TagApi extends HttpApiGroup.make('tag')
     HttpApiEndpoint.post('create', '/')
       .middleware(Authentication)
       .setPayload(Tag.jsonCreate)
-      .addError(Unauthenticated)
+      .addError(Unauthorized)
       .addSuccess(Tag.json)
       .annotateContext(
         OpenApi.annotations({
-          description: '관리자만 가능 태그를 생성합니다.',
+          description: '(누구나 가능) 태그를 생성합니다.',
           override: {
-            summary: '(사용가능)(관리자 전용) 태그 생성',
+            summary: '(사용가능) 태그 생성',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post('connectPostByNames', '/connect-post')
+      .middleware(Authentication)
+      .setPayload(
+        Schema.Struct({
+          postId: PostId,
+          names: Schema.Array(Schema.String),
+        }),
+      )
+      .addError(Unauthorized)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description: '태그를 생성하거나 post에 연결합니다.',
+          override: {
+            summary: '(사용가능) 태그 post 연결',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.post('connectChallengeByNames', '/connect-challenge')
+      .middleware(Authentication)
+      .setPayload(
+        Schema.Struct({
+          challengeId: ChallengeId,
+          names: Schema.Array(Schema.String),
+        }),
+      )
+      .addError(Unauthorized)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description: '태그를 생성하거나 challenge에 연결합니다.',
+          override: {
+            summary: '(사용가능) 태그 challenge 연결',
           },
         }),
       ),
@@ -84,7 +126,7 @@ export class TagApi extends HttpApiGroup.make('tag')
         }),
       )
       .setPayload(Schema.partialWith(Tag.jsonUpdate, { exact: true }))
-      .addError(Unauthenticated)
+      .addError(Unauthorized)
       .addError(TagNotFound)
       .addSuccess(Tag.json)
       .annotateContext(
@@ -104,7 +146,7 @@ export class TagApi extends HttpApiGroup.make('tag')
           tagId: TagId,
         }),
       )
-      .addError(Unauthenticated)
+      .addError(Unauthorized)
       .addError(TagNotFound)
       .annotateContext(
         OpenApi.annotations({
