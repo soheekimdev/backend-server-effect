@@ -43,6 +43,10 @@ export class Tag extends Model.Class<Tag>('Tag')({
           '색상을 hsl로 표현한 문자열입니다. hsl(<문자열값>) 에 해당하는 문자열값을 입력으로 넣어주세요. 그래야 프론트엔드에서 색상을 원활하게 표현할 수 있습니다.',
         examples: ['0 100% 50%', '120 100% 50%', '240 100% 50%'],
         default: '0 100% 50%',
+        jsonSchema: {
+          type: 'string',
+          example: '0 100% 50%',
+        },
       }),
     ),
   ),
