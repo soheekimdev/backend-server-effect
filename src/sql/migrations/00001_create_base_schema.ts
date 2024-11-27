@@ -234,6 +234,7 @@ create table challenge_event_participant (
 CREATE TABLE tag (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT,
+  hsl_color TEXT,
   description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
