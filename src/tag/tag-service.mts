@@ -1,17 +1,23 @@
-import { Option, Effect, Layer } from 'effect';
-import { TagRepo } from './tag-repo.mjs';
-import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
-import { Tag, TagId } from './tag-schema.mjs';
-import { TagNotFound } from './tag-error.mjs';
-import { PostId } from '@/post/post-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { PostId } from '@/post/post-schema.mjs';
+import { Effect, Layer, Option } from 'effect';
+import { TagNotFound } from './tag-error.mjs';
+import { TagRepo } from './tag-repo.mjs';
+import { Tag, TagId } from './tag-schema.mjs';
 
 const make = Effect.gen(function* () {
   const repo = yield* TagRepo;
 
   const findAll = (parmas: FindManyUrlParams) =>
     repo.findAll(parmas).pipe(Effect.withSpan('TagService.findAll'));
+
+  const findByAccountId = (accountId: AccountId) =>
+    repo
+      .findAllByAccountId(accountId)
+      .pipe(Effect.withSpan('TagService.findByAccountId'));
 
   const findById = (id: TagId) =>
     repo.findById(id).pipe(
@@ -47,7 +53,7 @@ const make = Effect.gen(function* () {
       Effect.flatMap((targets) =>
         repo.findManyByIds(targets.map((v) => v.tagId)),
       ),
-      policyRequire('tag', 'create'),
+      policyRequire('tag', 'connectPost'),
     );
 
   const connectChallengeByNames = (payload: {
@@ -64,7 +70,7 @@ const make = Effect.gen(function* () {
       Effect.flatMap((targets) =>
         repo.findManyByIds(targets.map((v) => v.tagId)),
       ),
-      policyRequire('tag', 'create'),
+      policyRequire('tag', 'connectChallenge'),
     );
 
   const getOrInsert = (payload: typeof Tag.jsonCreate.Type) =>
@@ -88,6 +94,7 @@ const make = Effect.gen(function* () {
     findAll,
     findById,
     findByName,
+    findByAccountId,
     getOrInsert,
     connectPostByNames,
     connectChallengeByNames,

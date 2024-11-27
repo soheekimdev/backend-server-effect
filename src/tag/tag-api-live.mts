@@ -12,6 +12,9 @@ export const TagApiLive = HttpApiBuilder.group(Api, 'tag', (handlers) =>
     const tagPolicy = yield* TagPolicy;
 
     return handlers
+      .handle('accountTags', ({ path }) =>
+        tagService.findByAccountId(path.accountId),
+      )
       .handle('findAll', ({ urlParams }) => tagService.findAll(urlParams))
       .handle('findById', ({ path }) => tagService.findById(path.tagId))
       .handle('findByName', ({ path }) => tagService.findByName(path.tagName))
@@ -29,7 +32,7 @@ export const TagApiLive = HttpApiBuilder.group(Api, 'tag', (handlers) =>
             challengeId: payload.challengeId,
             names: payload.names,
           })
-          .pipe(policyUse(tagPolicy.canCreate())),
+          .pipe(policyUse(tagPolicy.canConnectChallenge(payload.challengeId))),
       )
       .handle('create', ({ payload }) =>
         tagService.getOrInsert(payload).pipe(policyUse(tagPolicy.canCreate())),

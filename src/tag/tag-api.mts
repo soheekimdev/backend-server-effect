@@ -8,8 +8,28 @@ import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { TagNotFound } from './tag-error.mjs';
 import { Tag, TagId } from './tag-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
+import { ChallengeNotFound } from '@/challenge/challenge-error.mjs';
+import { PostNotFound } from '@/post/post-error.mjs';
 
 export class TagApi extends HttpApiGroup.make('tag')
+  .add(
+    HttpApiEndpoint.get('accountTags', '/account-tags/:accountId')
+      .setPath(
+        Schema.Struct({
+          accountId: AccountId,
+        }),
+      )
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description: '사용자의 태그 목록을 조회합니다.',
+          override: {
+            summary: '(사용가능) 사용자의 태그 목록 조회',
+          },
+        }),
+      ),
+  )
   .add(
     HttpApiEndpoint.get('findAll', '/')
       .setUrlParams(FindManyUrlParams)
@@ -87,6 +107,7 @@ export class TagApi extends HttpApiGroup.make('tag')
         }),
       )
       .addError(Unauthorized)
+      .addError(PostNotFound)
       .addSuccess(Schema.Array(Tag.json))
       .annotateContext(
         OpenApi.annotations({
@@ -107,6 +128,7 @@ export class TagApi extends HttpApiGroup.make('tag')
         }),
       )
       .addError(Unauthorized)
+      .addError(ChallengeNotFound)
       .addSuccess(Schema.Array(Tag.json))
       .annotateContext(
         OpenApi.annotations({
