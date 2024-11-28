@@ -16,13 +16,13 @@ export class Tag extends Model.Class<Tag>('Tag')({
     Schema.String.pipe(
       Schema.filter((colorStr) => {
         // colorStr is hsl string
-        const regex = /^(\d+)\s*(\d+)%\s*(\d+)%$/;
+        const regex = /^(\d+)\s+(\d+)%\s+(\d+)%$/;
 
         if (!regex.test(colorStr)) {
           return false;
         }
 
-        const [h, s, l] = regex.exec(colorStr)!;
+        const [_, h, s, l] = regex.exec(colorStr)!;
 
         if (parseInt(h, 10) < 0 || parseInt(h, 10) >= 360) {
           return false;
