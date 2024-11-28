@@ -36,6 +36,8 @@ export class Api extends HttpApi.empty
     OpenApi.annotations({
       title: '오즈 6기 심화반 챌린지 서비스를 위한 백엔드',
       description: `최신변경점:
+* 챌린지 태그연결 api 위치변경: tag -> challenge (2024-11-28.003)
+* 게시글 태그연결 api 위치변경: tag -> post (2024-11-28.003)
 * 챌린지 태그조회 api 위치변경: tag -> challenge (2024-11-28.002)
 * 게시글 태그조회 api 위치변경: tag -> post (2024-11-28.002)
 * 특정 유저의 태그조회 api 위치변경: tag -> account (2024-11-28.002)

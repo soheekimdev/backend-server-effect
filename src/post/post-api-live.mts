@@ -5,11 +5,13 @@ import { HttpApiBuilder } from '@effect/platform';
 import { Effect, Layer } from 'effect';
 import { PostPolicy } from './post-policy.mjs';
 import { PostService } from './post-service.mjs';
+import { TagPolicy } from '@/tag/tag-policy.mjs';
 
 export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
   Effect.gen(function* () {
     const postService = yield* PostService;
     const postPolicy = yield* PostPolicy;
+    const tagPolicy = yield* TagPolicy;
 
     return handlers
       .handle('findAll', ({ urlParams }) => postService.findPosts(urlParams))
@@ -17,6 +19,11 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
         postService.increaseViewCountById(path.postId),
       )
       .handle('findTags', ({ path }) => postService.findTags(path.postId))
+      .handle('addTags', ({ path, payload }) =>
+        postService
+          .addTags({ postId: path.postId, names: payload.names })
+          .pipe(policyUse(tagPolicy.canConnectPost(path.postId))),
+      )
       .handle('create', ({ payload }) =>
         postService.create(payload).pipe(withSystemActor),
       )
@@ -58,4 +65,5 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
   Layer.provide(AuthenticationLive),
   Layer.provide(PostService.Live),
   Layer.provide(PostPolicy.Live),
+  Layer.provide(TagPolicy.Live),
 );

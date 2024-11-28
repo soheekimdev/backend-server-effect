@@ -3,6 +3,7 @@ import { policyRequire } from '@/auth/authorization.mjs';
 import { LikeService } from '@/like/like-service.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { SqlTest } from '@/sql/sql-test.mjs';
+import { TagService } from '@/tag/tag-service.mjs';
 import { Effect, Layer, pipe } from 'effect';
 import { PostRepo } from './post-repo.mjs';
 import { Post, PostId } from './post-schema.mjs';
@@ -10,6 +11,7 @@ import { Post, PostId } from './post-schema.mjs';
 const make = Effect.gen(function* () {
   const postRepo = yield* PostRepo;
   const likeService = yield* LikeService;
+  const tagService = yield* TagService;
 
   const findByIdFromRepo = (postId: PostId) => postRepo.findById(postId);
 
@@ -24,6 +26,9 @@ const make = Effect.gen(function* () {
     );
 
   const findTags = (postId: PostId) => postRepo.findTags(postId);
+
+  const addTags = (payload: { postId: PostId; names: readonly string[] }) =>
+    tagService.connectPostByNames(payload);
 
   const create = (post: typeof Post.jsonCreate.Type) =>
     pipe(
@@ -133,6 +138,7 @@ const make = Effect.gen(function* () {
     findByIdWithView,
     findLikeStatus,
     findTags,
+    addTags,
     increaseViewCountById,
     addLikePostById,
     removePostLikeById,
@@ -153,6 +159,7 @@ export class PostService extends Effect.Tag('PostService')<
   static Live = this.layer.pipe(
     Layer.provide(PostRepo.Live),
     Layer.provide(LikeService.Live),
+    Layer.provide(TagService.Live),
   );
 
   static Test = this.layer.pipe(Layer.provideMerge(SqlTest));

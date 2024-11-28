@@ -71,6 +71,32 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
       ),
   )
   .add(
+    HttpApiEndpoint.post('addTags', '/:challengeId/tags')
+      .middleware(Authentication)
+      .setPath(
+        Schema.Struct({
+          challengeId: ChallengeId,
+        }),
+      )
+      .setPayload(
+        Schema.Struct({
+          names: Schema.Array(Schema.String),
+        }),
+      )
+      .addError(ChallengeNotFound)
+      .addError(Unauthorized)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(사용가능) 챌린지에 태그를 추가합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 태그 추가',
+          },
+        }),
+      ),
+  )
+  .add(
     HttpApiEndpoint.post('create', '/')
       .middleware(Authentication)
       .setPayload(Challenge.jsonCreate)

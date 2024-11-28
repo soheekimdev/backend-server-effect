@@ -65,6 +65,32 @@ export class PostApi extends HttpApiGroup.make('post')
       ),
   )
   .add(
+    HttpApiEndpoint.post('addTags', '/:postId/tags')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+        }),
+      )
+      .middleware(Authentication)
+      .setPayload(
+        Schema.Struct({
+          names: Schema.Array(Tag.fields.name),
+        }),
+      )
+      .addError(PostNotFound)
+      .addError(Unauthorized)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '게시글에 태그를 추가합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 태그 추가',
+          },
+        }),
+      ),
+  )
+  .add(
     HttpApiEndpoint.get('findLikeStatus', '/:postId/like-status')
       .middleware(Authentication)
       .setPath(

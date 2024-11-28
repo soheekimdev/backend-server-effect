@@ -6,10 +6,12 @@ import { SqlTest } from '@/sql/sql-test.mjs';
 import { Effect, Layer, pipe } from 'effect';
 import { ChallengeRepo } from './challenge-repo.mjs';
 import { Challenge, ChallengeId } from './challenge-schema.mjs';
+import { TagService } from '@/tag/tag-service.mjs';
 
 const make = Effect.gen(function* () {
   const challengeRepo = yield* ChallengeRepo;
   const likeService = yield* LikeService;
+  const tagService = yield* TagService;
 
   const findByIdWithView = (id: ChallengeId) =>
     challengeRepo.withView(id, (challenge) => Effect.succeed(challenge));
@@ -25,6 +27,11 @@ const make = Effect.gen(function* () {
     challengeRepo
       .findTags(challengeId)
       .pipe(Effect.withSpan('ChallengeService.findTags'));
+
+  const addTags = (payload: {
+    challengeId: ChallengeId;
+    names: readonly string[];
+  }) => tagService.connectChallengeByNames(payload);
 
   const create = (challenge: typeof Challenge.jsonCreate.Type) =>
     pipe(
@@ -116,6 +123,7 @@ const make = Effect.gen(function* () {
     findByIdFromRepo,
     findChallenges,
     findTags,
+    addTags,
     findLikeStatus,
     addLikeChallengeById,
     removeLikeChallengeById,
@@ -136,6 +144,7 @@ export class ChallengeService extends Effect.Tag('ChallengeService')<
   static Live = this.layer.pipe(
     Layer.provide(ChallengeRepo.Live),
     Layer.provide(LikeService.Live),
+    Layer.provide(TagService.Live),
   );
 
   static Test = this.layer.pipe(Layer.provideMerge(SqlTest));

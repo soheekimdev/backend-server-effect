@@ -6,6 +6,7 @@ import { AuthenticationLive } from '@/auth/authentication.mjs';
 import { policyUse } from '@/auth/authorization.mjs';
 import { ChallengePolicy } from './challenge-policy.mjs';
 import { ChallengeParticipantService } from './challenge-participant-service.mjs';
+import { TagPolicy } from '@/tag/tag-policy.mjs';
 
 export const ChallengeApiLive = HttpApiBuilder.group(
   Api,
@@ -15,6 +16,7 @@ export const ChallengeApiLive = HttpApiBuilder.group(
       const challengeService = yield* ChallengeService;
       const challengeParticipantService = yield* ChallengeParticipantService;
       const challengePolicy = yield* ChallengePolicy;
+      const tagPolicy = yield* TagPolicy;
 
       return handlers
         .handle('findAll', ({ urlParams }) =>
@@ -25,6 +27,11 @@ export const ChallengeApiLive = HttpApiBuilder.group(
         )
         .handle('findTags', ({ path }) =>
           challengeService.findTags(path.challengeId),
+        )
+        .handle('addTags', ({ path, payload }) =>
+          challengeService
+            .addTags({ challengeId: path.challengeId, names: payload.names })
+            .pipe(policyUse(tagPolicy.canConnectChallenge(path.challengeId))),
         )
         .handle('create', ({ payload }) =>
           challengeService
@@ -83,4 +90,5 @@ export const ChallengeApiLive = HttpApiBuilder.group(
   Layer.provide(ChallengeService.Live),
   Layer.provide(ChallengeParticipantService.Live),
   Layer.provide(ChallengePolicy.Live),
+  Layer.provide(TagPolicy.Live),
 );
