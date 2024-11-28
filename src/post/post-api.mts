@@ -254,8 +254,11 @@ export class PostApi extends HttpApiGroup.make('post')
       .addError(Unauthorized)
       .annotateContext(
         OpenApi.annotations({
-          description:
-            '게시글을 삭제합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 작성자와 현재 사용자가 다른 경우 403을 반환합니다. 작성자와 어드민만 삭제할 수 있습니다.',
+          description: `게시글을 삭제합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 작성자와 현재 사용자가 다른 경우 403을 반환합니다. 작성자와 어드민만 삭제할 수 있습니다.
+* Row가 삭제되는것이 아니라, isDeleted 필드를 true로 변경합니다.
+
+* 삭제처리를 취소하기 위해서는 update로 처리해야합니다.
+`,
           override: {
             summary: '(사용가능) 게시글 삭제',
           },

@@ -152,7 +152,6 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
 
 * 삭제처리를 취소하기 위해서는 update로 처리해야합니다.
 
-* 프론트엔드에서 삭제되었음을 알려야합니다.
 `,
           override: {
             summary: '(사용가능) 챌린지 삭제',

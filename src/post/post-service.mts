@@ -66,7 +66,11 @@ const make = Effect.gen(function* () {
   const deleteById = (postId: PostId) =>
     postRepo.with(postId, (post) =>
       pipe(
-        postRepo.delete(postId),
+        postRepo.update({
+          ...post,
+          isDeleted: true,
+          updatedAt: undefined,
+        }),
         Effect.withSpan('PostService.deleteById'),
         policyRequire('post', 'delete'),
       ),
