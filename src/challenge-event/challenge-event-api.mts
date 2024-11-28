@@ -207,6 +207,6 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
   .prefix('/api/challenges')
   .annotateContext(
     OpenApi.annotations({
-      title: '(사용가능/테스트중) 챌린지 이벤트 API',
+      title: '(사용가능) 챌린지 이벤트 API',
     }),
   ) {}
