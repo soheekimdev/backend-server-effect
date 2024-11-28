@@ -33,6 +33,14 @@ export const ChallengeApiLive = HttpApiBuilder.group(
             .addTags({ challengeId: path.challengeId, names: payload.names })
             .pipe(policyUse(tagPolicy.canConnectChallenge(path.challengeId))),
         )
+        .handle('deleteTag', ({ path }) =>
+          challengeService
+            .deleteTag({
+              challengeId: path.challengeId,
+              tagId: path.tagId,
+            })
+            .pipe(policyUse(tagPolicy.canConnectChallenge(path.challengeId))),
+        )
         .handle('create', ({ payload }) =>
           challengeService
             .create(payload)

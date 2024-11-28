@@ -6,17 +6,24 @@ import { PostId } from '@/post/post-schema.mjs';
 import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
-import { TagNotFound } from './tag-error.mjs';
+import { TagNotFound, TagTargetNotFound } from './tag-error.mjs';
 import { Tag, TagId } from './tag-schema.mjs';
 import { TagTarget } from './tag-target-schema.mjs';
 
 const TABLE_NAME = 'tag';
+const TARGET_TABLE_NAME = 'tag_target';
 
 const make = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
   const repo = yield* Model.makeRepository(Tag, {
     tableName: TABLE_NAME,
     spanPrefix: 'TagRepo',
+    idColumn: 'id',
+  });
+
+  const targetRepo = yield* Model.makeRepository(TagTarget, {
+    tableName: TARGET_TABLE_NAME,
+    spanPrefix: 'TagTargetRepo',
     idColumn: 'id',
   });
 
@@ -67,6 +74,34 @@ WHERE ${sql.in('id', req)};
         SELECT * FROM ${sql(TABLE_NAME)}
         WHERE name = ${req.name}`,
     })({ name }).pipe(Effect.orDie, Effect.withSpan('TagRepo.findOne'));
+
+  const findPostTarget = (postId: PostId, tagId: TagId) =>
+    SqlSchema.findOne({
+      Request: Schema.Struct({
+        postId: PostId,
+        tagId: TagId,
+      }),
+      Result: TagTarget,
+      execute: (req) => sql`
+SELECT * FROM ${sql(TARGET_TABLE_NAME)} WHERE post_id = ${req.postId} AND tag_id = ${req.tagId}`,
+    })({ postId, tagId }).pipe(
+      Effect.orDie,
+      Effect.withSpan('TagRepo.findPostTarget'),
+    );
+
+  const findChallengeTarget = (challengeId: ChallengeId, tagId: TagId) =>
+    SqlSchema.findOne({
+      Request: Schema.Struct({
+        challengeId: ChallengeId,
+        tagId: TagId,
+      }),
+      Result: TagTarget,
+      execute: (req) => sql`
+SELECT * FROM ${sql(TARGET_TABLE_NAME)} WHERE challenge_id = ${req.challengeId} AND tag_id = ${req.tagId}`,
+    })({ challengeId, tagId }).pipe(
+      Effect.orDie,
+      Effect.withSpan('TagRepo.findPostTarget'),
+    );
 
   const getOrInsert = (payload: typeof Tag.jsonCreate.Type) =>
     SqlSchema.single({
@@ -226,8 +261,61 @@ SELECT * FROM conflicted_rows;
     );
   };
 
+  const withPostTarget_ = <A, E, R>(
+    postId: PostId,
+    tagId: TagId,
+    f: (tagTarget: TagTarget) => Effect.Effect<A, E, R>,
+  ): Effect.Effect<A, E | TagTargetNotFound, R> => {
+    return pipe(
+      findPostTarget(postId, tagId),
+      Effect.flatMap(
+        Option.match({
+          onNone: () =>
+            Effect.fail(
+              new TagTargetNotFound({
+                tagId,
+                postId,
+                challengeId: null,
+              }),
+            ),
+          onSome: Effect.succeed,
+        }),
+      ),
+      Effect.flatMap(f),
+      sql.withTransaction,
+      Effect.catchTag('SqlError', (err) => Effect.die(err)),
+    );
+  };
+
+  const withChallengeTarget_ = <A, E, R>(
+    challengeId: ChallengeId,
+    tagId: TagId,
+    f: (tagTarget: TagTarget) => Effect.Effect<A, E, R>,
+  ): Effect.Effect<A, E | TagTargetNotFound, R> => {
+    return pipe(
+      findChallengeTarget(challengeId, tagId),
+      Effect.flatMap(
+        Option.match({
+          onNone: () =>
+            Effect.fail(
+              new TagTargetNotFound({
+                tagId,
+                postId: null,
+                challengeId,
+              }),
+            ),
+          onSome: Effect.succeed,
+        }),
+      ),
+      Effect.flatMap(f),
+      sql.withTransaction,
+      Effect.catchTag('SqlError', (err) => Effect.die(err)),
+    );
+  };
+
   return {
     ...repo,
+    targetRepo,
     findAll,
     findManyByIds,
     findOne,
@@ -235,6 +323,8 @@ SELECT * FROM conflicted_rows;
     getOrInsert,
     connectTagsToPost,
     connectTagsToChallenge,
+    withPostTarget: withPostTarget_,
+    withChallengeTarget: withChallengeTarget_,
     with: with_,
     withName: withName_,
   } as const;

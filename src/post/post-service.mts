@@ -7,6 +7,7 @@ import { TagService } from '@/tag/tag-service.mjs';
 import { Effect, Layer, pipe } from 'effect';
 import { PostRepo } from './post-repo.mjs';
 import { Post, PostId } from './post-schema.mjs';
+import { TagId } from '@/tag/tag-schema.mjs';
 
 const make = Effect.gen(function* () {
   const postRepo = yield* PostRepo;
@@ -29,6 +30,9 @@ const make = Effect.gen(function* () {
 
   const addTags = (payload: { postId: PostId; names: readonly string[] }) =>
     tagService.connectPostByNames(payload);
+
+  const deleteTag = (payload: { postId: PostId; tagId: TagId }) =>
+    tagService.deletePostTagConnection(payload);
 
   const create = (post: typeof Post.jsonCreate.Type) =>
     pipe(
@@ -143,6 +147,7 @@ const make = Effect.gen(function* () {
     findLikeStatus,
     findTags,
     addTags,
+    deleteTag,
     increaseViewCountById,
     addLikePostById,
     removePostLikeById,

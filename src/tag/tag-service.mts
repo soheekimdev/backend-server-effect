@@ -2,7 +2,7 @@ import { policyRequire } from '@/auth/authorization.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { PostId } from '@/post/post-schema.mjs';
-import { Effect, Layer, Option } from 'effect';
+import { Effect, Layer, Option, pipe } from 'effect';
 import { TagNotFound } from './tag-error.mjs';
 import { TagRepo } from './tag-repo.mjs';
 import { Tag, TagId } from './tag-schema.mjs';
@@ -33,6 +33,15 @@ const make = Effect.gen(function* () {
       ),
     );
 
+  const deletePostTagConnection = (payload: { postId: PostId; tagId: TagId }) =>
+    repo.withPostTarget(payload.postId, payload.tagId, (target) =>
+      pipe(
+        repo.targetRepo.delete(target.id),
+        Effect.withSpan('TagService.deletePostTagConnection'),
+        policyRequire('tag', 'connectPost'),
+      ),
+    );
+
   const connectPostByNames = (payload: {
     postId: PostId;
     names: readonly string[];
@@ -48,6 +57,18 @@ const make = Effect.gen(function* () {
         repo.findManyByIds(targets.map((v) => v.tagId)),
       ),
       policyRequire('tag', 'connectPost'),
+    );
+
+  const deleteChallengeTagConnection = (payload: {
+    challengeId: ChallengeId;
+    tagId: TagId;
+  }) =>
+    repo.withChallengeTarget(payload.challengeId, payload.tagId, (target) =>
+      pipe(
+        repo.targetRepo.delete(target.id),
+        Effect.withSpan('TagService.deleteChallengeTagConnection'),
+        policyRequire('tag', 'connectChallenge'),
+      ),
     );
 
   const connectChallengeByNames = (payload: {
@@ -88,9 +109,10 @@ const make = Effect.gen(function* () {
     findAll,
     findById,
     findByName,
-
     getOrInsert,
+    deletePostTagConnection,
     connectPostByNames,
+    deleteChallengeTagConnection,
     connectChallengeByNames,
     update,
     deleteById,

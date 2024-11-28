@@ -24,6 +24,14 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
           .addTags({ postId: path.postId, names: payload.names })
           .pipe(policyUse(tagPolicy.canConnectPost(path.postId))),
       )
+      .handle('deleteTag', ({ path }) =>
+        postService
+          .deleteTag({
+            postId: path.postId,
+            tagId: path.tagId,
+          })
+          .pipe(policyUse(tagPolicy.canConnectPost(path.postId))),
+      )
       .handle('create', ({ payload }) =>
         postService.create(payload).pipe(withSystemActor),
       )

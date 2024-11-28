@@ -9,7 +9,8 @@ import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId, PostView } from './post-schema.mjs';
-import { Tag } from '@/tag/tag-schema.mjs';
+import { Tag, TagId } from '@/tag/tag-schema.mjs';
+import { TagNotFound, TagTargetNotFound } from '@/tag/tag-error.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
@@ -86,6 +87,29 @@ export class PostApi extends HttpApiGroup.make('post')
             '게시글에 태그를 추가합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
           override: {
             summary: '(사용가능) 게시글 태그 추가',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.del('deleteTag', '/:postId/tags/:tagId')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+          tagId: TagId,
+        }),
+      )
+      .middleware(Authentication)
+      .addError(PostNotFound)
+      .addError(TagNotFound)
+      .addError(TagTargetNotFound)
+      .addError(Unauthorized)
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '게시글에 태그를 삭제합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 태그 삭제',
           },
         }),
       ),

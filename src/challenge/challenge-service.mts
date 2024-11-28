@@ -7,6 +7,7 @@ import { Effect, Layer, pipe } from 'effect';
 import { ChallengeRepo } from './challenge-repo.mjs';
 import { Challenge, ChallengeId } from './challenge-schema.mjs';
 import { TagService } from '@/tag/tag-service.mjs';
+import { TagId } from '@/tag/tag-schema.mjs';
 
 const make = Effect.gen(function* () {
   const challengeRepo = yield* ChallengeRepo;
@@ -32,6 +33,9 @@ const make = Effect.gen(function* () {
     challengeId: ChallengeId;
     names: readonly string[];
   }) => tagService.connectChallengeByNames(payload);
+
+  const deleteTag = (payload: { challengeId: ChallengeId; tagId: TagId }) =>
+    tagService.deleteChallengeTagConnection(payload);
 
   const create = (challenge: typeof Challenge.jsonCreate.Type) =>
     pipe(
@@ -124,6 +128,7 @@ const make = Effect.gen(function* () {
     findChallenges,
     findTags,
     addTags,
+    deleteTag,
     findLikeStatus,
     addLikeChallengeById,
     removeLikeChallengeById,

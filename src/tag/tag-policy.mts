@@ -41,7 +41,7 @@ const make = Effect.gen(function* () {
             actor.role === 'admin' || post.accountId === actor.id,
           );
         }),
-      'Post 작성자 또는 관리자만 태그를 연결할 수 있습니다.',
+      'Post 작성자 또는 관리자만 태그를 연결하거나 삭제할 수 있습니다.',
     );
 
   const canConnectChallenge = (challengeId: ChallengeId) =>
@@ -59,7 +59,7 @@ const make = Effect.gen(function* () {
             actor.role === 'admin' || challenge.accountId === actor.id,
           );
         }),
-      'Challenge 작성자 또는 관리자만 태그를 연결할 수 있습니다.',
+      'Challenge 작성자 또는 관리자만 태그를 연결하거나 삭제할 수 있습니다.',
     );
 
   return {
