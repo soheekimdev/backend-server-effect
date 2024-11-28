@@ -5,7 +5,7 @@ import { SqlTest } from '@/sql/sql-test.mjs';
 import { Effect, Layer, Option, pipe } from 'effect';
 import { CommentRepo } from './comment-repo.mjs';
 import { Comment, CommentId } from './comment-schema.mjs';
-import { CurrentAccount } from '@/account/account-schema.mjs';
+import { AccountId, CurrentAccount } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { LikeService } from '@/like/like-service.mjs';
 import { PostNotFound } from '@/post/post-error.mjs';
@@ -14,6 +14,11 @@ const make = Effect.gen(function* () {
   const likeService = yield* LikeService;
   const commentRepo = yield* CommentRepo;
   const postRepo = yield* PostRepo;
+
+  const findAllPossiblyByAccountId = (
+    params: FindManyUrlParams,
+    accountId?: AccountId,
+  ) => commentRepo.likeViewRepo.findAllWithView(params, accountId);
 
   const findAllByPostId = (postId: PostId, params: FindManyUrlParams) =>
     commentRepo.likeViewRepo.findAllByPostId(postId, params);
@@ -130,6 +135,7 @@ const make = Effect.gen(function* () {
     update,
     deleteById,
     findAllByPostId,
+    findAllPossiblyByAccountId,
     findLikeStatus,
     findByIdWithView,
     getCommentCount,

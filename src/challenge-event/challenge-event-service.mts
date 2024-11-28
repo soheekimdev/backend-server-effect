@@ -1,4 +1,4 @@
-import { CurrentAccount } from '@/account/account-schema.mjs';
+import { AccountId, CurrentAccount } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
@@ -14,12 +14,18 @@ import {
   ChallengeEventCheckResponse,
   FromStringToCoordinate,
 } from './helper-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 
 const DISTANCE_THRESHOLD = 1000;
 
 const make = Effect.gen(function* () {
   const repo = yield* ChallengeEventRepo;
   const challengeEventParticipantRepo = yield* ChallengeEventParticipantRepo;
+
+  const findChallengeEvents = (
+    params: FindManyUrlParams,
+    accountId?: AccountId,
+  ) => repo.findAllChallengeEvents(params, accountId);
 
   const findAllByChallengeId = (challengeId: ChallengeId) =>
     repo
@@ -233,6 +239,7 @@ const make = Effect.gen(function* () {
   return {
     findById,
     findAllByChallengeId,
+    findChallengeEvents,
     create,
     update,
     deleteById,

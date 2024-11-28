@@ -16,11 +16,22 @@ import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
 import { VerifyTokenError } from '@/crypto/token-error.mjs';
+import { ChallengeEventService } from '@/challenge-event/challenge-event-service.mjs';
+import { CommentService } from '@/comment/comment-service.mjs';
+import { LikeService } from '@/like/like-service.mjs';
+import { PostService } from '@/post/post-service.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { ChallengeService } from '@/challenge/challenge-service.mjs';
 
 const make = Effect.gen(function* () {
   const accountRepo = yield* AccountRepo;
   const cryptoService = yield* CryptoService;
   const tokenService = yield* TokenService;
+  const postService = yield* PostService;
+  const commentService = yield* CommentService;
+  const challengeService = yield* ChallengeService;
+  const challengeEventService = yield* ChallengeEventService;
+  const likeService = yield* LikeService;
 
   const signUp = (signUp: SignUp) => {
     const program = Effect.gen(function* () {
@@ -216,6 +227,34 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const findPosts = (params: FindManyUrlParams, accountId: AccountId) =>
+    postService
+      .findPosts(params, accountId)
+      .pipe(Effect.withSpan('AccountService.findPosts'));
+
+  const findComments = (params: FindManyUrlParams, accountId: AccountId) =>
+    commentService
+      .findAllPossiblyByAccountId(params, accountId)
+      .pipe(Effect.withSpan('AccountService.findPosts'));
+
+  const findChallenges = (params: FindManyUrlParams, accountId: AccountId) =>
+    challengeService
+      .findChallenges(params, accountId)
+      .pipe(Effect.withSpan('AccountService.findChallenges'));
+
+  const findAllChallengeEvents = (
+    params: FindManyUrlParams,
+    accountId: AccountId,
+  ) =>
+    challengeEventService
+      .findChallengeEvents(params, accountId)
+      .pipe(Effect.withSpan('AccountService.findAllChallengeEvents'));
+
+  const findAllLikes = (params: FindManyUrlParams, accountId: AccountId) =>
+    likeService
+      .findAllLikes(params, accountId)
+      .pipe(Effect.withSpan('AccountService.findAllLikes'));
+
   return {
     signUp,
     signIn,
@@ -226,6 +265,11 @@ const make = Effect.gen(function* () {
     updateAccountById,
     embellishAccount,
     invalidate,
+    findPosts,
+    findComments,
+    findChallenges,
+    findAllChallengeEvents,
+    findAllLikes,
   } as const;
 });
 
@@ -239,6 +283,11 @@ export class AccountService extends Effect.Tag('AccountService')<
     Layer.provide(AccountRepo.Live),
     Layer.provide(CryptoService.Live),
     Layer.provide(TokenService.Live),
+    Layer.provide(PostService.Live),
+    Layer.provide(CommentService.Live),
+    Layer.provide(LikeService.Live),
+    Layer.provide(ChallengeService.Live),
+    Layer.provide(ChallengeEventService.Live),
   );
 
   static Test = this.layer.pipe(Layer.provideMerge(SqlTest));

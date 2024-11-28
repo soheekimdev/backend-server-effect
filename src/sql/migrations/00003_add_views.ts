@@ -82,19 +82,23 @@ GROUP BY
 CREATE VIEW comment_like_counts AS
 SELECT
   comment.*,
+  post.title as post_title,
   account.username as account_username,
   COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer AS like_count,
   COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer AS dislike_count,
   COALESCE(SUM(CASE WHEN "like".type = 'like' THEN "like".count ELSE 0 END), 0)::integer -  COALESCE(SUM(CASE WHEN "like".type = 'dislike' THEN "like".count ELSE 0 END), 0)::integer as pure_like_count
 FROM
   comment
+left join
+	"post" on post.id = comment.post_id
 LEFT JOIN
   "like" ON comment.id = "like".comment_id
 LEFT JOIN
   account ON comment.account_id = account.id
 GROUP BY
   comment.id,
-  account.id;
+  account.id,
+  post.title;
 -------------------------------------------------------------------------  
   
 

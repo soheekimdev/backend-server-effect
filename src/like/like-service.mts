@@ -1,4 +1,4 @@
-import { CurrentAccount } from '@/account/account-schema.mjs';
+import { AccountId, CurrentAccount } from '@/account/account-schema.mjs';
 import { PostId } from '@/post/post-schema.mjs';
 import { SqlTest } from '@/sql/sql-test.mjs';
 import { Effect, Layer, pipe } from 'effect';
@@ -6,9 +6,13 @@ import { LikeRepo } from './like-repo.mjs';
 import { CommentId } from '@/comment/comment-schema.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 
 const make = Effect.gen(function* () {
   const likeRepo = yield* LikeRepo;
+
+  const findAllLikes = (params: FindManyUrlParams, accountId?: AccountId) =>
+    likeRepo.findAllLikes(params, accountId);
 
   const getLikeStatusByPostId = (postId: PostId) =>
     pipe(
@@ -444,6 +448,8 @@ const make = Effect.gen(function* () {
     );
 
   return {
+    findAllLikes,
+
     addLikePostById,
     removeLikePostById,
     addDislikePostById,

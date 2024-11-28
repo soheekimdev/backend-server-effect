@@ -1,4 +1,4 @@
-import { CurrentAccount } from '@/account/account-schema.mjs';
+import { AccountId, CurrentAccount } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { LikeService } from '@/like/like-service.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
@@ -19,9 +19,9 @@ const make = Effect.gen(function* () {
 
   const findByIdFromRepo = (id: ChallengeId) => challengeRepo.findById(id);
 
-  const findChallenges = (params: FindManyUrlParams) =>
+  const findChallenges = (params: FindManyUrlParams, accountId?: AccountId) =>
     challengeRepo
-      .findAllWithView(params)
+      .findAllWithView(params, accountId)
       .pipe(Effect.withSpan('ChallengeService.findChallenges'));
 
   const findTags = (challengeId: ChallengeId) =>

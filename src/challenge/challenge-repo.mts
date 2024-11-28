@@ -8,6 +8,7 @@ import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { ChallengeNotFound } from './challenge-error.mjs';
 import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
 import { Tag } from '@/tag/tag-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
 
 const snakeCase = (str: string) =>
   str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -44,7 +45,7 @@ WHERE c.id = ${req};`,
       Effect.withSpan('ChallengeRepo.findTags'),
     );
 
-  const findAllWithView = (params: FindManyUrlParams) =>
+  const findAllWithView = (params: FindManyUrlParams, accountId?: AccountId) =>
     Effect.gen(function* () {
       const challenges = yield* SqlSchema.findAll({
         Request: FindManyUrlParams,
@@ -52,7 +53,11 @@ WHERE c.id = ${req};`,
         execute: (req) =>
           sql`select * 
 from ${sql(VIEW_NAME)} 
-where ${sql('is_deleted')} = false
+where ${sql.and(
+            accountId
+              ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+              : [sql`is_deleted = false`],
+          )}
 order by ${sql(snakeCase(params.sortBy))} 
  ${sql.unsafe(params.order)} 
 limit ${params.limit} 
@@ -62,7 +67,11 @@ offset ${(params.page - 1) * params.limit}`,
         Request: FindManyUrlParams,
         Result: CommonCountSchema,
         execute: () =>
-          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql('is_deleted')} = false`,
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql.and(
+            accountId
+              ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+              : [sql`is_deleted = false`],
+          )}`,
       })(params);
 
       const ResultSchema = FindManyResultSchema(ChallengeView);

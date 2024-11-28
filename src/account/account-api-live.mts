@@ -29,6 +29,21 @@ export const AccountApiLive = HttpApiBuilder.group(Api, 'account', (handlers) =>
         accountService.signIn(payload).pipe(withSystemActor),
       )
       .handle('me', () => CurrentAccount)
+      .handle('findPosts', ({ path, urlParams }) =>
+        accountService.findPosts(urlParams, path.accountId),
+      )
+      .handle('findComments', ({ path, urlParams }) =>
+        accountService.findComments(urlParams, path.accountId),
+      )
+      .handle('findChallenges', ({ path, urlParams }) =>
+        accountService.findChallenges(urlParams, path.accountId),
+      )
+      .handle('findChallengeEvents', ({ path, urlParams }) =>
+        accountService.findAllChallengeEvents(urlParams, path.accountId),
+      )
+      .handle('findLikes', ({ path, urlParams }) =>
+        accountService.findAllLikes(urlParams, path.accountId),
+      )
       .handle('invalidate', ({ headers }) =>
         accountService.invalidate(headers['refresh-token']),
       );

@@ -10,6 +10,11 @@ import {
   ChallengeEventView,
 } from './challenge-event-schema.mjs';
 import { FromStringToCoordinate, Meters } from './helper-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
+import { CREATED_AT, DESC } from '@/sql/order-by.mjs';
+import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
 
 const TABLE_NAME = 'challenge_event';
 
@@ -22,6 +27,75 @@ const make = Effect.gen(function* () {
     spanPrefix: 'ChallengeEventRepo',
     idColumn: 'id',
   });
+
+  const findAllChallengeEvents = (
+    params: FindManyUrlParams,
+    accountId?: AccountId,
+  ) =>
+    Effect.gen(function* () {
+      const posts = yield* SqlSchema.findAll({
+        Request: FindManyUrlParams,
+        Result: Schema.Struct({
+          ...ChallengeEventView.fields,
+          coordinate: Schema.NullishOr(FromStringToCoordinate),
+        }),
+        execute: () =>
+          sql`
+SELECT 
+  ce.*, 
+  ST_AsText(${sql('coordinate')}) as coordinate 
+FROM 
+  challenge_event_participant cep
+LEFT JOIN 
+  ${sql(VIEW_NAME)} ce ON cep.challenge_event_id = ce.id
+where 
+  ${sql.and(
+    accountId
+      ? [sql`cep.account_id = ${accountId}`, sql`ce.is_deleted = false`]
+      : [sql`ce.is_deleted = false`],
+  )}
+order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} 
+limit ${params.limit} 
+offset ${(params.page - 1) * params.limit}`,
+      })(params);
+      const { total } = yield* SqlSchema.single({
+        Request: FindManyUrlParams,
+        Result: CommonCountSchema,
+        execute: () =>
+          sql`
+select 
+  count(*) as total 
+FROM 
+  challenge_event_participant cep
+LEFT JOIN 
+  ${sql(VIEW_NAME)} ce ON cep.challenge_event_id = ce.id
+where 
+  ${sql.and(
+    accountId
+      ? [sql`cep.account_id = ${accountId}`, sql`ce.is_deleted = false`]
+      : [sql`ce.is_deleted = false`],
+  )}`,
+      })(params);
+
+      const ResultSchema = FindManyResultSchema(
+        Schema.Struct({
+          ...ChallengeEventView.fields,
+          coordinate: Schema.NullishOr(FromStringToCoordinate),
+        }),
+      );
+
+      const result = ResultSchema.make({
+        data: posts,
+        meta: {
+          total,
+          page: params.page,
+          limit: params.limit,
+          isLastPage: params.page * params.limit + posts.length >= total,
+        },
+      });
+
+      return result;
+    }).pipe(Effect.orDie, Effect.withSpan('PostRepo.findAll'));
 
   const findById = (id: ChallengeEventId) =>
     SqlSchema.findOne({
@@ -140,6 +214,7 @@ where ${sql('id')} = ${request.id};
     update,
     with: with_,
     findAllByChallengeId,
+    findAllChallengeEvents,
     getDistanceFromChallengeEvent,
   } as const;
 });

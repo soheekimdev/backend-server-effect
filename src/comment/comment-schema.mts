@@ -86,6 +86,7 @@ const viewFields = {
 
 export class CommentView extends Model.Class<CommentView>('Comment')({
   ...viewFields,
+  postTitle: Schema.String,
   id: Model.Generated(fields.id),
   createdAt: CustomDateTimeInsert,
   updatedAt: CustomDateTimeUpdate,

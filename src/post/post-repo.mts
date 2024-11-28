@@ -9,6 +9,7 @@ import { Effect, Layer, Option, pipe } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId, PostView } from './post-schema.mjs';
 import { Tag } from '@/tag/tag-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
 
 const TABLE_NAME = 'post';
 const VIEW_NAME = 'post_like_counts';
@@ -39,19 +40,31 @@ LEFT JOIN post p ON tt.post_id = p.id
 WHERE p.id = ${req};`,
     })(postId).pipe(Effect.orDie, Effect.withSpan('PostRepo.findTags'));
 
-  const findAllWithView = (params: FindManyUrlParams) =>
+  const findAllWithView = (params: FindManyUrlParams, accountId?: AccountId) =>
     Effect.gen(function* () {
       const posts = yield* SqlSchema.findAll({
         Request: FindManyUrlParams,
         Result: PostView,
         execute: () =>
-          sql`select * from ${sql(VIEW_NAME)} where ${sql('is_deleted')} = false order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+          sql`select * from ${sql(VIEW_NAME)} where 
+        ${sql.and(
+          accountId
+            ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+            : [sql`is_deleted = false`],
+        )}
+        order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} 
+        limit ${params.limit} 
+        offset ${(params.page - 1) * params.limit}`,
       })(params);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
         Result: CommonCountSchema,
         execute: () =>
-          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql('is_deleted')} = false`,
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql.and(
+            accountId
+              ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+              : [sql`is_deleted = false`],
+          )}`,
       })(params);
 
       const ResultSchema = FindManyResultSchema(PostView);

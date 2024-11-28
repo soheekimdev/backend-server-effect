@@ -9,6 +9,7 @@ import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe } from 'effect';
 import { CommentNotFound } from './comment-error.mjs';
 import { Comment, CommentId, CommentView } from './comment-schema.mjs';
+import { AccountId } from '@/account/account-schema.mjs';
 
 const TABLE_NAME = 'comment';
 const LIKE_VIEW_NAME = 'comment_like_counts';
@@ -34,18 +35,67 @@ const make = Effect.gen(function* () {
     idColumn: 'id',
   });
 
+  const findAllWithView = (params: FindManyUrlParams, accountId?: AccountId) =>
+    Effect.gen(function* () {
+      const comments = yield* SqlSchema.findAll({
+        Request: FindManyUrlParams,
+        Result: CommentView,
+        execute: () =>
+          sql`select * from ${sql(LIKE_VIEW_NAME)} where 
+        ${sql.and(
+          accountId
+            ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+            : [sql`is_deleted = false`],
+        )}
+         order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+      })(params);
+      const { total } = yield* SqlSchema.single({
+        Request: FindManyUrlParams,
+        Result: CommonCountSchema,
+        execute: () =>
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql.and(
+            accountId
+              ? [sql`account_id = ${accountId}`, sql`is_deleted = false`]
+              : [sql`is_deleted = false`],
+          )}`,
+      })(params);
+
+      const ResultSchema = FindManyResultSchema(CommentView);
+
+      const result = ResultSchema.make({
+        data: comments,
+        meta: {
+          total,
+          page: params.page,
+          limit: params.limit,
+          isLastPage: params.page * params.limit + comments.length >= total,
+        },
+      });
+
+      return result;
+    }).pipe(
+      Effect.orDie,
+      Effect.withSpan('CommentRepo.findAllByPostIdWithView'),
+    );
+
   const findAllByPostIdWithView = (postId: PostId, params: FindManyUrlParams) =>
     Effect.gen(function* () {
       const comments = yield* SqlSchema.findAll({
         Request: PostId,
         Result: CommentView,
         execute: () =>
-          sql`select * from ${sql(LIKE_VIEW_NAME)} where post_id = ${postId} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+          sql`select * from ${sql(LIKE_VIEW_NAME)} where
+        ${sql.and([sql`post_id = ${postId}`, sql`is_deleted = false`])}
+        order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
       })(postId);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
         Result: CommonCountSchema,
-        execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
+        execute: () =>
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql.and([
+            sql`post_id = ${postId}`,
+            sql`is_deleted = false`,
+          ])}`,
       })(params);
 
       const ResultSchema = FindManyResultSchema(CommentView);
@@ -107,6 +157,7 @@ const make = Effect.gen(function* () {
     likeViewRepo: {
       ...likeViewRepo,
       findAllByPostId: findAllByPostIdWithView,
+      findAllWithView,
     },
     commentViewRepo,
     with: with_,

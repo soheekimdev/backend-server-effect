@@ -1,15 +1,19 @@
 import { AccountId } from '@/account/account-schema.mjs';
+import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
+import { CommentId } from '@/comment/comment-schema.mjs';
+import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
 import { makeTestLayer } from '@/misc/test-layer.mjs';
 import { PostId } from '@/post/post-schema.mjs';
+import { CREATED_AT, DESC } from '@/sql/order-by.mjs';
 import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
-import { Effect, Layer, Option, pipe } from 'effect';
+import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { LikeConflict, LikeNotFound } from './like-error.mjs';
 import { Like, LikeId, LikeType } from './like-schema.mjs';
 import { LikeSelector, likeSelectorsToWhere } from './like-selector-schema.mjs';
-import { CommentId } from '@/comment/comment-schema.mjs';
-import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { ChallengeEventId } from '@/challenge-event/challenge-event-schema.mjs';
 
 const LIKE_TABLE = 'like';
 
@@ -20,6 +24,43 @@ const make = Effect.gen(function* () {
     spanPrefix: 'LikeRepo',
     idColumn: 'id',
   });
+
+  const findAllLikes = (params: FindManyUrlParams, accountId?: AccountId) =>
+    Effect.gen(function* () {
+      const likes = yield* SqlSchema.findAll({
+        Request: FindManyUrlParams,
+        Result: Like,
+        execute: () =>
+          sql`select * from ${sql(LIKE_TABLE)} where 
+      ${sql.and(accountId ? [sql`account_id = ${accountId}`] : [])}
+      order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} 
+      limit ${params.limit} 
+      offset ${(params.page - 1) * params.limit}`,
+      })(params);
+
+      const { total } = yield* SqlSchema.single({
+        Request: FindManyUrlParams,
+        Result: CommonCountSchema,
+        execute: () =>
+          sql`select count(*) as total from ${sql(LIKE_TABLE)} where ${sql.and(
+            accountId ? [sql`account_id = ${accountId}`] : [],
+          )}`,
+      })(params);
+
+      const ResultSchema = FindManyResultSchema(Schema.Any);
+
+      const result = ResultSchema.make({
+        data: likes,
+        meta: {
+          total,
+          page: params.page,
+          limit: params.limit,
+          isLastPage: params.page * params.limit + likes.length >= total,
+        },
+      });
+
+      return result;
+    }).pipe(Effect.orDie, Effect.withSpan('LikeRepo.findAllLikes'));
 
   const with_ = <A, E, R>(
     id: LikeId,
@@ -246,6 +287,7 @@ const make = Effect.gen(function* () {
 
   return {
     ...repo,
+    findAllLikes,
     createPostLike,
     createPostDislike,
     createCommentLike,
