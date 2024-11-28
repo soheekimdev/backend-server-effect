@@ -9,6 +9,7 @@ import { HttpApiEndpoint, HttpApiGroup, OpenApi } from '@effect/platform';
 import { Schema } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId, PostView } from './post-schema.mjs';
+import { Tag } from '@/tag/tag-schema.mjs';
 
 export class PostApi extends HttpApiGroup.make('post')
   .add(
@@ -40,6 +41,25 @@ export class PostApi extends HttpApiGroup.make('post')
             '게시글을 조회합니다. 게시글이 존재하지 않는 경우 404를 반환합니다. 이 API는 조회수를 1 증가시킵니다.',
           override: {
             summary: '(사용가능) 게시글 단일 조회',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.get('findTags', '/:postId/tags')
+      .setPath(
+        Schema.Struct({
+          postId: PostId,
+        }),
+      )
+      .addError(PostNotFound)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '게시글의 태그 목록을 조회합니다. 게시글이 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 게시글 태그 목록 조회',
           },
         }),
       ),

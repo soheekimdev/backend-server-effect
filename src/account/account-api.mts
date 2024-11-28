@@ -16,13 +16,14 @@ import {
 import { Account, AccountId } from './account-schema.mjs';
 import { SignIn } from './sign-in-schema.mjs';
 import { SignUp } from './sign-up-schema.mjs';
+import { Tag } from '@/tag/tag-schema.mjs';
 
 export class AccountApi extends HttpApiGroup.make('account')
   .add(
-    HttpApiEndpoint.get('findById', '/:id')
+    HttpApiEndpoint.get('findById', '/:accountId')
       .setPath(
         Schema.Struct({
-          id: AccountId,
+          accountId: AccountId,
         }),
       )
       .addSuccess(Account.json)
@@ -39,10 +40,30 @@ export class AccountApi extends HttpApiGroup.make('account')
       ),
   )
   .add(
-    HttpApiEndpoint.patch('updateById', '/:id')
+    HttpApiEndpoint.get('findTags', '/:accountId/tags')
       .setPath(
         Schema.Struct({
-          id: AccountId,
+          accountId: AccountId,
+        }),
+      )
+      .addError(AccountNotFound)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          title: '계정 태그 조회',
+          description:
+            '계정의 태그를 조회합니다. 계정이 존재하지 않는 경우 404를 반환합니다. 다른 사람의 계정을 조회할 수 있습니다. 로그인하지 않아도 사용할 수 있습니다.',
+          override: {
+            summary: '(사용가능) 계정 태그 조회',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.patch('updateById', '/:accountId')
+      .setPath(
+        Schema.Struct({
+          accountId: AccountId,
         }),
       )
       .middleware(Authentication)

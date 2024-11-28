@@ -154,6 +154,11 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const findTags = (accountId: AccountId) =>
+    accountRepo
+      .findTags(accountId)
+      .pipe(Effect.withSpan('AccountService.findTags'));
+
   const embellishAccount = (target: Account) =>
     Effect.gen(function* () {
       const maybeAccount = yield* accountRepo.findById(target.id);
@@ -215,6 +220,7 @@ const make = Effect.gen(function* () {
     signUp,
     signIn,
     findByIdFromRepo,
+    findTags,
     findAccountByEmail,
     findAccountById,
     updateAccountById,

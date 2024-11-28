@@ -21,6 +21,11 @@ const make = Effect.gen(function* () {
       .findAllWithView(params)
       .pipe(Effect.withSpan('ChallengeService.findChallenges'));
 
+  const findTags = (challengeId: ChallengeId) =>
+    challengeRepo
+      .findTags(challengeId)
+      .pipe(Effect.withSpan('ChallengeService.findTags'));
+
   const create = (challenge: typeof Challenge.jsonCreate.Type) =>
     pipe(
       CurrentAccount,
@@ -110,6 +115,7 @@ const make = Effect.gen(function* () {
     findByIdWithView,
     findByIdFromRepo,
     findChallenges,
+    findTags,
     findLikeStatus,
     addLikeChallengeById,
     removeLikeChallengeById,

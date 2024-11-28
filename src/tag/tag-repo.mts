@@ -1,15 +1,14 @@
+import { ChallengeId } from '@/challenge/challenge-schema.mjs';
+import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
+import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
+import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { PostId } from '@/post/post-schema.mjs';
+import { SqlLive } from '@/sql/sql-live.mjs';
 import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
-import { Tag, TagId } from './tag-schema.mjs';
 import { TagNotFound } from './tag-error.mjs';
-import { SqlLive } from '@/sql/sql-live.mjs';
-import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
+import { Tag, TagId } from './tag-schema.mjs';
 import { TagTarget } from './tag-target-schema.mjs';
-import { PostId } from '@/post/post-schema.mjs';
-import { ChallengeId } from '@/challenge/challenge-schema.mjs';
-import { FindManyResultSchema } from '@/misc/find-many-result-schema.mjs';
-import { CommonCountSchema } from '@/misc/common-count-schema.mjs';
-import { AccountId } from '@/account/account-schema.mjs';
 
 const TABLE_NAME = 'tag';
 
@@ -47,24 +46,6 @@ const make = Effect.gen(function* () {
         },
       });
     }).pipe(Effect.orDie, Effect.withSpan('TagRepo.findAll'));
-
-  const findAllByAccountId = (accountId: AccountId) =>
-    SqlSchema.findAll({
-      Request: AccountId,
-      Result: Tag,
-      execute: (req) => sql`
-SELECT DISTINCT t.*
-FROM tag t
-left join tag_target tt on tt.tag_id = t.id
-left join challenge_participant cp on tt.challenge_id = cp.challenge_id 
-LEFT JOIN post p ON tt.post_id = p.id
-LEFT JOIN challenge c ON tt.challenge_id = c.id
-WHERE p.account_id = ${req}
-   OR c.account_id = ${req};`,
-    })(accountId).pipe(
-      Effect.orDie,
-      Effect.withSpan('TagRepo.findByAccountId'),
-    );
 
   const findManyByIds = (ids: readonly TagId[]) =>
     SqlSchema.findAll({
@@ -250,7 +231,6 @@ SELECT * FROM conflicted_rows;
     findAll,
     findManyByIds,
     findOne,
-    findAllByAccountId,
     getManyOrInsertMany,
     getOrInsert,
     connectTagsToPost,

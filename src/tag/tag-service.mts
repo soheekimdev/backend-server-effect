@@ -1,4 +1,3 @@
-import { AccountId } from '@/account/account-schema.mjs';
 import { policyRequire } from '@/auth/authorization.mjs';
 import { ChallengeId } from '@/challenge/challenge-schema.mjs';
 import { FindManyUrlParams } from '@/misc/find-many-url-params-schema.mjs';
@@ -13,11 +12,6 @@ const make = Effect.gen(function* () {
 
   const findAll = (parmas: FindManyUrlParams) =>
     repo.findAll(parmas).pipe(Effect.withSpan('TagService.findAll'));
-
-  const findByAccountId = (accountId: AccountId) =>
-    repo
-      .findAllByAccountId(accountId)
-      .pipe(Effect.withSpan('TagService.findByAccountId'));
 
   const findById = (id: TagId) =>
     repo.findById(id).pipe(
@@ -94,7 +88,7 @@ const make = Effect.gen(function* () {
     findAll,
     findById,
     findByName,
-    findByAccountId,
+
     getOrInsert,
     connectPostByNames,
     connectChallengeByNames,

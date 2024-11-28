@@ -16,11 +16,14 @@ export const AccountApiLive = HttpApiBuilder.group(Api, 'account', (handlers) =>
       .handle('signUp', ({ payload }) =>
         accountService.signUp(payload).pipe(withSystemActor),
       )
-      .handle('findById', ({ path }) => accountService.findAccountById(path.id))
+      .handle('findById', ({ path }) =>
+        accountService.findAccountById(path.accountId),
+      )
+      .handle('findTags', ({ path }) => accountService.findTags(path.accountId))
       .handle('updateById', ({ path, payload }) =>
         accountService
-          .updateAccountById(path.id, payload)
-          .pipe(policyUse(accountPolicy.canUpdate(path.id))),
+          .updateAccountById(path.accountId, payload)
+          .pipe(policyUse(accountPolicy.canUpdate(path.accountId))),
       )
       .handle('signIn', ({ payload }) =>
         accountService.signIn(payload).pipe(withSystemActor),

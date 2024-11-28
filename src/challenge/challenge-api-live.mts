@@ -23,6 +23,9 @@ export const ChallengeApiLive = HttpApiBuilder.group(
         .handle('findById', ({ path }) =>
           challengeService.findByIdWithView(path.challengeId),
         )
+        .handle('findTags', ({ path }) =>
+          challengeService.findTags(path.challengeId),
+        )
         .handle('create', ({ payload }) =>
           challengeService
             .create(payload)

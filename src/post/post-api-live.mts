@@ -16,6 +16,7 @@ export const PostApiLive = HttpApiBuilder.group(Api, 'post', (handlers) =>
       .handle('findById', ({ path }) =>
         postService.increaseViewCountById(path.postId),
       )
+      .handle('findTags', ({ path }) => postService.findTags(path.postId))
       .handle('create', ({ payload }) =>
         postService.create(payload).pipe(withSystemActor),
       )

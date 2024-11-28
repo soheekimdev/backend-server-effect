@@ -8,6 +8,7 @@ import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe } from 'effect';
 import { PostNotFound } from './post-error.mjs';
 import { Post, PostId, PostView } from './post-schema.mjs';
+import { Tag } from '@/tag/tag-schema.mjs';
 
 const TABLE_NAME = 'post';
 const VIEW_NAME = 'post_like_counts';
@@ -25,6 +26,18 @@ const make = Effect.gen(function* () {
     spanPrefix: 'PostViewRepo',
     idColumn: 'id',
   });
+
+  const findTags = (postId: PostId) =>
+    SqlSchema.findAll({
+      Request: PostId,
+      Result: Tag,
+      execute: (req) => sql`
+SELECT DISTINCT t.*
+FROM tag t
+left join tag_target tt on tt.tag_id = t.id
+LEFT JOIN post p ON tt.post_id = p.id
+WHERE p.id = ${req};`,
+    })(postId).pipe(Effect.orDie, Effect.withSpan('PostRepo.findTags'));
 
   const findAllWithView = (params: FindManyUrlParams) =>
     Effect.gen(function* () {
@@ -96,6 +109,7 @@ const make = Effect.gen(function* () {
     ...repo,
     viewRepo,
     findAllWithView,
+    findTags,
     with: with_,
     withView: withView_,
   } as const;

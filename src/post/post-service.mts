@@ -11,17 +11,19 @@ const make = Effect.gen(function* () {
   const postRepo = yield* PostRepo;
   const likeService = yield* LikeService;
 
-  const findByIdFromRepo = (id: PostId) => postRepo.findById(id);
+  const findByIdFromRepo = (postId: PostId) => postRepo.findById(postId);
 
   const findPosts = (params: FindManyUrlParams) =>
     postRepo
       .findAllWithView(params)
       .pipe(Effect.withSpan('PostService.findPosts'));
 
-  const findByIdWithView = (id: PostId) =>
-    postRepo.withView(id, (post) =>
+  const findByIdWithView = (postId: PostId) =>
+    postRepo.withView(postId, (post) =>
       pipe(Effect.succeed(post), Effect.withSpan('PostService.findById')),
     );
+
+  const findTags = (postId: PostId) => postRepo.findTags(postId);
 
   const create = (post: typeof Post.jsonCreate.Type) =>
     pipe(
@@ -56,10 +58,10 @@ const make = Effect.gen(function* () {
       ),
     );
 
-  const deleteById = (id: PostId) =>
-    postRepo.with(id, (post) =>
+  const deleteById = (postId: PostId) =>
+    postRepo.with(postId, (post) =>
       pipe(
-        postRepo.delete(id),
+        postRepo.delete(postId),
         Effect.withSpan('PostService.deleteById'),
         policyRequire('post', 'delete'),
       ),
@@ -130,6 +132,7 @@ const make = Effect.gen(function* () {
     findPosts,
     findByIdWithView,
     findLikeStatus,
+    findTags,
     increaseViewCountById,
     addLikePostById,
     removePostLikeById,

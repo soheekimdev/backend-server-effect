@@ -7,6 +7,7 @@ import { Model, SqlClient, SqlSchema } from '@effect/sql';
 import { Effect, Layer, Option, pipe, Schema } from 'effect';
 import { ChallengeNotFound } from './challenge-error.mjs';
 import { Challenge, ChallengeId, ChallengeView } from './challenge-schema.mjs';
+import { Tag } from '@/tag/tag-schema.mjs';
 
 const snakeCase = (str: string) =>
   str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -27,6 +28,21 @@ const make = Effect.gen(function* () {
     spanPrefix: 'ChallengeViewRepo',
     idColumn: 'id',
   });
+
+  const findTags = (challengeId: ChallengeId) =>
+    SqlSchema.findAll({
+      Request: ChallengeId,
+      Result: Tag,
+      execute: (req) => sql`
+SELECT DISTINCT t.*
+FROM tag t
+left join tag_target tt on tt.tag_id = t.id
+LEFT JOIN challenge c ON tt.challenge_id = c.id
+WHERE c.id = ${req};`,
+    })(challengeId).pipe(
+      Effect.orDie,
+      Effect.withSpan('ChallengeRepo.findTags'),
+    );
 
   const findAllWithView = (params: FindManyUrlParams) =>
     Effect.gen(function* () {
@@ -115,6 +131,7 @@ offset ${(params.page - 1) * params.limit}`,
     insert,
     viewRepo,
     findAllWithView,
+    findTags,
     with: with_,
     withView: withView_,
   } as const;

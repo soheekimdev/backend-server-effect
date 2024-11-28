@@ -15,6 +15,7 @@ import {
 } from './challenge-participant-error.mjs';
 import { Account } from '@/account/account-schema.mjs';
 import { EmptySchema } from '@/misc/empty-schema.mjs';
+import { Tag } from '@/tag/tag-schema.mjs';
 
 export class ChallengeApi extends HttpApiGroup.make('challenge')
   .add(
@@ -46,6 +47,25 @@ export class ChallengeApi extends HttpApiGroup.make('challenge')
             '(사용가능) 챌린지를 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
           override: {
             summary: '(사용가능) 단일 챌린지 조회',
+          },
+        }),
+      ),
+  )
+  .add(
+    HttpApiEndpoint.get('findTags', '/:challengeId/tags')
+      .setPath(
+        Schema.Struct({
+          challengeId: ChallengeId,
+        }),
+      )
+      .addError(ChallengeNotFound)
+      .addSuccess(Schema.Array(Tag.json))
+      .annotateContext(
+        OpenApi.annotations({
+          description:
+            '(사용가능) 챌린지의 태그 목록을 조회합니다. 챌린지가 존재하지 않는 경우 404를 반환합니다.',
+          override: {
+            summary: '(사용가능) 챌린지 태그 목록 조회',
           },
         }),
       ),
