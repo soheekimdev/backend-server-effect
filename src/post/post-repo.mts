@@ -32,12 +32,13 @@ const make = Effect.gen(function* () {
         Request: FindManyUrlParams,
         Result: PostView,
         execute: () =>
-          sql`select * from ${sql(VIEW_NAME)} order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
+          sql`select * from ${sql(VIEW_NAME)} where ${sql('is_deleted')} = false order by ${sql(CREATED_AT)} ${sql.unsafe(DESC)} limit ${params.limit} offset ${(params.page - 1) * params.limit}`,
       })(params);
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
         Result: CommonCountSchema,
-        execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
+        execute: () =>
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql('is_deleted')} = false`,
       })(params);
 
       const ResultSchema = FindManyResultSchema(PostView);

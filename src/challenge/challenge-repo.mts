@@ -36,6 +36,7 @@ const make = Effect.gen(function* () {
         execute: (req) =>
           sql`select * 
 from ${sql(VIEW_NAME)} 
+where ${sql('is_deleted')} = false
 order by ${sql(snakeCase(params.sortBy))} 
  ${sql.unsafe(params.order)} 
 limit ${params.limit} 
@@ -44,7 +45,8 @@ offset ${(params.page - 1) * params.limit}`,
       const { total } = yield* SqlSchema.single({
         Request: FindManyUrlParams,
         Result: CommonCountSchema,
-        execute: () => sql`select count(*) as total from ${sql(TABLE_NAME)}`,
+        execute: () =>
+          sql`select count(*) as total from ${sql(TABLE_NAME)} where ${sql('is_deleted')} = false`,
       })(params);
 
       const ResultSchema = FindManyResultSchema(ChallengeView);
