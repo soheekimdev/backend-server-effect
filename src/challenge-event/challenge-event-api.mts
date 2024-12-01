@@ -28,7 +28,7 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
         }),
       )
       .addError(ChallengeNotFound)
-      .addSuccess(Schema.Array(ChallengeEventView.json))
+      .addSuccess(Schema.Array(ChallengeEvent.json))
       .annotateContext(
         OpenApi.annotations({
           description:
@@ -49,7 +49,7 @@ export class ChallengeEventApi extends HttpApiGroup.make('challenge-event')
       )
       .addError(ChallengeNotFound)
       .addError(ChallengeEventNotFound)
-      .addSuccess(ChallengeEventView.json)
+      .addSuccess(ChallengeEvent.json)
       .annotateContext(
         OpenApi.annotations({
           description:
