@@ -187,7 +187,7 @@ where ${sql('id')} = ${request.id};
 
   const with_ = <A, E, R>(
     id: ChallengeEventId,
-    f: (event: ChallengeEvent) => Effect.Effect<A, E, R>,
+    f: (event: ChallengeEventView) => Effect.Effect<A, E, R>,
   ): Effect.Effect<A, E | ChallengeEventNotFound, R> =>
     pipe(
       findById(id),
