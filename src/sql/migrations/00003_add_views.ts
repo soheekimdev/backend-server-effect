@@ -233,7 +233,7 @@ WITH total_participants AS (
   -- Calculate total participants per challenge
   SELECT
     challenge_id,
-    COUNT(*)::float AS total_participants
+    COUNT(*)::integer AS total_participants
   FROM
     challenge_participant
   GROUP BY
@@ -251,52 +251,21 @@ event_checked_counts AS (
     ce.id = cep.challenge_event_id AND cep.is_checked = TRUE
   GROUP BY
     ce.challenge_id,
-    ce.id,
-    ce.title,
-    ce.description,
-    ce.start_datetime,
-    ce.end_datetime
-),
-event_fractions AS (
-  -- Calculate fraction of checked participants per event and include challenge_event columns
-  SELECT
-    ecc.*,
-    tp.total_participants,
-    CASE
-      WHEN tp.total_participants > 0 THEN (ecc.num_checked / tp.total_participants)
-      ELSE 0
-    END AS fraction
-  FROM
-    event_checked_counts ecc
-  JOIN total_participants tp ON
-    ecc.challenge_id = tp.challenge_id
-),
-challenge_averages AS (
-  -- Calculate average fraction per challenge
-  SELECT
-    challenge_id,
-    COUNT(event_id) AS number_of_events,
-    MAX(total_participants) AS total_participants,
-    AVG(fraction) AS average_fraction
-  FROM
-    event_fractions
-  GROUP BY
-    challenge_id
+    ce.id
 )
 SELECT
-  -- Combine challenge averages with event details and include challenge_event columns
-  ca.total_participants AS challenge_participants,
-  ca.number_of_events AS challenge_events_count,
-  ca.average_fraction AS challenge_event_participant_check_average,
-  ef.*,
-  ef.num_checked AS challenge_event_checked_participants_count,
-  ef.fraction AS challenge_event_checked_participants_fraction
+  ecc.*,
+  coalesce (total_participants, 0)::integer as total_participants,
+  ecc.num_checked as challenge_event_checked_participants_count,
+  CASE
+    WHEN COALESCE(tp.total_participants, 0) = 0 THEN 0
+    ELSE ecc.num_checked / COALESCE(tp.total_participants, 0)
+  END AS challenge_event_checked_participants_fraction
 FROM
-  challenge_averages ca
-  JOIN event_fractions ef ON ca.challenge_id = ef.challenge_id
-ORDER BY
-  ca.challenge_id,
-  ef.event_id;
+  event_checked_counts ecc
+LEFT JOIN
+  total_participants tp
+  ON ecc.challenge_id = tp.challenge_id;
 -------------------------------------------------------------------------
 
 
