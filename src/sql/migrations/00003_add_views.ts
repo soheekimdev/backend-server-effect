@@ -200,7 +200,7 @@ LEFT JOIN account ON challenge.account_id = account.id
 LEFT JOIN like_counts ON challenge.id = like_counts.challenge_id
 LEFT JOIN challenge_event_counts ON challenge.id = challenge_event_counts.challenge_id
 LEFT JOIN challenge_participant_counts ON challenge.id = challenge_participant_counts.challenge_id
-LEFT JOIN average_fractions ON challenge.id = average_fractions.challenge_id
+LEFT JOIN average_fractions ON challenge.id = average_fractions.challenge_id;
 -------------------------------------------------------------------------
 
 -------------------------------------------------------------------------
