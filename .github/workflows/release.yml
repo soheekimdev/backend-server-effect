@@ -64,8 +64,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESSKEY }}
           aws_secret_key: ${{ secrets.AWS_SECRETKEY }}
-          application_name: ozadv
-          environment_name: Ozadv-env-1
+          application_name: oz-communiT
+          environment_name: Oz-communiT-env
           version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: artifact.zip
